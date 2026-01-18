@@ -1,6 +1,6 @@
 import { Navigation } from "@/components/navigation"
-import { Footer } from "@/components/footer"
 import { CartContent } from "@/components/cart-content"
+
 
 export default function CartPage() {
   return (
@@ -14,7 +14,6 @@ export default function CartPage() {
         </div>
       </main>
 
-      <Footer />
     </div>
   )
 }

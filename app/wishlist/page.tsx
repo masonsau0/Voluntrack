@@ -1,6 +1,6 @@
 import { Navigation } from "@/components/navigation"
-import { Footer } from "@/components/footer"
 import { WishlistContent } from "@/components/wishlist-content"
+
 
 export default function WishlistPage() {
   return (
@@ -14,7 +14,6 @@ export default function WishlistPage() {
         </div>
       </main>
 
-      <Footer />
     </div>
   )
 }

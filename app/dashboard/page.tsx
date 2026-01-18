@@ -5,10 +5,10 @@ import type React from "react"
 import { useState, useRef } from "react"
 import Link from "next/link"
 import { Navigation } from "@/components/navigation"
-import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { HorizontalProgressTracker } from "@/components/horizontal-progress-tracker"
+
 import {
   Sparkles,
   TrendingUp,
@@ -699,7 +699,6 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      <Footer />
     </div>
   )
 }

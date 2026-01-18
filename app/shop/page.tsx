@@ -1,7 +1,7 @@
 import { Navigation } from "@/components/navigation"
-import { Footer } from "@/components/footer"
 import { ProductGrid } from "@/components/product-grid"
 import { ProductFilters } from "@/components/product-filters"
+
 
 export default function ShopPage() {
   return (
@@ -26,7 +26,6 @@ export default function ShopPage() {
         </div>
       </main>
 
-      <Footer />
     </div>
   )
 }

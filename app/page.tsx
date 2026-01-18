@@ -1,8 +1,8 @@
 import { Navigation } from "@/components/navigation"
-import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Search, ClipboardCheck, Users, Zap } from "lucide-react"
 import Link from "next/link"
+
 
 export default function HomePage() {
   return (
@@ -195,7 +195,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <Footer />
     </div>
   )
 }

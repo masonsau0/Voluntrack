@@ -1,6 +1,6 @@
 import { Navigation } from "@/components/navigation"
-import { Footer } from "@/components/footer"
 import { LookbookGallery } from "@/components/lookbook-gallery"
+
 
 export default function LookbookPage() {
   return (
@@ -19,7 +19,6 @@ export default function LookbookPage() {
         <LookbookGallery />
       </main>
 
-      <Footer />
     </div>
   )
 }

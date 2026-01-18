@@ -1,6 +1,6 @@
 import { Navigation } from "@/components/navigation"
-import { Footer } from "@/components/footer"
 import { Leaf, Heart, Users, Package } from "lucide-react"
+
 
 export default function AboutPage() {
   return (
@@ -173,7 +173,6 @@ export default function AboutPage() {
         </section>
       </main>
 
-      <Footer />
     </div>
   )
 }

@@ -1,8 +1,8 @@
 import { Navigation } from "@/components/navigation"
-import { Footer } from "@/components/footer"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
+
 
 const collections = [
   {
@@ -75,7 +75,6 @@ export default function CollectionsPage() {
         </div>
       </main>
 
-      <Footer />
     </div>
   )
 }
