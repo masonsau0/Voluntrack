@@ -59,13 +59,18 @@ export function Navigation() {
               )}
             </Button>
 
-            {/* Profile section */}
-            <div className="hidden sm:flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-              <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
-                <User className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <span className="text-sm font-medium">John S.</span>
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            {/* Authentication Buttons */}
+            <div className="hidden sm:flex items-center gap-4">
+              <Link href="/login">
+                <Button variant="ghost" className="tracking-wide uppercase text-xs">
+                  Log in
+                </Button>
+              </Link>
+              <Link href="/signup">
+                <Button className="rounded-full px-6 tracking-wide uppercase text-xs">
+                  Sign up
+                </Button>
+              </Link>
             </div>
 
             <Button
@@ -111,6 +116,22 @@ export function Navigation() {
             >
               About
             </Link>
+            <div className="pt-4 border-t border-border flex flex-col gap-4">
+              <Link
+                href="/login"
+                className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Log in
+              </Link>
+              <Link
+                href="/signup"
+                className="block text-base tracking-wider uppercase text-primary font-medium transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Sign up
+              </Link>
+            </div>
           </div>
         </div>
       )}
