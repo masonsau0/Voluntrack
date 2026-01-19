@@ -39,7 +39,7 @@ export function LoginForm({
 
     // Handle login logic here
     console.log("Login submitted", { email, password })
-    router.push("/")
+    router.push("/dashboard")
   }
 
   return (

@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Bell, Menu, X, ChevronDown, User } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -8,6 +9,9 @@ import { Button } from "@/components/ui/button"
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const notificationCount = 3
+
+  const pathname = usePathname()
+  const isLoggedIn = pathname?.startsWith("/dashboard")
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -59,19 +63,37 @@ export function Navigation() {
               )}
             </Button>
 
-            {/* Authentication Buttons */}
-            <div className="hidden sm:flex items-center gap-4">
-              <Link href="/login">
-                <Button variant="ghost" className="tracking-wide uppercase text-xs">
-                  Log in
-                </Button>
-              </Link>
-              <Link href="/signup">
-                <Button className="rounded-full px-6 tracking-wide uppercase text-xs">
-                  Sign up
-                </Button>
-              </Link>
-            </div>
+            {/* Authentication vs Profile */}
+            {isLoggedIn ? (
+              /* Profile section */
+              <div className="hidden sm:flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+                <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
+                  <User className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <span className="text-sm font-medium">John S.</span>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              </div>
+            ) : (
+              /* Auth Buttons */
+              <div className="hidden sm:flex items-center gap-4">
+                <Link href="/login">
+                  <Button
+                    variant="outline"
+                    className="rounded-full px-6 tracking-wide uppercase text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                  >
+                    Log in
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button
+                    variant="outline"
+                    className="rounded-full px-6 tracking-wide uppercase text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                  >
+                    Sign up
+                  </Button>
+                </Link>
+              </div>
+            )}
 
             <Button
               variant="ghost"
