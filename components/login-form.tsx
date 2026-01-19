@@ -2,6 +2,7 @@
 
 import React from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -16,6 +17,8 @@ export function LoginForm({
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
   const [errors, setErrors] = React.useState<{ email?: string; password?: string }>({})
+
+  const router = useRouter()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,6 +39,7 @@ export function LoginForm({
 
     // Handle login logic here
     console.log("Login submitted", { email, password })
+    router.push("/")
   }
 
   return (
