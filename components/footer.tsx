@@ -1,0 +1,93 @@
+import Link from "next/link"
+
+export function Footer() {
+  return (
+    <footer className="bg-muted/30 border-t border-border mt-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
+          {/* Brand */}
+          <div className="md:col-span-2">
+            <Link href="/" className="inline-block mb-4">
+              <span className="font-serif text-2xl font-light tracking-wide">
+                <span className="text-primary">Volun</span>
+                <span className="text-orange-500">Track</span>
+                <span className="text-primary"> Ontario</span>
+              </span>
+            </Link>
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-md">
+              Connecting Ontario students with meaningful volunteer opportunities. Track hours, discover experiences,
+              and make a difference in your community.
+            </p>
+          </div>
+
+          {/* Shop */}
+          <div>
+            <h3 className="text-sm font-medium tracking-wider uppercase mb-4">Shop</h3>
+            <ul className="space-y-3">
+              <li>
+                <Link href="/shop" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  All Products
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/collections"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Collections
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/lookbook"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Lookbook
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* About */}
+          <div>
+            <h3 className="text-sm font-medium tracking-wider uppercase mb-4">About</h3>
+            <ul className="space-y-3">
+              <li>
+                <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Our Story
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/about#sustainability"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Sustainability
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Contact
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-xs text-muted-foreground">
+            © {new Date().getFullYear()} VolunTrack Ontario. All rights reserved.
+          </p>
+          <div className="flex gap-6">
+            <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              Terms of Service
+            </Link>
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
+}
