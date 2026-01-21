@@ -305,20 +305,38 @@ export default function DashboardPage() {
           {/* Tab Navigation */}
           <div className="bg-white rounded-xl mb-6 shadow-sm overflow-x-auto">
             <div className="flex min-w-max">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
-                    activeTab === tab.id
+              {tabs.map((tab) => {
+                const isLinkTab = tab.id === "news" || tab.id === "applications"
+                const isActive = isLinkTab ? false : activeTab === tab.id
+
+                if (isLinkTab) {
+                  const href = tab.id === "news" ? "/news" : "/applications"
+                  return (
+                    <Link
+                      key={tab.id}
+                      href={href}
+                      className="flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    >
+                      <tab.icon className="w-4 h-4" />
+                      {tab.label}
+                    </Link>
+                  )
+                }
+
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${isActive
                       ? "border-blue-500 text-blue-600 bg-blue-50/50"
                       : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                  }`}
-                >
-                  <tab.icon className="w-4 h-4" />
-                  {tab.label}
-                </button>
-              ))}
+                      }`}
+                  >
+                    <tab.icon className="w-4 h-4" />
+                    {tab.label}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
@@ -411,20 +429,18 @@ export default function DashboardPage() {
                     return (
                       <button
                         key={day}
-                        className={`p-1 text-xs rounded-full transition-colors relative ${
-                          isToday ? "bg-blue-500 text-white font-bold" : "hover:bg-muted"
-                        }`}
+                        className={`p-1 text-xs rounded-full transition-colors relative ${isToday ? "bg-blue-500 text-white font-bold" : "hover:bg-muted"
+                          }`}
                       >
                         {day}
                         {hasEvent && !isToday && (
                           <span
-                            className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full ${
-                              hasEvent === "blue"
-                                ? "bg-blue-500"
-                                : hasEvent === "teal"
-                                  ? "bg-teal-500"
-                                  : "bg-orange-500"
-                            }`}
+                            className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full ${hasEvent === "blue"
+                              ? "bg-blue-500"
+                              : hasEvent === "teal"
+                                ? "bg-teal-500"
+                                : "bg-orange-500"
+                              }`}
                           />
                         )}
                       </button>
@@ -503,9 +519,8 @@ export default function DashboardPage() {
                       {badges.map((badge) => (
                         <div
                           key={badge.id}
-                          className={`flex-shrink-0 flex flex-col items-center p-3 rounded-xl border w-28 select-none ${
-                            badge.earned ? "bg-white" : "bg-muted/50 opacity-50"
-                          }`}
+                          className={`flex-shrink-0 flex flex-col items-center p-3 rounded-xl border w-28 select-none ${badge.earned ? "bg-white" : "bg-muted/50 opacity-50"
+                            }`}
                         >
                           <div
                             className={`w-12 h-12 rounded-full ${badge.color} flex items-center justify-center mb-2 ${!badge.earned && "grayscale"}`}
@@ -581,11 +596,10 @@ export default function DashboardPage() {
                             </div>
                             <div className="flex flex-col items-end gap-2">
                               <span
-                                className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                  app.status === "pending"
-                                    ? "bg-yellow-100 text-yellow-700 border border-yellow-300"
-                                    : "bg-green-100 text-green-700 border border-green-300"
-                                }`}
+                                className={`px-3 py-1 rounded-full text-sm font-medium ${app.status === "pending"
+                                  ? "bg-yellow-100 text-yellow-700 border border-yellow-300"
+                                  : "bg-green-100 text-green-700 border border-green-300"
+                                  }`}
                               >
                                 {app.status === "pending" ? "Pending" : "Approved"}
                               </span>
