@@ -1,57 +1,105 @@
-import { LoginForm } from "@/components/login-form"
+import Link from "next/link"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Navigation } from "@/components/navigation"
 
-export default function LoginPage() {
+export default function RoleSelectionPage() {
   return (
-    <div className="min-h-svh bg-gradient-to-b from-sky-100 to-sky-200 p-6 md:p-10">
-      <div className="grid lg:grid-cols-2 gap-12 items-start max-w-6xl mx-auto">
-        
-        {/* LEFT COLUMN */}
-        <div className="flex flex-col gap-8">
-          <header>
-            <h1 className="text-4xl md:text-5xl font-bold text-sky-900 leading-tight">
-              Welcome to
+    <div className="min-h-svh bg-sky-50">
+      <Navigation />
+
+      <div className="pt-32 pb-12 px-6 md:px-10 flex flex-col items-center justify-center">
+        <div className="max-w-7xl mx-auto w-full space-y-12">
+
+          {/* Hero Section */}
+          <div className="text-center space-y-4 max-w-2xl mx-auto">
+            <h1 className="text-4xl md:text-5xl font-serif text-sky-900 font-bold">
+              Welcome to VolunTrack Ontario
             </h1>
-            <h2 className="text-4xl md:text-5xl font-bold">
-              <span className="text-sky-900">Volun</span>
-              <span className="text-amber-500 italic">Track</span>
-              <span className="text-sky-900"> Ontario</span>
-            </h2>
-            <p className="mt-4 text-lg text-sky-800 font-medium">
-              Find Opportunities. Track hours. Make an impact
+            <p className="text-lg text-muted-foreground">
+              Select your role below to get started.
             </p>
-          </header>
+          </div>
 
-          <div className="w-full max-w-md">
-            <LoginForm />
+          <div className="grid md:grid-cols-3 gap-8">
+
+            {/* Students Card */}
+            <Link href="/login/student" className="group h-full block">
+              <Card className="h-full overflow-hidden flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 border-0 shadow-md transform hover:scale-[1.02] hover:ring-2 hover:ring-sky-500/20">
+                <div className="relative h-56 overflow-hidden">
+                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500 z-10" />
+                  <img
+                    src="/student-with-laptop-searching-for-volunteer-opport.jpg"
+                    alt="Student working on laptop"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                </div>
+                <CardContent className="p-8 pb-4 flex-grow bg-white relative z-20 group-hover:bg-sky-50/30 transition-colors">
+                  <h2 className="text-2xl font-serif text-sky-900 mb-3 group-hover:text-sky-700 transition-colors">Students</h2>
+                  <p className="text-muted-foreground leading-relaxed text-sm">
+                    Discover opportunities, track your hours, and build skills for your future
+                  </p>
+                </CardContent>
+                <CardFooter className="p-8 pt-0 bg-white group-hover:bg-sky-50/30 transition-colors">
+                  <Button asChild className="w-full text-base py-6 transition-all duration-300 group-hover:bg-sky-700 group-hover:shadow-lg" size="lg">
+                    <div>Log In as Student</div>
+                  </Button>
+                </CardFooter>
+              </Card>
+            </Link>
+
+            {/* Guidance Counsellors Card */}
+            <Link href="/login/counsellor" className="group h-full block">
+              <Card className="h-full overflow-hidden flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 border-0 shadow-md transform hover:scale-[1.02] hover:ring-2 hover:ring-sky-500/20">
+                <div className="relative h-56 overflow-hidden">
+                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500 z-10" />
+                  <img
+                    src="/guidance-counsellor-helping-students-in-office.jpg"
+                    alt="Guidance Counsellor"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                </div>
+                <CardContent className="p-8 pb-4 flex-grow bg-white relative z-20 group-hover:bg-sky-50/30 transition-colors">
+                  <h2 className="text-2xl font-serif text-sky-900 mb-3 group-hover:text-sky-700 transition-colors">Guidance Counsellors</h2>
+                  <p className="text-muted-foreground leading-relaxed text-sm">
+                    Approve hours, track student progress, and manage applications with ease
+                  </p>
+                </CardContent>
+                <CardFooter className="p-8 pt-0 bg-white group-hover:bg-sky-50/30 transition-colors">
+                  <Button asChild className="w-full text-base py-6 transition-all duration-300 group-hover:bg-sky-700 group-hover:shadow-lg" size="lg" variant="default">
+                    <div>Counsellor Portal</div>
+                  </Button>
+                </CardFooter>
+              </Card>
+            </Link>
+
+            {/* Volunteer Organizations Card */}
+            <Link href="/login/organization" className="group h-full block">
+              <Card className="h-full overflow-hidden flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 border-0 shadow-md transform hover:scale-[1.02] hover:ring-2 hover:ring-sky-500/20">
+                <div className="relative h-56 overflow-hidden">
+                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500 z-10" />
+                  <img
+                    src="/volunteer-organization-team-working-together-commu.jpg"
+                    alt="Volunteer Organization"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                </div>
+                <CardContent className="p-8 pb-4 flex-grow bg-white relative z-20 group-hover:bg-sky-50/30 transition-colors">
+                  <h2 className="text-2xl font-serif text-sky-900 mb-3 group-hover:text-sky-700 transition-colors">Volunteer Organizations</h2>
+                  <p className="text-muted-foreground leading-relaxed text-sm">
+                    Post opportunities, connect with eager volunteers, and verify completed hours
+                  </p>
+                </CardContent>
+                <CardFooter className="p-8 pt-0 bg-white group-hover:bg-sky-50/30 transition-colors">
+                  <Button asChild className="w-full text-base py-6 transition-all duration-300 group-hover:bg-sky-700 group-hover:shadow-lg" size="lg">
+                    <div>Manage Opportunities</div>
+                  </Button>
+                </CardFooter>
+              </Card>
+            </Link>
+
           </div>
         </div>
-
-        {/* RIGHT COLUMN: Aligned to start at the Login Card height */}
-        {/* mt-[152px] accounts for the height of your header + gap */}
-        <div className="hidden lg:flex flex-col gap-4 lg:mt-[152px]">
-          <div className="rounded-xl overflow-hidden shadow-lg border-2 border-white/50">
-            <img
-              src="/images/volunteers-food-bank.jpg"
-              alt="Food bank"
-              className="w-full h-40 object-cover"
-            />
-          </div>
-          <div className="rounded-xl overflow-hidden shadow-lg border-2 border-white/50">
-            <img
-              src="/images/volunteers-tutoring.jpg"
-              alt="Tutoring"
-              className="w-full h-40 object-cover"
-            />
-          </div>
-          <div className="rounded-xl overflow-hidden shadow-lg border-2 border-white/50">
-            <img
-              src="/images/volunteers-healthcare.jpg"
-              alt="Healthcare"
-              className="w-full h-40 object-cover"
-            />
-          </div>
-        </div>
-
       </div>
     </div>
   )
