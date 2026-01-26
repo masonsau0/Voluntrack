@@ -24,6 +24,7 @@ import {
     Settings,
     Search,
     ArrowRight,
+    Award,
     BarChart3,
     RotateCcw,
     Bookmark,
@@ -185,6 +186,78 @@ const savedOpportunities = [
         iconBg: "bg-green-100",
         iconColor: "text-green-600",
     },
+    {
+        id: 5,
+        title: "Community Food Bank Volunteer",
+        date: "September 5",
+        category: "Community Outreach",
+        icon: BookOpen,
+        iconBg: "bg-orange-100",
+        iconColor: "text-orange-600",
+    },
+    {
+        id: 6,
+        title: "Senior Center Companion Program",
+        date: "September 12",
+        category: "Senior Care",
+        icon: BookOpen,
+        iconBg: "bg-rose-100",
+        iconColor: "text-rose-600",
+    },
+    {
+        id: 7,
+        title: "Youth Soccer Coach Assistant",
+        date: "September 18",
+        category: "Youth Programs",
+        icon: BookOpen,
+        iconBg: "bg-cyan-100",
+        iconColor: "text-cyan-600",
+    },
+    {
+        id: 8,
+        title: "Animal Shelter Dog Walker",
+        date: "September 24",
+        category: "Animal Welfare",
+        icon: Leaf,
+        iconBg: "bg-amber-100",
+        iconColor: "text-amber-600",
+    },
+    {
+        id: 9,
+        title: "Hospital Gift Shop Volunteer",
+        date: "October 2",
+        category: "Healthcare",
+        icon: BookOpen,
+        iconBg: "bg-pink-100",
+        iconColor: "text-pink-600",
+    },
+    {
+        id: 10,
+        title: "Art Gallery Tour Guide",
+        date: "October 10",
+        category: "Arts & Culture",
+        icon: BookOpen,
+        iconBg: "bg-purple-100",
+        iconColor: "text-purple-600",
+    },
+    {
+        id: 11,
+        title: "River Cleanup Initiative",
+        date: "October 18",
+        category: "Environment",
+        icon: Leaf,
+        iconBg: "bg-green-100",
+        iconColor: "text-green-600",
+    },
+    {
+        id: 12,
+        title: "Charity Run Event Staff",
+        date: "October 25",
+        category: "Fundraising",
+        icon: BookOpen,
+        iconBg: "bg-indigo-100",
+        iconColor: "text-indigo-600",
+    },
 ]
 
 const eventCategories = [
@@ -216,9 +289,8 @@ const sortOptions = [
 const tabs = [
     { id: "progress", label: "Progress Tracking", icon: TrendingUp, href: "/dashboard" },
     { id: "applications", label: "Applications", icon: FileText, href: "/applications" },
-    { id: "forms", label: "My Forms", icon: FolderOpen, href: "/dashboard" },
-    { id: "news", label: "News/Events", icon: Newspaper, href: "/news" },
-    { id: "account", label: "My Account", icon: User, href: "/dashboard" },
+    { id: "forms", label: "Submit Own Form", icon: FolderOpen, href: "/submit-form" },
+    { id: "account", label: "My Account", icon: User, href: "/account" },
     { id: "preferences", label: "Preferences", icon: Settings, href: "/dashboard" },
 ]
 
@@ -231,6 +303,7 @@ export default function ApplicationsPage() {
     const [showMoreCategories, setShowMoreCategories] = useState(false)
     const [showMobileFilters, setShowMobileFilters] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
+    const [savedExpanded, setSavedExpanded] = useState(false)
 
     const toggleStatus = (status: string) => {
         setSelectedStatuses((prev) =>
@@ -319,24 +392,78 @@ export default function ApplicationsPage() {
     const FilterSidebar = () => (
         <div className="h-full overflow-y-auto pr-2 space-y-6">
             {/* Filter Header */}
-            <div className="flex items-center justify-between sticky top-0 bg-white dark:bg-card py-2 z-10">
+            <div className="flex items-center justify-between sticky top-0 bg-card py-2 z-10">
                 <div className="flex items-center gap-2">
                     <Filter className="w-5 h-5 text-foreground" />
                     <h2 className="font-semibold text-lg">Filter</h2>
                 </div>
             </div>
 
-            {/* Clear Filters Button */}
+            {/* Active Filters Section */}
             {hasActiveFilters && (
-                <Button
-                    onClick={clearFilters}
-                    variant="outline"
-                    size="sm"
-                    className="w-full gap-2 text-muted-foreground hover:text-foreground border-dashed"
-                >
-                    <RotateCcw className="w-4 h-4" />
-                    Reset All Filters
-                </Button>
+                <div className="pb-4 border-b border-border">
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-medium text-sm text-foreground">Active filters</h3>
+                        <span className="text-xs text-muted-foreground">{filteredApplications.length} results</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {/* Status Tags */}
+                        {selectedStatuses.map(statusId => {
+                            const status = statusOptions.find(s => s.id === statusId)
+                            if (!status) return null
+                            return (
+                                <button
+                                    key={statusId}
+                                    onClick={() => toggleStatus(statusId)}
+                                    className={`text-xs px-2 py-1 rounded-full border flex items-center gap-1 hover:opacity-80 transition-opacity ${status.color.bg} ${status.color.text} ${status.color.border}`}
+                                >
+                                    {status.label}
+                                    <X className="w-3 h-3 ml-1" />
+                                </button>
+                            )
+                        })}
+
+                        {/* Category Tags */}
+                        {selectedCategories.map(cat => {
+                            const colors = categoryColors[cat] || { bg: "bg-gray-100", text: "text-gray-700", border: "border-gray-300" }
+                            return (
+                                <button
+                                    key={cat}
+                                    onClick={() => toggleCategory(cat)}
+                                    className={`text-xs px-2 py-1 rounded-full border flex items-center gap-1 hover:opacity-80 transition-opacity ${colors.bg} ${colors.text} ${colors.border}`}
+                                >
+                                    {cat}
+                                    <X className="w-3 h-3 ml-1" />
+                                </button>
+                            )
+                        })}
+
+                        {/* Date Tags */}
+                        {startDate && (
+                            <button
+                                onClick={() => setStartDate("")}
+                                className="text-xs px-2 py-1 rounded-full border bg-secondary text-secondary-foreground border-border flex items-center gap-1 hover:bg-secondary/80"
+                            >
+                                After: {startDate} <X className="w-3 h-3 ml-1" />
+                            </button>
+                        )}
+                        {endDate && (
+                            <button
+                                onClick={() => setEndDate("")}
+                                className="text-xs px-2 py-1 rounded-full border bg-secondary text-secondary-foreground border-border flex items-center gap-1 hover:bg-secondary/80"
+                            >
+                                Before: {endDate} <X className="w-3 h-3 ml-1" />
+                            </button>
+                        )}
+                    </div>
+
+                    <button
+                        onClick={clearFilters}
+                        className="text-xs text-muted-foreground hover:text-foreground mt-3 underline decoration-dotted underline-offset-4"
+                    >
+                        Clear all filters
+                    </button>
+                </div>
             )}
 
             {/* Sorting */}
@@ -458,36 +585,64 @@ export default function ApplicationsPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     {/* Welcome Header - Same as Dashboard */}
                     <div className="bg-white rounded-2xl p-6 mb-6 shadow-sm">
-                        <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center">
-                                <Sparkles className="w-6 h-6 text-white" />
+                        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                            {/* Welcome Message and Button */}
+                            <div>
+                                <div className="flex items-start gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center">
+                                        <Sparkles className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-2xl md:text-3xl font-bold text-foreground">Welcome back, John!</h1>
+                                        <p className="text-muted-foreground mt-1">Ready to make a difference today?</p>
+                                    </div>
+                                </div>
+                                <div className="mt-4 ml-16">
+                                    <Link href="/opportunities">
+                                        <Button className="bg-blue-500 hover:bg-blue-600 text-white gap-2 rounded-full">
+                                            <FolderOpen className="w-4 h-4" />
+                                            View Opportunities
+                                            <ArrowRight className="w-4 h-4" />
+                                        </Button>
+                                    </Link>
+                                </div>
                             </div>
-                            <div className="flex-1">
-                                <h1 className="text-2xl md:text-3xl font-bold text-foreground">Welcome back, John!</h1>
-                                <p className="text-muted-foreground mt-1">Ready to make a difference today?</p>
+
+                            {/* Stats in Banner */}
+                            <div className="flex flex-wrap gap-4">
+                                {/* Completed Opportunities Stat */}
+                                <div className="flex items-center gap-3 bg-teal-50 border border-teal-200 rounded-xl px-4 py-3">
+                                    <div className="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center">
+                                        <Award className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-teal-600 font-medium">Completed</p>
+                                        <p className="text-xl font-bold text-teal-700">5</p>
+                                    </div>
+                                </div>
+
+                                {/* Pending Applications Stat */}
+                                <div className="flex items-center gap-3 bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
+                                    <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
+                                        <FileText className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-orange-600 font-medium">Pending</p>
+                                        <p className="text-xl font-bold text-orange-700">3</p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div className="flex flex-wrap gap-3 mt-6">
-                            <Button className="bg-blue-500 hover:bg-blue-600 text-white gap-2 rounded-full">
-                                <FolderOpen className="w-4 h-4" />
-                                View All Applications
-                                <ArrowRight className="w-4 h-4" />
-                            </Button>
-                            <Button variant="outline" className="gap-2 bg-transparent rounded-full">
-                                <BarChart3 className="w-4 h-4" />
-                                View Progress
-                            </Button>
                         </div>
                     </div>
 
                     {/* Tab Navigation */}
                     <div className="bg-white rounded-xl mb-6 shadow-sm overflow-x-auto">
-                        <div className="flex min-w-max">
+                        <div className="flex w-full">
                             {tabs.map((tab) => (
                                 <Link
                                     key={tab.id}
                                     href={tab.href}
-                                    className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${tab.id === "applications"
+                                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${tab.id === "applications"
                                         ? "border-blue-500 text-blue-600 bg-blue-50/50"
                                         : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
                                         }`}
@@ -549,18 +704,18 @@ export default function ApplicationsPage() {
                             {/* Search Bar */}
                             <div className="mb-6">
                                 <div className="relative">
-                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
                                     <Input
                                         type="text"
                                         placeholder="Search applications by title, location, category, or status..."
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="pl-12 py-6 text-base bg-white dark:bg-card rounded-full border-2 focus:border-blue-400 shadow-sm"
+                                        className="pl-12 py-6 text-base bg-white dark:bg-card rounded-full border-2 focus:border-blue-400 shadow-sm xl:w-[calc(100%+296px)]"
                                     />
                                     {searchQuery && (
                                         <button
                                             onClick={() => setSearchQuery("")}
-                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-muted"
+                                            className="absolute top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-muted right-4 xl:right-[-272px]"
                                         >
                                             <X className="w-4 h-4" />
                                         </button>
@@ -657,8 +812,10 @@ export default function ApplicationsPage() {
 
                         {/* Saved Opportunities - Right Column */}
                         <aside className="hidden xl:block w-72 flex-shrink-0">
-                            <Card className="shadow-sm sticky top-24">
-                                <CardContent className="p-5">
+                            {/* Spacer to align with first application card */}
+                            <div className="h-[112px]" />
+                            <Card className={`shadow-sm sticky top-24 transition-all duration-300 ${savedExpanded ? 'max-h-[calc(100vh-120px)] flex flex-col' : ''}`}>
+                                <CardContent className={`p-5 ${savedExpanded ? 'flex flex-col flex-1 overflow-hidden' : ''}`}>
                                     <div className="flex items-center gap-3 mb-4">
                                         <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
                                             <Bookmark className="w-4 h-4 text-amber-600" />
@@ -666,8 +823,8 @@ export default function ApplicationsPage() {
                                         <h2 className="text-base font-semibold">Saved</h2>
                                     </div>
 
-                                    <div className="space-y-3">
-                                        {savedOpportunities.map((opp) => (
+                                    <div className={`space-y-3 ${savedExpanded ? 'flex-1 overflow-y-auto pr-1' : ''}`}>
+                                        {(savedExpanded ? savedOpportunities : savedOpportunities.slice(0, 5)).map((opp) => (
                                             <div
                                                 key={opp.id}
                                                 className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
@@ -688,13 +845,22 @@ export default function ApplicationsPage() {
                                         ))}
                                     </div>
 
-                                    <Link
-                                        href="/opportunities"
+                                    <button
+                                        onClick={() => setSavedExpanded(!savedExpanded)}
                                         className="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1 mt-4"
                                     >
-                                        View All Saved
-                                        <ArrowRight className="w-4 h-4" />
-                                    </Link>
+                                        {savedExpanded ? (
+                                            <>
+                                                Show Less
+                                                <ChevronUp className="w-4 h-4" />
+                                            </>
+                                        ) : (
+                                            <>
+                                                View All
+                                                <ChevronDown className="w-4 h-4" />
+                                            </>
+                                        )}
+                                    </button>
                                 </CardContent>
                             </Card>
                         </aside>

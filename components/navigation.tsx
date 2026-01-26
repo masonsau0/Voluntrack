@@ -11,7 +11,12 @@ export function Navigation() {
   const notificationCount = 3
 
   const pathname = usePathname()
-  const isLoggedIn = pathname?.startsWith("/dashboard")
+  // Show logged-in state on dashboard and all related subpages
+  const isLoggedIn = pathname?.startsWith("/dashboard") ||
+    pathname?.startsWith("/applications") ||
+    pathname?.startsWith("/account") ||
+    pathname?.startsWith("/news") ||
+    pathname?.startsWith("/submit-form")
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -70,7 +75,7 @@ export function Navigation() {
                 <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
                   <User className="h-5 w-5 text-muted-foreground" />
                 </div>
-                <span className="text-sm font-medium">John S.</span>
+                <span className="text-sm font-medium">John D.</span>
                 <ChevronDown className="h-4 w-4 text-muted-foreground" />
               </div>
             ) : (

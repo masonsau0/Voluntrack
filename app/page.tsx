@@ -35,7 +35,7 @@ export default function HomePage() {
               clicks!
             </p>
             <div className="flex flex-wrap gap-4">
-              <Link href="/collections">
+              <Link href="/opportunities">
                 <Button
                   size="lg"
                   className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-base tracking-wider"
@@ -69,7 +69,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Link href="/shop?category=students" className="group relative aspect-[3/4] overflow-hidden bg-muted">
+            <div className="group relative aspect-[3/4] overflow-hidden bg-muted cursor-default">
               <img
                 src="/student-with-laptop-searching-for-volunteer-opport.jpg"
                 alt="Students"
@@ -82,9 +82,9 @@ export default function HomePage() {
                   Discover opportunities, track your hours, and build skills for your future
                 </p>
               </div>
-            </Link>
+            </div>
 
-            <Link href="/shop?category=counsellors" className="group relative aspect-[3/4] overflow-hidden bg-muted">
+            <div className="group relative aspect-[3/4] overflow-hidden bg-muted cursor-default">
               <img
                 src="/guidance-counsellor-helping-students-in-office.jpg"
                 alt="Guidance Counsellors"
@@ -97,9 +97,9 @@ export default function HomePage() {
                   Approve hours, track student progress, and manage applications with ease
                 </p>
               </div>
-            </Link>
+            </div>
 
-            <Link href="/shop?category=organizations" className="group relative aspect-[3/4] overflow-hidden bg-muted">
+            <div className="group relative aspect-[3/4] overflow-hidden bg-muted cursor-default">
               <img
                 src="/volunteer-organization-team-working-together-commu.jpg"
                 alt="Volunteer Organizations"
@@ -112,7 +112,7 @@ export default function HomePage() {
                   Post opportunities, connect with eager volunteers, and verify completed hours
                 </p>
               </div>
-            </Link>
+            </div>
           </div>
         </div>
       </section>
