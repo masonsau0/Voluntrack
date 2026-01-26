@@ -275,7 +275,7 @@ const eventCategories = [
 const statusOptions = [
     { id: "approved", label: "Approved", color: statusColors.approved },
     { id: "pending", label: "Pending", color: statusColors.pending },
-    { id: "denied", label: "Denied", color: statusColors.denied },
+    { id: "denied", label: "Not Approved", color: statusColors.denied },
 ]
 
 const sortOptions = [
@@ -771,7 +771,7 @@ export default function ApplicationsPage() {
                                                     className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 border ${statusColor.bg} ${statusColor.text} ${statusColor.border}`}
                                                 >
                                                     <StatusIcon className="w-3 h-3" />
-                                                    {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                                                    {statusOptions.find(s => s.id === app.status)?.label}
                                                 </span>
                                                 <Button
                                                     variant="outline"
