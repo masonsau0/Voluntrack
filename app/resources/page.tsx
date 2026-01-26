@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useState, useMemo } from "react"
-import Link from "next/link"
 import Image from "next/image"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
@@ -16,16 +15,7 @@ import {
     ChevronUp,
     Filter,
     X,
-    Sparkles,
-    TrendingUp,
-    FileText,
-    FolderOpen,
-    Newspaper,
-    User,
-    Settings,
     Search,
-    ArrowRight,
-    BarChart3,
     RotateCcw,
     ArrowUpDown,
 } from "lucide-react"
@@ -53,12 +43,12 @@ const contentTypeColors: { [key: string]: { bg: string; text: string; border: st
     "Training": { bg: "bg-teal-100", text: "text-teal-700", border: "border-teal-300" },
 }
 
-// Sample events data with images - Learning & Experience focused (no volunteering)
+// Sample events data with images
 const sampleEvents = [
     {
         id: 1,
         title: "Volunteer Ontario Annual Conference",
-        description: "Join us for the premier volunteer sector conference in Ontario! This two-day event features keynote speakers, networking sessions, and workshops on best practices in volunteer management. Learn from industry experts about volunteer engagement strategies, retention techniques, and emerging trends in the nonprofit sector. Perfect for volunteer coordinators, nonprofit leaders, and anyone looking to enhance their volunteer program.",
+        description: "Join us for the premier volunteer sector conference in Ontario! This two-day event features keynote speakers, networking sessions, and workshops on best practices in volunteer management.",
         date: "Jan 25, 2025",
         dateISO: "2025-01-25",
         location: "Metro Toronto Convention Centre",
@@ -70,7 +60,7 @@ const sampleEvents = [
     {
         id: 2,
         title: "Spring Volunteer Fair 2025",
-        description: "Explore hundreds of volunteer opportunities at our annual Spring Volunteer Fair! Meet representatives from over 100 nonprofit organizations, learn about different causes, and find the perfect volunteer match for your interests and schedule. Whether you're interested in environmental work, healthcare, education, or arts and culture, you'll find opportunities that align with your passions. Free admission and refreshments provided.",
+        description: "Explore hundreds of volunteer opportunities at our annual Spring Volunteer Fair! Meet representatives from over 100 nonprofit organizations.",
         date: "Feb 15, 2025",
         dateISO: "2025-02-15",
         location: "Metro Toronto Convention Centre",
@@ -82,7 +72,7 @@ const sampleEvents = [
     {
         id: 3,
         title: "Environmental Advocacy Workshop",
-        description: "Learn how to become an effective environmental advocate in your community! This hands-on workshop covers topics including grassroots organizing, policy advocacy, social media campaigns for environmental causes, and how to engage local government. You'll leave with practical skills and a toolkit for making a real difference in environmental protection. No prior experience required.",
+        description: "Learn how to become an effective environmental advocate in your community! This hands-on workshop covers grassroots organizing and policy advocacy.",
         date: "Mar 8, 2025",
         dateISO: "2025-03-08",
         location: "Toronto Environmental Alliance Office",
@@ -94,7 +84,7 @@ const sampleEvents = [
     {
         id: 4,
         title: "Youth Leadership Development Program Info Session",
-        description: "Discover our flagship Youth Leadership Development Program! This info session will cover program details including mentorship opportunities, skill-building workshops, community project planning, and networking with industry leaders. Learn how young people aged 16-25 can develop leadership skills while making a positive impact in their communities. Parents and guardians are welcome to attend.",
+        description: "Discover our flagship Youth Leadership Development Program! Learn how young people aged 16-25 can develop leadership skills.",
         date: "Feb 1, 2025",
         dateISO: "2025-02-01",
         location: "Toronto Public Library - North York Branch",
@@ -106,7 +96,7 @@ const sampleEvents = [
     {
         id: 5,
         title: "Art Therapy Fundamentals Workshop",
-        description: "Explore the healing power of art in this introductory workshop on art therapy fundamentals! Learn about the principles of art therapy, creative expression techniques, and how art can support mental health and wellbeing. This workshop is ideal for healthcare workers, educators, caregivers, and anyone interested in therapeutic arts. Participants will create their own art pieces and learn facilitation techniques.",
+        description: "Explore the healing power of art in this introductory workshop on art therapy fundamentals!",
         date: "Jan 30, 2025",
         dateISO: "2025-01-30",
         location: "Fairview Community Centre",
@@ -118,7 +108,7 @@ const sampleEvents = [
     {
         id: 6,
         title: "Healthcare Volunteering 101 Training",
-        description: "Considering volunteering in a healthcare setting? This comprehensive training session covers everything you need to know! Topics include patient confidentiality, infection control basics, communication skills for healthcare environments, understanding hospital systems, and emotional resilience. Upon completion, you'll receive a certificate that many healthcare facilities recognize for volunteer placement.",
+        description: "Considering volunteering in a healthcare setting? This comprehensive training session covers everything you need to know!",
         date: "Feb 10, 2025",
         dateISO: "2025-02-10",
         location: "Toronto General Hospital - Education Centre",
@@ -126,42 +116,6 @@ const sampleEvents = [
         category: "Healthcare",
         contentType: "Training",
         image: "/event-hospital-volunteer.png",
-    },
-    {
-        id: 7,
-        title: "Sustainable Gardening & Food Security Seminar",
-        description: "Join local experts for an educational seminar on sustainable gardening practices and community food security! Learn about urban agriculture, composting, organic growing methods, and how community gardens contribute to food access and neighborhood resilience. Speakers include representatives from local food banks, urban farmers, and sustainability experts. Light refreshments from local gardens provided.",
-        date: "Apr 5, 2025",
-        dateISO: "2025-04-05",
-        location: "Downsview Park Community Centre",
-        participants: 75,
-        category: "Environment",
-        contentType: "Events",
-        image: "/event-park-cleanup.png",
-    },
-    {
-        id: 8,
-        title: "Nonprofit Fundraising Strategies Workshop",
-        description: "Master the art of fundraising in this intensive workshop designed for nonprofit professionals and board members! Learn about donor cultivation, grant writing basics, crowdfunding campaigns, corporate sponsorships, and event-based fundraising. Real case studies from successful Toronto nonprofits will be shared. Participants will develop a fundraising action plan for their organizations.",
-        date: "Mar 20, 2025",
-        dateISO: "2025-03-20",
-        location: "The Carlu, Toronto",
-        participants: 100,
-        category: "Fundraising",
-        contentType: "Workshops",
-        image: "/event-volunteer-fair.png",
-    },
-    {
-        id: 9,
-        title: "Literacy Advocacy & Education Forum",
-        description: "Join educators, literacy advocates, and community leaders for this important forum on promoting literacy in our communities! Discussions will cover early childhood literacy, adult education programs, digital literacy initiatives, and supporting English language learners. Hear from successful literacy programs and learn how you can advocate for increased literacy funding and resources in your community.",
-        date: "Feb 22, 2025",
-        dateISO: "2025-02-22",
-        location: "Toronto Reference Library",
-        participants: 80,
-        category: "Education",
-        contentType: "Announcements",
-        image: "/event-youth-mentorship.png",
     },
 ]
 
@@ -187,17 +141,7 @@ const eventCategories = [
     "Fundraising",
 ]
 
-// Dashboard tabs
-const tabs = [
-    { id: "progress", label: "Progress Tracking", icon: TrendingUp, href: "/dashboard" },
-    { id: "applications", label: "Applications", icon: FileText, href: "/applications" },
-    { id: "forms", label: "My Forms", icon: FolderOpen, href: "/dashboard" },
-    { id: "news", label: "News/Events", icon: Newspaper, href: "/news" },
-    { id: "account", label: "My Account", icon: User, href: "/dashboard" },
-    { id: "preferences", label: "Preferences", icon: Settings, href: "/dashboard" },
-]
-
-export default function NewsEventsPage() {
+export default function ResourcesPage() {
     const [selectedContentTypes, setSelectedContentTypes] = useState<string[]>([])
     const [selectedEventCategories, setSelectedEventCategories] = useState<string[]>([])
     const [startDate, setStartDate] = useState("")
@@ -233,46 +177,34 @@ export default function NewsEventsPage() {
     // Filter and sort events
     const filteredEvents = useMemo(() => {
         let result = sampleEvents.filter((event) => {
-            // Filter by content type
             if (selectedContentTypes.length > 0 && !selectedContentTypes.includes(event.contentType)) {
                 return false
             }
-
-            // Filter by event category
             if (selectedEventCategories.length > 0 && !selectedEventCategories.includes(event.category)) {
                 return false
             }
-
-            // Filter by date range
             if (startDate) {
                 const eventDate = new Date(event.dateISO)
                 const filterStartDate = new Date(startDate)
                 if (eventDate < filterStartDate) return false
             }
-
             if (endDate) {
                 const eventDate = new Date(event.dateISO)
                 const filterEndDate = new Date(endDate)
                 if (eventDate > filterEndDate) return false
             }
-
-            // Filter by search query
             if (searchQuery.trim()) {
                 const query = searchQuery.toLowerCase()
                 const matchesSearch =
                     event.title.toLowerCase().includes(query) ||
                     event.description.toLowerCase().includes(query) ||
-                    event.date.toLowerCase().includes(query) ||
                     event.location.toLowerCase().includes(query) ||
-                    event.category.toLowerCase().includes(query) ||
-                    event.contentType.toLowerCase().includes(query)
+                    event.category.toLowerCase().includes(query)
                 if (!matchesSearch) return false
             }
-
             return true
         })
 
-        // Sort
         result = [...result].sort((a, b) => {
             switch (sortBy) {
                 case "newest":
@@ -291,33 +223,83 @@ export default function NewsEventsPage() {
 
     const displayedContentTypes = showMoreContentTypes ? contentTypes : contentTypes.slice(0, 4)
     const displayedEventCategories = showMoreEventCategories ? eventCategories : eventCategories.slice(0, 4)
-
     const hasActiveFilters = selectedContentTypes.length > 0 || selectedEventCategories.length > 0 || startDate || endDate || searchQuery || sortBy !== "newest"
 
     const FilterSidebar = () => (
         <div className="h-full overflow-y-auto pr-2 space-y-6">
-            {/* Filter Header */}
-            <div className="flex items-center justify-between sticky top-0 bg-white dark:bg-card py-2 z-10">
+            <div className="flex items-center justify-between sticky top-0 bg-card py-2 z-10">
                 <div className="flex items-center gap-2">
                     <Filter className="w-5 h-5 text-foreground" />
                     <h2 className="font-semibold text-lg">Filter</h2>
                 </div>
             </div>
 
-            {/* Clear Filters Button - Professional Design */}
+            {/* Active Filters Section */}
             {hasActiveFilters && (
-                <Button
-                    onClick={clearFilters}
-                    variant="outline"
-                    size="sm"
-                    className="w-full gap-2 text-muted-foreground hover:text-foreground border-dashed"
-                >
-                    <RotateCcw className="w-4 h-4" />
-                    Reset All Filters
-                </Button>
+                <div className="pb-4 border-b border-border">
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-medium text-sm text-foreground">Active filters</h3>
+                        <span className="text-xs text-muted-foreground">{filteredEvents.length} results</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {/* Content Type Tags */}
+                        {selectedContentTypes.map(type => {
+                            const colors = contentTypeColors[type] || { bg: "bg-gray-100", text: "text-gray-700", border: "border-gray-300" }
+                            return (
+                                <button
+                                    key={type}
+                                    onClick={() => toggleContentType(type)}
+                                    className={`text-xs px-2 py-1 rounded-full border flex items-center gap-1 hover:opacity-80 transition-opacity ${colors.bg} ${colors.text} ${colors.border}`}
+                                >
+                                    {type}
+                                    <X className="w-3 h-3 ml-1" />
+                                </button>
+                            )
+                        })}
+
+                        {/* Category Tags */}
+                        {selectedEventCategories.map(cat => {
+                            const colors = categoryColors[cat] || { bg: "bg-gray-100", text: "text-gray-700", border: "border-gray-300" }
+                            return (
+                                <button
+                                    key={cat}
+                                    onClick={() => toggleEventCategory(cat)}
+                                    className={`text-xs px-2 py-1 rounded-full border flex items-center gap-1 hover:opacity-80 transition-opacity ${colors.bg} ${colors.text} ${colors.border}`}
+                                >
+                                    {cat}
+                                    <X className="w-3 h-3 ml-1" />
+                                </button>
+                            )
+                        })}
+
+                        {/* Date Tags */}
+                        {startDate && (
+                            <button
+                                onClick={() => setStartDate("")}
+                                className="text-xs px-2 py-1 rounded-full border bg-secondary text-secondary-foreground border-border flex items-center gap-1 hover:bg-secondary/80"
+                            >
+                                After: {startDate} <X className="w-3 h-3 ml-1" />
+                            </button>
+                        )}
+                        {endDate && (
+                            <button
+                                onClick={() => setEndDate("")}
+                                className="text-xs px-2 py-1 rounded-full border bg-secondary text-secondary-foreground border-border flex items-center gap-1 hover:bg-secondary/80"
+                            >
+                                Before: {endDate} <X className="w-3 h-3 ml-1" />
+                            </button>
+                        )}
+                    </div>
+
+                    <button
+                        onClick={clearFilters}
+                        className="text-xs text-muted-foreground hover:text-foreground mt-3 underline decoration-dotted underline-offset-4"
+                    >
+                        Clear all filters
+                    </button>
+                </div>
             )}
 
-            {/* Sorting */}
             <div>
                 <h3 className="font-medium text-sm mb-3 flex items-center gap-2">
                     <ArrowUpDown className="w-4 h-4" />
@@ -359,7 +341,6 @@ export default function NewsEventsPage() {
 
             <hr className="border-border" />
 
-            {/* Content Type */}
             <div>
                 <h3 className="font-medium text-sm mb-3">Content Type</h3>
                 <div className="space-y-2">
@@ -384,13 +365,9 @@ export default function NewsEventsPage() {
                         className="text-sm text-blue-500 hover:text-blue-600 mt-2 flex items-center gap-1"
                     >
                         {showMoreContentTypes ? (
-                            <>
-                                Show less <ChevronUp className="w-3 h-3" />
-                            </>
+                            <>Show less <ChevronUp className="w-3 h-3" /></>
                         ) : (
-                            <>
-                                Show more <ChevronDown className="w-3 h-3" />
-                            </>
+                            <>Show more <ChevronDown className="w-3 h-3" /></>
                         )}
                     </button>
                 )}
@@ -398,9 +375,8 @@ export default function NewsEventsPage() {
 
             <hr className="border-border" />
 
-            {/* Event Categories */}
             <div>
-                <h3 className="font-medium text-sm mb-3">Event Category</h3>
+                <h3 className="font-medium text-sm mb-3">Category</h3>
                 <div className="space-y-2">
                     {displayedEventCategories.map((category) => {
                         const colors = categoryColors[category] || { bg: "bg-gray-100", text: "text-gray-700", border: "border-gray-300" }
@@ -423,13 +399,9 @@ export default function NewsEventsPage() {
                         className="text-sm text-blue-500 hover:text-blue-600 mt-2 flex items-center gap-1"
                     >
                         {showMoreEventCategories ? (
-                            <>
-                                Show less <ChevronUp className="w-3 h-3" />
-                            </>
+                            <>Show less <ChevronUp className="w-3 h-3" /></>
                         ) : (
-                            <>
-                                Show more <ChevronDown className="w-3 h-3" />
-                            </>
+                            <>Show more <ChevronDown className="w-3 h-3" /></>
                         )}
                     </button>
                 )}
@@ -437,7 +409,6 @@ export default function NewsEventsPage() {
 
             <hr className="border-border" />
 
-            {/* Date Range */}
             <div>
                 <h3 className="font-medium text-sm mb-3">Date Range</h3>
                 <div className="space-y-3">
@@ -470,54 +441,11 @@ export default function NewsEventsPage() {
 
             <main className="flex-1 pt-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    {/* Welcome Header - Same as Dashboard */}
-                    <div className="bg-white rounded-2xl p-6 mb-6 shadow-sm">
-                        <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center">
-                                <Sparkles className="w-6 h-6 text-white" />
-                            </div>
-                            <div className="flex-1">
-                                <h1 className="text-2xl md:text-3xl font-bold text-foreground">Welcome back, John!</h1>
-                                <p className="text-muted-foreground mt-1">Ready to make a difference today?</p>
-                            </div>
-                        </div>
-                        <div className="flex flex-wrap gap-3 mt-6">
-                            <Button className="bg-blue-500 hover:bg-blue-600 text-white gap-2 rounded-full">
-                                <FolderOpen className="w-4 h-4" />
-                                View All Applications
-                                <ArrowRight className="w-4 h-4" />
-                            </Button>
-                            <Button variant="outline" className="gap-2 bg-transparent rounded-full">
-                                <BarChart3 className="w-4 h-4" />
-                                View Progress
-                            </Button>
-                        </div>
-                    </div>
-
-                    {/* Tab Navigation - Same as Dashboard */}
-                    <div className="bg-white rounded-xl mb-6 shadow-sm overflow-x-auto">
-                        <div className="flex min-w-max">
-                            {tabs.map((tab) => (
-                                <Link
-                                    key={tab.id}
-                                    href={tab.href}
-                                    className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${tab.id === "news"
-                                        ? "border-blue-500 text-blue-600 bg-blue-50/50"
-                                        : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                                        }`}
-                                >
-                                    <tab.icon className="w-4 h-4" />
-                                    {tab.label}
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-
                     {/* Page Title */}
                     <div className="mb-6">
-                        <h2 className="text-2xl font-bold text-foreground">News & Events</h2>
+                        <h1 className="text-3xl font-bold text-foreground">Resources</h1>
                         <p className="text-muted-foreground mt-1">
-                            Discover volunteer opportunities and stay updated with the latest news
+                            Discover events, workshops, and resources to support your volunteer journey
                         </p>
                     </div>
 
@@ -534,7 +462,7 @@ export default function NewsEventsPage() {
                     </div>
 
                     <div className="flex gap-8">
-                        {/* Filter Sidebar - Desktop with independent scrolling */}
+                        {/* Filter Sidebar - Desktop */}
                         <aside className="hidden lg:block w-64 flex-shrink-0">
                             <Card className="shadow-sm sticky top-24 max-h-[calc(100vh-120px)] overflow-hidden">
                                 <CardContent className="p-5 h-full max-h-[calc(100vh-160px)] overflow-y-auto">
@@ -560,13 +488,13 @@ export default function NewsEventsPage() {
 
                         {/* Events Grid */}
                         <div className="flex-1">
-                            {/* Search Bar - Rounded */}
+                            {/* Search Bar */}
                             <div className="mb-6">
                                 <div className="relative">
                                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                                     <Input
                                         type="text"
-                                        placeholder="Search events by title, description, date, location, or category..."
+                                        placeholder="Search resources by title, description, or category..."
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         className="pl-12 py-6 text-base bg-white dark:bg-card rounded-full border-2 focus:border-blue-400 shadow-sm"
@@ -584,7 +512,7 @@ export default function NewsEventsPage() {
 
                             {/* Results count */}
                             <p className="text-sm text-muted-foreground mb-4">
-                                Showing {filteredEvents.length} of {sampleEvents.length} events
+                                Showing {filteredEvents.length} of {sampleEvents.length} resources
                             </p>
 
                             <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -598,7 +526,6 @@ export default function NewsEventsPage() {
                                             onClick={() => setSelectedEvent(event)}
                                             className="overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer border-0 rounded-xl"
                                         >
-                                            {/* Event Image Header */}
                                             <div className="h-40 relative overflow-hidden">
                                                 <Image
                                                     src={event.image}
@@ -609,9 +536,7 @@ export default function NewsEventsPage() {
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                                             </div>
 
-                                            {/* Card Content */}
                                             <CardContent className="p-5 bg-white dark:bg-card">
-                                                {/* Title and Category Badge */}
                                                 <div className="flex items-start justify-between gap-2 mb-3">
                                                     <h3 className="font-semibold text-foreground line-clamp-2 flex-1">
                                                         {event.title}
@@ -623,12 +548,10 @@ export default function NewsEventsPage() {
                                                     </span>
                                                 </div>
 
-                                                {/* Description */}
                                                 <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
                                                     {event.description}
                                                 </p>
 
-                                                {/* Event Details */}
                                                 <div className="space-y-2 text-sm mb-4">
                                                     <div className="flex items-center gap-2 text-muted-foreground">
                                                         <Calendar className="w-4 h-4 text-blue-500" />
@@ -640,11 +563,10 @@ export default function NewsEventsPage() {
                                                     </div>
                                                     <div className="flex items-center gap-2 text-muted-foreground">
                                                         <Users className="w-4 h-4 text-teal-500" />
-                                                        <span>/{event.participants} participants</span>
+                                                        <span>{event.participants} participants</span>
                                                     </div>
                                                 </div>
 
-                                                {/* Content Type Badge */}
                                                 <div className="mb-4">
                                                     <span
                                                         className={`text-xs px-2 py-1 rounded-full border ${contentTypeColor.bg} ${contentTypeColor.text} ${contentTypeColor.border}`}
@@ -653,13 +575,12 @@ export default function NewsEventsPage() {
                                                     </span>
                                                 </div>
 
-                                                {/* Register Button - Rounded */}
                                                 <Button
                                                     onClick={(e) => { e.stopPropagation(); }}
                                                     className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white gap-2 rounded-full"
                                                 >
                                                     <Users className="w-4 h-4" />
-                                                    Register Now
+                                                    Learn More
                                                 </Button>
                                             </CardContent>
                                         </Card>
@@ -673,9 +594,9 @@ export default function NewsEventsPage() {
                                     <div className="w-20 h-20 bg-muted rounded-full mx-auto flex items-center justify-center mb-4">
                                         <Calendar className="w-10 h-10 text-muted-foreground" />
                                     </div>
-                                    <h3 className="text-lg font-medium text-foreground">No events found</h3>
+                                    <h3 className="text-lg font-medium text-foreground">No resources found</h3>
                                     <p className="text-muted-foreground mt-2 mb-6">
-                                        Try adjusting your filters or search query to find more events
+                                        Try adjusting your filters or search query
                                     </p>
                                     <Button onClick={clearFilters} variant="outline" className="gap-2 rounded-full">
                                         <RotateCcw className="w-4 h-4" />
@@ -698,7 +619,6 @@ export default function NewsEventsPage() {
                         className="bg-white dark:bg-card rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        {/* Modal Header with Image */}
                         <div className="relative h-48">
                             <Image
                                 src={selectedEvent.image}
@@ -715,9 +635,7 @@ export default function NewsEventsPage() {
                             </button>
                         </div>
 
-                        {/* Modal Content */}
                         <div className="p-6">
-                            {/* Category and Content Type Badges */}
                             <div className="flex flex-wrap gap-2 mb-4">
                                 <span className={`text-xs px-3 py-1 rounded-full border ${categoryColors[selectedEvent.category]?.bg || 'bg-gray-100'} ${categoryColors[selectedEvent.category]?.text || 'text-gray-700'} ${categoryColors[selectedEvent.category]?.border || 'border-gray-300'}`}>
                                     {selectedEvent.category}
@@ -727,12 +645,10 @@ export default function NewsEventsPage() {
                                 </span>
                             </div>
 
-                            {/* Title */}
                             <h2 className="text-2xl font-bold text-foreground mb-4">
                                 {selectedEvent.title}
                             </h2>
 
-                            {/* Event Details */}
                             <div className="space-y-3 mb-6">
                                 <div className="flex items-center gap-3 text-muted-foreground">
                                     <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
@@ -754,15 +670,13 @@ export default function NewsEventsPage() {
                                 </div>
                             </div>
 
-                            {/* Full Description */}
                             <div className="mb-6">
-                                <h3 className="font-semibold text-foreground mb-2">About This Event</h3>
+                                <h3 className="font-semibold text-foreground mb-2">About This Resource</h3>
                                 <p className="text-muted-foreground leading-relaxed">
                                     {selectedEvent.description}
                                 </p>
                             </div>
 
-                            {/* Register Button */}
                             <Button className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white gap-2 rounded-full py-6 text-lg">
                                 <Users className="w-5 h-5" />
                                 Register Now
