@@ -35,7 +35,7 @@ export default function HomePage() {
               clicks!
             </p>
             <div className="flex flex-wrap gap-4">
-              <Link href="/collections">
+              <Link href="/opportunities">
                 <Button
                   size="lg"
                   className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-base tracking-wider"
@@ -69,7 +69,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="group relative aspect-[3/4] overflow-hidden bg-muted">
+            <div className="group relative aspect-[3/4] overflow-hidden bg-muted cursor-default">
               <img
                 src="/student-with-laptop-searching-for-volunteer-opport.jpg"
                 alt="Students"
@@ -84,7 +84,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="group relative aspect-[3/4] overflow-hidden bg-muted">
+            <div className="group relative aspect-[3/4] overflow-hidden bg-muted cursor-default">
               <img
                 src="/guidance-counsellor-helping-students-in-office.jpg"
                 alt="Guidance Counsellors"
@@ -99,7 +99,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="group relative aspect-[3/4] overflow-hidden bg-muted">
+            <div className="group relative aspect-[3/4] overflow-hidden bg-muted cursor-default">
               <img
                 src="/volunteer-organization-team-working-together-commu.jpg"
                 alt="Volunteer Organizations"

@@ -8,6 +8,7 @@ import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { HorizontalProgressTracker } from "@/components/horizontal-progress-tracker"
+import { CalendarModal } from "@/components/calendar-modal"
 
 import {
   Sparkles,
@@ -39,8 +40,7 @@ import {
 const tabs = [
   { id: "progress", label: "Progress Tracking", icon: TrendingUp },
   { id: "applications", label: "Applications", icon: FileText },
-  { id: "forms", label: "My Forms", icon: FolderOpen },
-  { id: "news", label: "News/Events", icon: Newspaper },
+  { id: "forms", label: "Submit Own Form", icon: FolderOpen },
   { id: "account", label: "My Account", icon: User },
   { id: "preferences", label: "Preferences", icon: Settings },
 ]
@@ -278,93 +278,103 @@ export default function DashboardPage() {
 
       <main className="flex-1 pt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Welcome Header */}
+          {/* Welcome Header with Stats */}
           <div className="bg-white rounded-2xl p-6 mb-6 shadow-sm">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-white" />
+            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+              {/* Welcome Message and Button */}
+              <div>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center">
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl md:text-3xl font-bold text-foreground">Welcome back, John!</h1>
+                    <p className="text-muted-foreground mt-1">Ready to make a difference today?</p>
+                  </div>
+                </div>
+                <div className="mt-4 ml-16">
+                  <Link href="/opportunities">
+                    <Button className="bg-blue-500 hover:bg-blue-600 text-white gap-2 rounded-full">
+                      <FolderOpen className="w-4 h-4" />
+                      View Opportunities
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
               </div>
-              <div className="flex-1">
-                <h1 className="text-2xl md:text-3xl font-bold text-foreground">Welcome back, John!</h1>
-                <p className="text-muted-foreground mt-1">Ready to make a difference today?</p>
+
+              {/* Stats in Banner */}
+              <div className="flex flex-wrap gap-4">
+                {/* Completed Opportunities Stat */}
+                <div className="flex items-center gap-3 bg-teal-50 border border-teal-200 rounded-xl px-4 py-3">
+                  <div className="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center">
+                    <Award className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-teal-600 font-medium">Completed</p>
+                    <p className="text-xl font-bold text-teal-700">5</p>
+                  </div>
+                </div>
+
+                {/* Pending Applications Stat */}
+                <div className="flex items-center gap-3 bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
+                  <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-orange-600 font-medium">Pending</p>
+                    <p className="text-xl font-bold text-orange-700">3</p>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="flex flex-wrap gap-3 mt-6">
-              <Button className="bg-blue-500 hover:bg-blue-600 text-white gap-2 rounded-full">
-                <FolderOpen className="w-4 h-4" />
-                View All Applications
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" className="gap-2 bg-transparent rounded-full">
-                <BarChart3 className="w-4 h-4" />
-                View Progress
-              </Button>
             </div>
           </div>
 
           {/* Tab Navigation */}
           <div className="bg-white rounded-xl mb-6 shadow-sm overflow-x-auto">
-            <div className="flex min-w-max">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
-                    activeTab === tab.id
+            <div className="flex w-full">
+              {tabs.map((tab) => {
+                const isLinkTab = tab.id === "applications" || tab.id === "account" || tab.id === "forms"
+                const isActive = isLinkTab ? false : activeTab === tab.id
+
+                if (isLinkTab) {
+                  const href = tab.id === "applications" ? "/applications" : tab.id === "account" ? "/account" : "/submit-form"
+                  return (
+                    <Link
+                      key={tab.id}
+                      href={href}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    >
+                      <tab.icon className="w-4 h-4" />
+                      {tab.label}
+                    </Link>
+                  )
+                }
+
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${isActive
                       ? "border-blue-500 text-blue-600 bg-blue-50/50"
                       : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                  }`}
-                >
-                  <tab.icon className="w-4 h-4" />
-                  {tab.label}
-                </button>
-              ))}
+                      }`}
+                  >
+                    <tab.icon className="w-4 h-4" />
+                    {tab.label}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
           <div className="grid lg:grid-cols-4 gap-4 mb-4">
-            {/* Left side: 3 stat cards in a row */}
-            <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
-              {/* Blue Card - Hours Progress with Rocket */}
-              <Card className="bg-blue-500 border-0 text-white overflow-hidden transition-transform duration-200 hover:scale-105 cursor-pointer h-[140px]">
-                <CardContent className="p-3 h-full">
+            {/* Left side: Full-width Hour Progress Card */}
+            <div className="lg:col-span-3">
+              {/* Blue Card - Hours Progress with Rocket - Now Full Width */}
+              <Card className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500 border-0 text-white overflow-hidden transition-all duration-300 hover:scale-[1.01] cursor-pointer h-[260px] shadow-xl hover:shadow-2xl ring-1 ring-white/10">
+                <CardContent className="p-4 h-full relative">
                   <HorizontalProgressTracker completedHours={24} goalHours={40} />
-                </CardContent>
-              </Card>
-
-              {/* Teal Card - Completed Opportunities */}
-              <Card className="bg-teal-500 border-0 text-white overflow-hidden transition-transform duration-200 hover:scale-105 cursor-pointer relative h-[140px]">
-                <CardContent className="p-3 h-full flex flex-col">
-                  {/* Decorative circles */}
-                  <div className="absolute top-2 right-2 w-16 h-16 bg-white/10 rounded-full" />
-                  <div className="absolute top-6 right-6 w-8 h-8 bg-white/10 rounded-full" />
-
-                  <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                    <Award className="w-4 h-4 text-white" />
-                  </div>
-
-                  <div className="mt-auto pt-4">
-                    <p className="text-xs font-medium text-white">Completed Opportunities</p>
-                    <p className="text-2xl font-bold">5</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Orange Card - Pending Applications */}
-              <Card className="bg-orange-500 border-0 text-white overflow-hidden transition-transform duration-200 hover:scale-105 cursor-pointer relative h-[140px]">
-                <CardContent className="p-3 h-full flex flex-col">
-                  {/* Decorative circles */}
-                  <div className="absolute top-2 right-2 w-16 h-16 bg-white/10 rounded-full" />
-                  <div className="absolute top-6 right-6 w-8 h-8 bg-white/10 rounded-full" />
-
-                  <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                    <FileText className="w-4 h-4 text-white" />
-                  </div>
-
-                  <div className="mt-auto pt-4">
-                    <p className="text-xs font-medium text-white">Pending Applications</p>
-                    <p className="text-2xl font-bold">3</p>
-                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -411,20 +421,18 @@ export default function DashboardPage() {
                     return (
                       <button
                         key={day}
-                        className={`p-1 text-xs rounded-full transition-colors relative ${
-                          isToday ? "bg-blue-500 text-white font-bold" : "hover:bg-muted"
-                        }`}
+                        className={`p-1 text-xs rounded-full transition-colors relative ${isToday ? "bg-blue-500 text-white font-bold" : "hover:bg-muted"
+                          }`}
                       >
                         {day}
                         {hasEvent && !isToday && (
                           <span
-                            className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full ${
-                              hasEvent === "blue"
-                                ? "bg-blue-500"
-                                : hasEvent === "teal"
-                                  ? "bg-teal-500"
-                                  : "bg-orange-500"
-                            }`}
+                            className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full ${hasEvent === "blue"
+                              ? "bg-blue-500"
+                              : hasEvent === "teal"
+                                ? "bg-teal-500"
+                                : "bg-orange-500"
+                              }`}
                           />
                         )}
                       </button>
@@ -435,36 +443,58 @@ export default function DashboardPage() {
                 {/* Upcoming Shifts section below the calendar */}
                 <div className="mt-4 pt-4 border-t">
                   <h3 className="font-semibold text-sm mb-3">Upcoming Shifts</h3>
-                  <ul className="space-y-2">
+                  <ul className="space-y-3">
                     <li className="flex items-center justify-between text-sm">
                       <span className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-foreground" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                         Park Clean-Up
                       </span>
                       <span className="text-muted-foreground">2:00 PM</span>
                     </li>
                     <li className="flex items-center justify-between text-sm">
                       <span className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-foreground" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
                         Library Reading Program
                       </span>
                       <span className="text-muted-foreground">4:00 PM</span>
                     </li>
                     <li className="flex items-center justify-between text-sm">
                       <span className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-foreground" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
                         Food Bank Sorting
                       </span>
                       <span className="text-muted-foreground">10:00 AM</span>
                     </li>
+                    <li className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                        Garden Planting
+                      </span>
+                      <span className="text-muted-foreground">Tomorrow 9:00 AM</span>
+                    </li>
+                    <li className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                        Fundraising Workshop
+                      </span>
+                      <span className="text-muted-foreground">Wed 5:30 PM</span>
+                    </li>
+                    <li className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                        Elderly Home Visit
+                      </span>
+                      <span className="text-muted-foreground">Sat 11:00 AM</span>
+                    </li>
                   </ul>
-                  <Link
-                    href="/calendar"
-                    className="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1 mt-3"
-                  >
-                    View Full Calendar
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  <CalendarModal>
+                    <button
+                      className="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1 mt-4 w-full justify-center py-2 hover:bg-blue-50 rounded-lg transition-colors"
+                    >
+                      View Full Calendar
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </CalendarModal>
                 </div>
               </CardContent>
             </Card>
@@ -503,9 +533,8 @@ export default function DashboardPage() {
                       {badges.map((badge) => (
                         <div
                           key={badge.id}
-                          className={`flex-shrink-0 flex flex-col items-center p-3 rounded-xl border w-28 select-none ${
-                            badge.earned ? "bg-white" : "bg-muted/50 opacity-50"
-                          }`}
+                          className={`flex-shrink-0 flex flex-col items-center p-3 rounded-xl border w-28 select-none ${badge.earned ? "bg-white" : "bg-muted/50 opacity-50"
+                            }`}
                         >
                           <div
                             className={`w-12 h-12 rounded-full ${badge.color} flex items-center justify-center mb-2 ${!badge.earned && "grayscale"}`}
@@ -581,11 +610,10 @@ export default function DashboardPage() {
                             </div>
                             <div className="flex flex-col items-end gap-2">
                               <span
-                                className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                  app.status === "pending"
-                                    ? "bg-yellow-100 text-yellow-700 border border-yellow-300"
-                                    : "bg-green-100 text-green-700 border border-green-300"
-                                }`}
+                                className={`px-3 py-1 rounded-full text-sm font-medium ${app.status === "pending"
+                                  ? "bg-yellow-100 text-yellow-700 border border-yellow-300"
+                                  : "bg-green-100 text-green-700 border border-green-300"
+                                  }`}
                               >
                                 {app.status === "pending" ? "Pending" : "Approved"}
                               </span>
@@ -623,16 +651,16 @@ export default function DashboardPage() {
               </Card>
             </div>
 
-            {/* News/Events and Quick Actions Column */}
+            {/* Resources and Quick Actions Column */}
             <div className="lg:col-span-1 space-y-6">
-              {/* News/Events */}
+              {/* Resources */}
               <Card className="shadow-sm">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
                       <Newspaper className="w-4 h-4 text-blue-600" />
                     </div>
-                    <h2 className="text-base font-semibold">News/Events</h2>
+                    <h2 className="text-base font-semibold">Resources</h2>
                   </div>
 
                   <div className="space-y-3">
@@ -657,10 +685,10 @@ export default function DashboardPage() {
                   </div>
 
                   <Link
-                    href="/news"
+                    href="/resources"
                     className="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1 mt-4"
                   >
-                    View All News
+                    View All
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </CardContent>
@@ -692,6 +720,14 @@ export default function DashboardPage() {
                       </div>
                     ))}
                   </div>
+
+                  <Link
+                    href="/applications"
+                    className="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1 mt-4"
+                  >
+                    View All
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
                 </CardContent>
               </Card>
             </div>

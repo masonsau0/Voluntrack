@@ -1,5 +1,7 @@
 import { Navigation } from "@/components/navigation"
-import { Leaf, Heart, Users, Package } from "lucide-react"
+import { Search, ClipboardCheck, Users, Zap, Target, Heart, GraduationCap } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
 
 export default function AboutPage() {
@@ -12,16 +14,16 @@ export default function AboutPage() {
         <section className="relative h-[60vh] flex items-center justify-center overflow-hidden mb-24">
           <div className="absolute inset-0 bg-gradient-to-b from-foreground/20 to-background/80 z-10" />
           <img
-            src="/about-hero-sustainable-fashion-atelier.jpg"
-            alt="Serene Atelier Studio"
+            src="/student-volunteers-outdoor-park-clear-sky.jpg"
+            alt="Student volunteers making a difference"
             className="absolute inset-0 w-full h-full object-cover"
           />
           <div className="relative z-20 text-center px-4 max-w-3xl mx-auto">
             <h1 className="font-serif text-5xl md:text-7xl font-light text-foreground mb-6 text-balance">
-              Our Philosophy
+              About <span className="text-primary">Volun</span><span className="text-orange-500">Track</span>
             </h1>
             <p className="text-lg md:text-xl text-foreground/90 leading-relaxed">
-              Creating timeless clothing that honors both people and planet
+              Connecting Ontario students with meaningful volunteer opportunities
             </p>
           </div>
         </section>
@@ -29,146 +31,170 @@ export default function AboutPage() {
         {/* Story Section */}
         <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
           <div className="text-center mb-12">
-            <h2 className="font-serif text-4xl md:text-5xl font-light text-foreground mb-6">Our Story</h2>
+            <h2 className="font-serif text-4xl md:text-5xl font-light text-foreground mb-6">Our Mission</h2>
             <div className="space-y-6 text-muted-foreground leading-relaxed">
               <p>
-                Serene Atelier was born from a simple belief: that clothing should be as kind to the earth as it is
-                beautiful to wear. Founded in 2018, we set out to create a different kind of fashion brand—one that
-                values quality over quantity, craftsmanship over trends, and sustainability over speed.
+                VolunTrack Ontario was created to solve a common challenge: connecting students with volunteer opportunities
+                while making it easy to track and verify their community service hours. We believe every student deserves
+                access to meaningful volunteer experiences that build skills, create connections, and make a real difference.
               </p>
               <p>
-                Every piece in our collection is thoughtfully designed to transcend seasons and trends. We work
-                exclusively with natural, organic, and recycled materials, partnering with artisans and workshops that
-                share our commitment to ethical production and fair labor practices.
+                Our platform bridges the gap between eager student volunteers, schools that need to track volunteer hours,
+                and organizations looking for dedicated helpers. By centralizing the entire volunteer journey—from discovery
+                to hour verification—we make volunteering simpler and more impactful for everyone involved.
               </p>
               <p>
-                Our atelier is more than a brand—it's a movement toward conscious consumption and mindful living. We
-                believe that true luxury lies in pieces that are made to last, that tell a story, and that respect the
-                hands that crafted them.
+                Whether you're a student looking to fulfill your 40-hour graduation requirement, a guidance counsellor
+                managing applications, or an organization seeking volunteers, VolunTrack Ontario is here to help you
+                make a difference in your community.
               </p>
             </div>
           </div>
         </section>
 
-        {/* Values Grid */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24" id="sustainability">
+        {/* Who We Serve */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
           <div className="text-center mb-16">
-            <h2 className="font-serif text-4xl md:text-5xl font-light text-foreground mb-4">Our Commitments</h2>
+            <h2 className="font-serif text-4xl md:text-5xl font-light text-foreground mb-4">Who We Serve</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              The principles that guide everything we create
+              VolunTrack Ontario connects three key groups to create meaningful volunteer experiences
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Students */}
+            <div className="p-8 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+              <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-6">
+                <GraduationCap className="h-6 w-6 text-blue-600" />
+              </div>
+              <h3 className="font-serif text-2xl font-light text-foreground mb-4">Students</h3>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                Discover volunteer opportunities, apply directly through the platform, and track your hours toward
+                graduation requirements.
+              </p>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>• Browse opportunities by category and location</li>
+                <li>• Apply with one click</li>
+                <li>• Track hours and earn badges</li>
+                <li>• Submit your own volunteer experiences</li>
+              </ul>
+            </div>
+
+            {/* Schools & Counsellors */}
+            <div className="p-8 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-xl">
+              <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mb-6">
+                <Users className="h-6 w-6 text-green-600" />
+              </div>
+              <h3 className="font-serif text-2xl font-light text-foreground mb-4">Schools & Counsellors</h3>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                Manage student applications, verify volunteer hours, and monitor progress toward graduation requirements.
+              </p>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>• Review and approve applications</li>
+                <li>• Verify completed hours</li>
+                <li>• Track student progress</li>
+                <li>• Generate reports for records</li>
+              </ul>
+            </div>
+
+            {/* Organizations */}
+            <div className="p-8 bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 rounded-xl">
+              <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center mb-6">
+                <Heart className="h-6 w-6 text-orange-600" />
+              </div>
+              <h3 className="font-serif text-2xl font-light text-foreground mb-4">Organizations</h3>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                Post volunteer opportunities, connect with motivated students, and confirm completed service hours.
+              </p>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>• Post opportunities for free</li>
+                <li>• Reach thousands of students</li>
+                <li>• Manage volunteer applications</li>
+                <li>• Verify and sign off on hours</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Grid */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24" id="features">
+          <div className="text-center mb-16">
+            <h2 className="font-serif text-4xl md:text-5xl font-light text-foreground mb-4">Platform Features</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Everything you need to discover, track, and verify volunteer hours
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Sustainable Materials */}
-            <div className="p-8 bg-muted/30 border border-border">
-              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-6">
-                <Leaf className="h-6 w-6 text-accent" />
+            {/* Centralized Discovery */}
+            <div className="p-8 bg-muted/30 border border-border rounded-xl">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                <Search className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-serif text-2xl font-light text-foreground mb-4">Sustainable Materials</h3>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                We use only organic, recycled, or responsibly sourced materials. From European linen to peace silk,
-                every fabric is chosen for its minimal environmental impact.
+              <h3 className="font-serif text-2xl font-light text-foreground mb-4">Centralized Discovery</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                One platform to find all volunteer opportunities across Ontario. Browse by category, location,
+                date, or organization—no more scattered searches or outdated listings.
               </p>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>• 100% organic cotton and linen</li>
-                <li>• Recycled cashmere and wool</li>
-                <li>• Peace silk (cruelty-free)</li>
-                <li>• Natural, non-toxic dyes</li>
-              </ul>
             </div>
 
-            {/* Ethical Production */}
-            <div className="p-8 bg-muted/30 border border-border">
-              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-6">
-                <Users className="h-6 w-6 text-accent" />
+            {/* Seamless Hour Tracking */}
+            <div className="p-8 bg-muted/30 border border-border rounded-xl">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                <ClipboardCheck className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-serif text-2xl font-light text-foreground mb-4">Ethical Production</h3>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                Every piece is made in small, family-owned workshops in Portugal and Italy where artisans receive fair
-                wages and work in safe, dignified conditions.
+              <h3 className="font-serif text-2xl font-light text-foreground mb-4">Seamless Hour Tracking</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Automatically log and verify volunteer hours with built-in approval workflows. No more paper forms,
+                lost signatures, or manual record-keeping.
               </p>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>• Fair wages and benefits</li>
-                <li>• Safe working conditions</li>
-                <li>• Small-batch production</li>
-                <li>• Long-term partnerships</li>
-              </ul>
             </div>
 
-            {/* Timeless Design */}
-            <div className="p-8 bg-muted/30 border border-border">
-              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-6">
-                <Heart className="h-6 w-6 text-accent" />
+            {/* Progress Dashboard */}
+            <div className="p-8 bg-muted/30 border border-border rounded-xl">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                <Target className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-serif text-2xl font-light text-foreground mb-4">Timeless Design</h3>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                We design pieces that transcend trends and seasons. Each garment is created to be worn, loved, and
-                cherished for years to come.
+              <h3 className="font-serif text-2xl font-light text-foreground mb-4">Progress Dashboard</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Visual progress tracking toward your 40-hour goal. See your completed hours, pending applications,
+                and earned badges all in one place.
               </p>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>• Classic, versatile silhouettes</li>
-                <li>• High-quality construction</li>
-                <li>• Designed to last</li>
-                <li>• Seasonless collections</li>
-              </ul>
             </div>
 
-            {/* Circular Practices */}
-            <div className="p-8 bg-muted/30 border border-border">
-              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-6">
-                <Package className="h-6 w-6 text-accent" />
+            {/* Time-Saving Efficiency */}
+            <div className="p-8 bg-muted/30 border border-border rounded-xl">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                <Zap className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-serif text-2xl font-light text-foreground mb-4">Circular Practices</h3>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                From packaging to end-of-life, we consider the full lifecycle of every product. We're committed to
-                reducing waste and closing the loop.
+              <h3 className="font-serif text-2xl font-light text-foreground mb-4">Time-Saving Efficiency</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Reduce administrative burden for counsellors and organizations with streamlined approvals,
+                automated notifications, and easy reporting tools.
               </p>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>• Plastic-free packaging</li>
-                <li>• Carbon-neutral shipping</li>
-                <li>• Repair and care guides</li>
-                <li>• Take-back program</li>
-              </ul>
             </div>
           </div>
         </section>
 
-        {/* Impact Section */}
-        <section className="bg-muted/30 py-16">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="font-serif text-4xl md:text-5xl font-light text-foreground mb-6">Our Impact</h2>
-            <p className="text-muted-foreground leading-relaxed mb-12 max-w-3xl mx-auto">
-              Transparency is at the heart of what we do. Here's how we're making a difference.
-            </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div>
-                <div className="text-4xl md:text-5xl font-serif font-light text-accent mb-2">1,200+</div>
-                <p className="text-sm text-muted-foreground">Artisans supported</p>
-              </div>
-              <div>
-                <div className="text-4xl md:text-5xl font-serif font-light text-accent mb-2">100%</div>
-                <p className="text-sm text-muted-foreground">Carbon-neutral shipping</p>
-              </div>
-              <div>
-                <div className="text-4xl md:text-5xl font-serif font-light text-accent mb-2">85%</div>
-                <p className="text-sm text-muted-foreground">Waste reduction since 2020</p>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        {/* Certifications */}
-        <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-24">
-          <div className="text-center">
-            <h2 className="font-serif text-3xl md:text-4xl font-light text-foreground mb-8">Certifications</h2>
-            <div className="flex flex-wrap justify-center gap-8 items-center">
-              <div className="text-sm text-muted-foreground">GOTS Certified</div>
-              <div className="text-sm text-muted-foreground">Fair Trade</div>
-              <div className="text-sm text-muted-foreground">B Corp Pending</div>
-              <div className="text-sm text-muted-foreground">Climate Neutral</div>
-            </div>
+        {/* CTA Section */}
+        <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 text-center">
+          <h2 className="font-serif text-3xl md:text-4xl font-light text-foreground mb-4">Ready to Get Started?</h2>
+          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Join thousands of Ontario students making a difference in their communities.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link href="/opportunities">
+              <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 px-8">
+                Explore Opportunities
+              </Button>
+            </Link>
+            <Link href="/signup">
+              <Button size="lg" variant="outline" className="px-8">
+                Create an Account
+              </Button>
+            </Link>
           </div>
         </section>
       </main>
