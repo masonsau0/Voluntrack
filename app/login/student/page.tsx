@@ -22,7 +22,7 @@ export default function StudentLoginPage() {
                     </header>
 
                     <div className="w-full max-w-md">
-                        <LoginForm />
+                        <LoginForm showSignUp={true} />
                     </div>
                 </div>
 
@@ -38,14 +38,14 @@ export default function StudentLoginPage() {
                     </div>
                     <div className="rounded-xl overflow-hidden shadow-lg border-2 border-white/50">
                         <img
-                            src="/volunteers-community-helping-smiling-outdoors.jpg"
+                            src="/images/volunteers-tutoring.jpg"
                             alt="Tutoring"
                             className="w-full h-40 object-cover"
                         />
                     </div>
                     <div className="rounded-xl overflow-hidden shadow-lg border-2 border-white/50">
                         <img
-                            src="/volunteers-working-together-community-service-outdoor.jpg"
+                            src="/images/volunteers-healthcare.jpg"
                             alt="Healthcare"
                             className="w-full h-40 object-cover"
                         />

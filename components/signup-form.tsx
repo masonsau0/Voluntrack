@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -20,6 +21,8 @@ export function SignupForm({
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [errors, setErrors] = useState<{ [key: string]: string | undefined }>({})
+
+    const router = useRouter()
 
     const requirements = [
         { label: "At least 6 characters", met: password.length >= 6 },
@@ -50,6 +53,8 @@ export function SignupForm({
         if (Object.keys(newErrors).length > 0) return
 
         console.log("Signup submitted", { fullName, email, password })
+        // Redirect to preferences page after successful signup
+        router.push("/signup/preferences")
     }
 
     return (

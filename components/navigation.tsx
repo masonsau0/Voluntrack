@@ -17,6 +17,9 @@ export function Navigation() {
     pathname?.startsWith("/account") ||
     pathname?.startsWith("/news") ||
     pathname?.startsWith("/submit-form")
+  
+  // Check if we're on a login page
+  const isLoginPage = pathname?.startsWith("/login")
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -59,14 +62,16 @@ export function Navigation() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="relative hidden sm:flex">
-              <Bell className="h-5 w-5" />
-              {notificationCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
-                  {notificationCount}
-                </span>
-              )}
-            </Button>
+            {isLoggedIn && (
+              <Button variant="ghost" size="icon" className="relative hidden sm:flex">
+                <Bell className="h-5 w-5" />
+                {notificationCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
+                    {notificationCount}
+                  </span>
+                )}
+              </Button>
+            )}
 
             {/* Authentication vs Profile */}
             {isLoggedIn ? (
@@ -83,8 +88,12 @@ export function Navigation() {
               <div className="hidden sm:flex items-center gap-4">
                 <Link href="/login">
                   <Button
-                    variant="outline"
-                    className="rounded-full px-6 tracking-wide uppercase text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                    variant={isLoginPage ? "default" : "outline"}
+                    className={`rounded-full px-6 tracking-wide uppercase text-xs ${
+                      isLoginPage 
+                        ? "bg-primary text-primary-foreground" 
+                        : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                    }`}
                   >
                     Log in
                   </Button>
