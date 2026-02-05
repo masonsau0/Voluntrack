@@ -68,7 +68,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             <div className="group relative aspect-[3/4] overflow-hidden bg-muted cursor-default">
               <img
                 src="/student-with-laptop-searching-for-volunteer-opport.jpg"
@@ -80,21 +80,6 @@ export default function HomePage() {
                 <h3 className="font-serif text-2xl md:text-3xl font-light mb-2">Students</h3>
                 <p className="text-sm text-background/90">
                   Discover opportunities, track your hours, and build skills for your future
-                </p>
-              </div>
-            </div>
-
-            <div className="group relative aspect-[3/4] overflow-hidden bg-muted cursor-default">
-              <img
-                src="/guidance-counsellor-helping-students-in-office.jpg"
-                alt="Guidance Counsellors"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-6 text-background">
-                <h3 className="font-serif text-2xl md:text-3xl font-light mb-2">Guidance Counsellors</h3>
-                <p className="text-sm text-background/90">
-                  Approve hours, track student progress, and manage applications with ease
                 </p>
               </div>
             </div>
