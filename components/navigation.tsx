@@ -15,9 +15,8 @@ export function Navigation() {
   const isLoggedIn = pathname?.startsWith("/dashboard") ||
     pathname?.startsWith("/applications") ||
     pathname?.startsWith("/account") ||
-    pathname?.startsWith("/news") ||
-    pathname?.startsWith("/submit-form")
-  
+    pathname?.startsWith("/news")
+
   // Check if we're on a login page
   const isLoginPage = pathname?.startsWith("/login")
 
@@ -47,12 +46,7 @@ export function Navigation() {
             >
               Dashboard
             </Link>
-            <Link
-              href="/resources"
-              className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
-            >
-              Resources
-            </Link>
+
             <Link
               href="/about"
               className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
@@ -89,11 +83,10 @@ export function Navigation() {
                 <Link href="/login">
                   <Button
                     variant={isLoginPage ? "default" : "outline"}
-                    className={`rounded-full px-6 tracking-wide uppercase text-xs ${
-                      isLoginPage 
-                        ? "bg-primary text-primary-foreground" 
-                        : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                    }`}
+                    className={`rounded-full px-6 tracking-wide uppercase text-xs ${isLoginPage
+                      ? "bg-primary text-primary-foreground"
+                      : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                      }`}
                   >
                     Log in
                   </Button>
@@ -138,13 +131,7 @@ export function Navigation() {
             >
               Dashboard
             </Link>
-            <Link
-              href="/resources"
-              className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Resources
-            </Link>
+
             <Link
               href="/about"
               className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
