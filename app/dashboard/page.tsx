@@ -735,7 +735,6 @@ export default function DashboardPage() {
             {/* Resources and Quick Actions Column */}
             <div className="lg:col-span-1 space-y-6">
 
-
               {/* Favourited */}
               <Card className="shadow-sm">
                 <CardContent className="p-4">

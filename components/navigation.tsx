@@ -34,25 +34,28 @@ export function Navigation() {
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
-            <Link
-              href="/opportunities"
-              className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
-            >
-              Opportunities
-            </Link>
-            <Link
-              href="/dashboard"
-              className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
-            >
-              Dashboard
-            </Link>
-
-            <Link
-              href="/about"
-              className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
-            >
-              About
-            </Link>
+            {isLoggedIn && (
+              <>
+                <Link
+                  href="/opportunities"
+                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  Opportunities
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/about"
+                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  About
+                </Link>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-4">
@@ -117,28 +120,31 @@ export function Navigation() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background">
           <div className="px-4 py-6 space-y-4">
-            <Link
-              href="/opportunities"
-              className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Opportunities
-            </Link>
-            <Link
-              href="/dashboard"
-              className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Dashboard
-            </Link>
-
-            <Link
-              href="/about"
-              className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              About
-            </Link>
+            {isLoggedIn && (
+              <>
+                <Link
+                  href="/opportunities"
+                  className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Opportunities
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/about"
+                  className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  About
+                </Link>
+              </>
+            )}
             <div className="pt-4 border-t border-border flex flex-col gap-4">
               <Link
                 href="/login"

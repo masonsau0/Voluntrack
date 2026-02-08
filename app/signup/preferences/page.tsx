@@ -91,7 +91,7 @@ const locations = [
 export default function PreferencesPage() {
   const router = useRouter()
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
-  const [volunteerPreference, setVolunteerPreference] = useState("online")
+  const [volunteerPreference, setVolunteerPreference] = useState("hybrid")
   const [availability, setAvailability] = useState("weekends")
   const [location, setLocation] = useState<string>("")
 
@@ -119,7 +119,7 @@ export default function PreferencesPage() {
   }
 
   return (
-    <div className="min-h-svh bg-white">
+    <div className="min-h-svh bg-background">
       <Navigation />
       <div className="pt-24 pb-12 px-6 md:px-10">
         <div className="max-w-5xl mx-auto">
@@ -193,12 +193,12 @@ export default function PreferencesPage() {
                         className="space-y-3"
                       >
                         <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="online" id="online" />
+                          <RadioGroupItem value="hybrid" id="hybrid" />
                           <Label
-                            htmlFor="online"
+                            htmlFor="hybrid"
                             className="font-normal cursor-pointer"
                           >
-                            Online
+                            Hybrid
                           </Label>
                         </div>
                         <div className="flex items-center space-x-2">

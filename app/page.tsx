@@ -64,7 +64,7 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <h2 className="font-serif text-4xl md:text-5xl font-light text-foreground mb-4">Who We Serve</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Connecting students, schools, and organizations for meaningful volunteer experiences
+              Connecting students and organizations for meaningful volunteer experiences
             </p>
           </div>
 
@@ -138,10 +138,10 @@ export default function HomePage() {
                   <ClipboardCheck className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg text-foreground mb-2">Seamless Hour Tracking</h3>
+                  <h3 className="font-semibold text-lg text-foreground mb-2">Integrated Hour Validation</h3>
                   <p className="text-muted-foreground leading-relaxed">
-                    Automatically log and verify volunteer hours with built-in approval workflows — no more paper forms
-                    or lost records.
+                    A digitized verification system that replaces manual logging with secure, automated approval
+                    workflows, ensuring data integrity and reducing the risk of lost records.
                   </p>
                 </div>
               </div>
@@ -155,8 +155,8 @@ export default function HomePage() {
                 <div>
                   <h3 className="font-semibold text-lg text-foreground mb-2">Connected Community</h3>
                   <p className="text-muted-foreground leading-relaxed">
-                    Bridge the gap between students, schools, and organizations with real-time communication and
-                    updates.
+                    A collaborative interface designed to bridge communication gaps between students, educational
+                    institutions, and community partners through real-time updates and synchronization.
                   </p>
                 </div>
               </div>
@@ -168,10 +168,10 @@ export default function HomePage() {
                   <Zap className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg text-foreground mb-2">Time-Saving Efficiency</h3>
+                  <h3 className="font-semibold text-lg text-foreground mb-2">Gamified Milestones</h3>
                   <p className="text-muted-foreground leading-relaxed">
-                    Reduce administrative burden for counsellors and organizations with streamlined approvals and
-                    automated reporting.
+                    Visualize your progress toward graduation requirements with automated reporting and celebrate every
+                    hour you give back.
                   </p>
                 </div>
               </div>

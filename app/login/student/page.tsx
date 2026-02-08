@@ -2,7 +2,7 @@ import { LoginForm } from "@/components/login-form"
 
 export default function StudentLoginPage() {
     return (
-        <div className="min-h-svh bg-gradient-to-b from-sky-100 to-sky-200 p-6 md:p-10">
+        <div className="min-h-svh bg-background p-6 md:p-10">
             <div className="grid lg:grid-cols-2 gap-12 items-start max-w-6xl mx-auto">
 
                 {/* LEFT COLUMN */}
