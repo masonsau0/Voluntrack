@@ -9,13 +9,10 @@ import {
     Sparkles,
     TrendingUp,
     FileText,
-    FolderOpen,
-    Newspaper,
     User,
     Settings,
     ArrowRight,
     Award,
-    BarChart3,
     Pencil,
     GraduationCap,
 } from "lucide-react"
@@ -24,9 +21,8 @@ import {
 const tabs = [
     { id: "progress", label: "Progress Tracking", icon: TrendingUp, href: "/dashboard" },
     { id: "applications", label: "Applications", icon: FileText, href: "/applications" },
-    { id: "forms", label: "Submit Own Form", icon: FolderOpen, href: "/submit-form" },
     { id: "account", label: "My Account", icon: User, href: "/account" },
-    { id: "preferences", label: "Preferences", icon: Settings, href: "/dashboard" },
+    { id: "preferences", label: "Preferences", icon: Settings, href: "/signup/preferences" },
 ]
 
 // Sample user data
@@ -64,15 +60,6 @@ export default function AccountPage() {
                                         <h1 className="text-2xl md:text-3xl font-bold text-foreground">Welcome back, John!</h1>
                                         <p className="text-muted-foreground mt-1">Ready to make a difference today?</p>
                                     </div>
-                                </div>
-                                <div className="mt-4 ml-16">
-                                    <Link href="/opportunities">
-                                        <Button className="bg-blue-500 hover:bg-blue-600 text-white gap-2 rounded-full">
-                                            <FolderOpen className="w-4 h-4" />
-                                            View Opportunities
-                                            <ArrowRight className="w-4 h-4" />
-                                        </Button>
-                                    </Link>
                                 </div>
                             </div>
 

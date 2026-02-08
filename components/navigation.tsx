@@ -15,9 +15,8 @@ export function Navigation() {
   const isLoggedIn = pathname?.startsWith("/dashboard") ||
     pathname?.startsWith("/applications") ||
     pathname?.startsWith("/account") ||
-    pathname?.startsWith("/news") ||
-    pathname?.startsWith("/submit-form")
-  
+    pathname?.startsWith("/news")
+
   // Check if we're on a login page
   const isLoginPage = pathname?.startsWith("/login")
 
@@ -87,11 +86,10 @@ export function Navigation() {
                 <Link href="/login">
                   <Button
                     variant={isLoginPage ? "default" : "outline"}
-                    className={`rounded-full px-6 tracking-wide uppercase text-xs ${
-                      isLoginPage 
-                        ? "bg-primary text-primary-foreground" 
-                        : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                    }`}
+                    className={`rounded-full px-6 tracking-wide uppercase text-xs ${isLoginPage
+                      ? "bg-primary text-primary-foreground"
+                      : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                      }`}
                   >
                     Log in
                   </Button>

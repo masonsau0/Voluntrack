@@ -42,15 +42,15 @@ import {
 
 // Category colors matching existing scheme
 const categoryColors: { [key: string]: { bg: string; text: string; border: string; gradient: string; icon: typeof Leaf; heroGradient: string } } = {
-  "Environment": { bg: "bg-green-100", text: "text-green-700", border: "border-green-300", gradient: "from-green-500/30 to-emerald-600/30", heroGradient: "from-green-900/90 via-green-800/60 to-transparent", icon: Leaf },
-  "Community Outreach": { bg: "bg-orange-100", text: "text-orange-700", border: "border-orange-300", gradient: "from-orange-500/30 to-amber-600/30", heroGradient: "from-orange-900/90 via-orange-800/60 to-transparent", icon: HandHeart },
-  "Education": { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-300", gradient: "from-blue-500/30 to-indigo-600/30", heroGradient: "from-blue-900/90 via-blue-800/60 to-transparent", icon: GraduationCap },
-  "Healthcare": { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-300", gradient: "from-pink-500/30 to-rose-600/30", heroGradient: "from-pink-900/90 via-pink-800/60 to-transparent", icon: Stethoscope },
-  "Animal Welfare": { bg: "bg-amber-100", text: "text-amber-700", border: "border-amber-300", gradient: "from-amber-500/30 to-yellow-600/30", heroGradient: "from-amber-900/90 via-amber-800/60 to-transparent", icon: Dog },
-  "Arts & Culture": { bg: "bg-purple-100", text: "text-purple-700", border: "border-purple-300", gradient: "from-purple-500/30 to-violet-600/30", heroGradient: "from-purple-900/90 via-purple-800/60 to-transparent", icon: Palette },
-  "Youth Programs": { bg: "bg-cyan-100", text: "text-cyan-700", border: "border-cyan-300", gradient: "from-cyan-500/30 to-teal-600/30", heroGradient: "from-cyan-900/90 via-cyan-800/60 to-transparent", icon: Users },
-  "Senior Care": { bg: "bg-rose-100", text: "text-rose-700", border: "border-rose-300", gradient: "from-rose-500/30 to-pink-600/30", heroGradient: "from-rose-900/90 via-rose-800/60 to-transparent", icon: Heart },
-  "Corporate": { bg: "bg-slate-100", text: "text-slate-700", border: "border-slate-300", gradient: "from-slate-500/30 to-gray-600/30", heroGradient: "from-slate-900/90 via-slate-800/60 to-transparent", icon: Building2 },
+  "Environment": { bg: "bg-green-100", text: "text-green-700", border: "border-green-300", gradient: "from-green-500/15 to-emerald-600/15", heroGradient: "from-green-900/90 via-green-800/60 to-transparent", icon: Leaf },
+  "Community Outreach": { bg: "bg-orange-100", text: "text-orange-700", border: "border-orange-300", gradient: "from-orange-500/15 to-amber-600/15", heroGradient: "from-orange-900/90 via-orange-800/60 to-transparent", icon: HandHeart },
+  "Education": { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-300", gradient: "from-blue-500/15 to-indigo-600/15", heroGradient: "from-blue-900/90 via-blue-800/60 to-transparent", icon: GraduationCap },
+  "Healthcare": { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-300", gradient: "from-pink-500/15 to-rose-600/15", heroGradient: "from-pink-900/90 via-pink-800/60 to-transparent", icon: Stethoscope },
+  "Animal Welfare": { bg: "bg-amber-100", text: "text-amber-700", border: "border-amber-300", gradient: "from-amber-500/15 to-yellow-600/15", heroGradient: "from-amber-900/90 via-amber-800/60 to-transparent", icon: Dog },
+  "Arts & Culture": { bg: "bg-purple-100", text: "text-purple-700", border: "border-purple-300", gradient: "from-purple-500/15 to-violet-600/15", heroGradient: "from-purple-900/90 via-purple-800/60 to-transparent", icon: Palette },
+  "Youth Programs": { bg: "bg-cyan-100", text: "text-cyan-700", border: "border-cyan-300", gradient: "from-cyan-500/15 to-teal-600/15", heroGradient: "from-cyan-900/90 via-cyan-800/60 to-transparent", icon: Users },
+  "Senior Care": { bg: "bg-rose-100", text: "text-rose-700", border: "border-rose-300", gradient: "from-rose-500/15 to-pink-600/15", heroGradient: "from-rose-900/90 via-rose-800/60 to-transparent", icon: Heart },
+  "Corporate": { bg: "bg-slate-100", text: "text-slate-700", border: "border-slate-300", gradient: "from-slate-500/15 to-gray-600/15", heroGradient: "from-slate-900/90 via-slate-800/60 to-transparent", icon: Building2 },
 }
 
 // Commitment level colors for light theme
@@ -1043,35 +1043,196 @@ export default function OpportunitiesPage() {
 
         {/* Content sections */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Show filtered results or regular rows */}
+          {/* Show filtered results or regular layout */}
           {hasActiveFilters ? (
-            // Filtered results view
-            <OpportunityRow
-              title={`Search Results (${filteredOpportunities.length})`}
-              opportunities={filteredOpportunities}
-            />
+            // Filtered results view - grid layout
+            <div>
+              <h2 className="text-xl font-bold text-slate-800 mb-6">
+                Search Results ({filteredOpportunities.length})
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredOpportunities.map((opp) => (
+                  <div
+                    key={opp.id}
+                    className="relative cursor-pointer group"
+                    onClick={() => setSelectedOpportunity(opp)}
+                  >
+                    <div
+                      className="relative h-72 bg-white rounded-xl overflow-hidden border border-slate-200 transition-all duration-300 group-hover:shadow-xl group-hover:scale-[1.02] group-hover:-translate-y-1"
+                    >
+                      <div className="absolute inset-0">
+                        <Image
+                          src={opp.image}
+                          alt={opp.title}
+                          fill
+                          className="object-cover"
+                        />
+                        <div className={`absolute inset-0 bg-gradient-to-br ${categoryColors[opp.category]?.gradient}`} />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                      </div>
+                      {opp.featured && (
+                        <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full text-white text-xs font-bold shadow-lg">
+                          <Star className="w-3 h-3 fill-current" />
+                          Featured
+                        </div>
+                      )}
+                      <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full text-slate-700 text-xs font-medium shadow-sm">
+                        {opp.spotsLeft} spots left
+                      </div>
+                      <div className="absolute inset-0 p-4 flex flex-col justify-end">
+                        <h3 className="font-bold text-white text-lg leading-tight mb-1 drop-shadow-lg">
+                          {opp.title}
+                        </h3>
+                        <p className="text-white/90 text-sm mb-2 drop-shadow">{opp.organization}</p>
+                        <div className="flex items-center gap-3 text-xs text-white/90 mb-2">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5" />
+                            {opp.hours}h
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5" />
+                            {opp.location.split(',')[0]}
+                          </span>
+                        </div>
+                        <div className="flex gap-2">
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${categoryColors[opp.category]?.bg} ${categoryColors[opp.category]?.text}`}>
+                            {opp.category}
+                          </span>
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-sm">
+                            {opp.commitment}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           ) : (
             <>
-              {/* Experiences for You */}
-              <OpportunityRow
-                title="Experiences for You"
-                opportunities={sampleOpportunities.slice(0, 8)}
-              />
+              {/* Experiences for You - 2 rows x 3 columns = 6 cards */}
+              <div className="mb-12">
+                <h2 className="text-xl font-bold text-slate-800 mb-6">Experiences for You</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {sampleOpportunities.slice(0, 6).map((opp) => (
+                    <div
+                      key={opp.id}
+                      className="relative cursor-pointer group"
+                      onClick={() => setSelectedOpportunity(opp)}
+                    >
+                      <div
+                        className="relative h-72 bg-white rounded-xl overflow-hidden border border-slate-200 transition-all duration-300 group-hover:shadow-xl group-hover:scale-[1.02] group-hover:-translate-y-1"
+                      >
+                        <div className="absolute inset-0">
+                          <Image
+                            src={opp.image}
+                            alt={opp.title}
+                            fill
+                            className="object-cover"
+                          />
+                          <div className={`absolute inset-0 bg-gradient-to-br ${categoryColors[opp.category]?.gradient}`} />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                        </div>
+                        {opp.featured && (
+                          <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full text-white text-xs font-bold shadow-lg">
+                            <Star className="w-3 h-3 fill-current" />
+                            Featured
+                          </div>
+                        )}
+                        <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full text-slate-700 text-xs font-medium shadow-sm">
+                          {opp.spotsLeft} spots left
+                        </div>
+                        <div className="absolute inset-0 p-4 flex flex-col justify-end">
+                          <h3 className="font-bold text-white text-lg leading-tight mb-1 drop-shadow-lg">
+                            {opp.title}
+                          </h3>
+                          <p className="text-white/90 text-sm mb-2 drop-shadow">{opp.organization}</p>
+                          <div className="flex items-center gap-3 text-xs text-white/90 mb-2">
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3.5 h-3.5" />
+                              {opp.hours}h
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5" />
+                              {opp.location.split(',')[0]}
+                            </span>
+                          </div>
+                          <div className="flex gap-2">
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${categoryColors[opp.category]?.bg} ${categoryColors[opp.category]?.text}`}>
+                              {opp.category}
+                            </span>
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-sm">
+                              {opp.commitment}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-              {/* Trending Now */}
-              <OpportunityRow
-                title="Trending Now"
-                opportunities={featuredOpportunities}
-              />
-
-              {/* Category Rows */}
-              {Object.entries(groupedByCategory).map(([category, opportunities]) => (
-                <OpportunityRow
-                  key={category}
-                  title={category}
-                  opportunities={opportunities}
-                />
-              ))}
+              {/* All Opportunities - 3 columns grid */}
+              <div>
+                <h2 className="text-xl font-bold text-slate-800 mb-6">All Opportunities</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {sampleOpportunities.map((opp) => (
+                    <div
+                      key={opp.id}
+                      className="relative cursor-pointer group"
+                      onClick={() => setSelectedOpportunity(opp)}
+                    >
+                      <div
+                        className="relative h-72 bg-white rounded-xl overflow-hidden border border-slate-200 transition-all duration-300 group-hover:shadow-xl group-hover:scale-[1.02] group-hover:-translate-y-1"
+                      >
+                        <div className="absolute inset-0">
+                          <Image
+                            src={opp.image}
+                            alt={opp.title}
+                            fill
+                            className="object-cover"
+                          />
+                          <div className={`absolute inset-0 bg-gradient-to-br ${categoryColors[opp.category]?.gradient}`} />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                        </div>
+                        {opp.featured && (
+                          <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full text-white text-xs font-bold shadow-lg">
+                            <Star className="w-3 h-3 fill-current" />
+                            Featured
+                          </div>
+                        )}
+                        <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full text-slate-700 text-xs font-medium shadow-sm">
+                          {opp.spotsLeft} spots left
+                        </div>
+                        <div className="absolute inset-0 p-4 flex flex-col justify-end">
+                          <h3 className="font-bold text-white text-lg leading-tight mb-1 drop-shadow-lg">
+                            {opp.title}
+                          </h3>
+                          <p className="text-white/90 text-sm mb-2 drop-shadow">{opp.organization}</p>
+                          <div className="flex items-center gap-3 text-xs text-white/90 mb-2">
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3.5 h-3.5" />
+                              {opp.hours}h
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5" />
+                              {opp.location.split(',')[0]}
+                            </span>
+                          </div>
+                          <div className="flex gap-2">
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${categoryColors[opp.category]?.bg} ${categoryColors[opp.category]?.text}`}>
+                              {opp.category}
+                            </span>
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-sm">
+                              {opp.commitment}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </>
           )}
         </div>

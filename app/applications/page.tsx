@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -61,6 +62,7 @@ const sampleApplications = [
     {
         id: 1,
         title: "Trinity Bellwoods Park: Park Clean-Up",
+        organization: "Toronto Parks Foundation",
         location: "790 Queen St W, Toronto, ON M6J 1G3",
         date: "Saturday, July 30, 2025, 10:00 AM – 12:00 PM",
         dateISO: "2025-07-30",
@@ -68,10 +70,17 @@ const sampleApplications = [
         hours: "2 Hr",
         category: "Environment",
         status: "pending",
+        description: "Join us for a community park clean-up at Trinity Bellwoods Park. Help maintain one of Toronto's most beloved green spaces by picking up litter, raking leaves, and keeping pathways clear.",
+        skills: ["Outdoor Work", "Teamwork"],
+        spotsLeft: 8,
+        totalSpots: 20,
+        commitment: "One-time",
+        image: "/event-volunteer-fair.png",
     },
     {
         id: 2,
         title: "Food Bank Sorting",
+        organization: "Daily Bread Food Bank",
         location: "125 Main St, Toronto, ON M4C 1A1",
         date: "Saturday, June 14, 2025, 7:00 AM – 9:00 AM",
         dateISO: "2025-06-14",
@@ -79,10 +88,17 @@ const sampleApplications = [
         hours: "2 Hr",
         category: "Community Outreach",
         status: "approved",
+        description: "Help sort and distribute food donations to families in need. Tasks include organizing donations, checking expiry dates, and packing food hampers for distribution.",
+        skills: ["Organization", "Physical Work", "Teamwork"],
+        spotsLeft: 15,
+        totalSpots: 30,
+        commitment: "Weekly",
+        image: "/event-volunteer-fair.png",
     },
     {
         id: 3,
         title: "Community Garden Planting",
+        organization: "FoodShare Toronto",
         location: "456 Oak St, Toronto, ON M5H 2N2",
         date: "Sunday, July 13, 2025, 12:00 AM – 2:00 PM",
         dateISO: "2025-07-13",
@@ -90,10 +106,17 @@ const sampleApplications = [
         hours: "2 Hr",
         category: "Environment",
         status: "approved",
+        description: "Help grow fresh vegetables for community food programs. Tasks include planting, weeding, watering, and harvesting. Learn urban farming techniques.",
+        skills: ["Gardening", "Physical Work"],
+        spotsLeft: 10,
+        totalSpots: 20,
+        commitment: "Monthly",
+        image: "/event-volunteer-fair.png",
     },
     {
         id: 4,
         title: "Hospital Volunteer Program",
+        organization: "Toronto General Hospital",
         location: "200 Elizabeth St, Toronto, ON M5G 2C4",
         date: "Monday, August 4, 2025, 9:00 AM – 1:00 PM",
         dateISO: "2025-08-04",
@@ -101,10 +124,17 @@ const sampleApplications = [
         hours: "4 Hr",
         category: "Healthcare",
         status: "pending",
+        description: "Provide friendly companionship to hospital patients. Duties include chatting, reading, playing games, and offering emotional support to patients and their families.",
+        skills: ["Communication", "Empathy", "Patience"],
+        spotsLeft: 5,
+        totalSpots: 15,
+        commitment: "Weekly",
+        image: "/event-volunteer-fair.png",
     },
     {
         id: 5,
         title: "Youth Mentorship Session",
+        organization: "Big Brothers Big Sisters",
         location: "100 Queen's Park, Toronto, ON M5S 2C6",
         date: "Wednesday, July 23, 2025, 3:00 PM – 5:00 PM",
         dateISO: "2025-07-23",
@@ -112,10 +142,17 @@ const sampleApplications = [
         hours: "2 Hr",
         category: "Education",
         status: "approved",
+        description: "Mentor elementary and high school students in various subjects including math, science, and English. Help build confidence and academic skills in young learners.",
+        skills: ["Teaching", "Communication", "Patience"],
+        spotsLeft: 12,
+        totalSpots: 25,
+        commitment: "Weekly",
+        image: "/event-youth-mentorship.png",
     },
     {
         id: 6,
         title: "Animal Shelter Helper",
+        organization: "Toronto Humane Society",
         location: "821 Progress Ave, Toronto, ON M1H 2X4",
         date: "Saturday, August 9, 2025, 10:00 AM – 2:00 PM",
         dateISO: "2025-08-09",
@@ -123,10 +160,17 @@ const sampleApplications = [
         hours: "4 Hr",
         category: "Animal Welfare",
         status: "denied",
+        description: "Walk dogs, socialize cats, and help with basic animal care. Experience the joy of helping shelter animals find their forever homes.",
+        skills: ["Animal Handling", "Physical Fitness"],
+        spotsLeft: 0,
+        totalSpots: 20,
+        commitment: "Weekly",
+        image: "/event-animal-shelter.png",
     },
     {
         id: 7,
         title: "Senior Center Art Class Assistant",
+        organization: "Toronto Senior Services",
         location: "55 Elm St, Toronto, ON M5G 1H1",
         date: "Thursday, July 17, 2025, 1:00 PM – 3:00 PM",
         dateISO: "2025-07-17",
@@ -134,10 +178,17 @@ const sampleApplications = [
         hours: "2 Hr",
         category: "Arts & Culture",
         status: "approved",
+        description: "Assist seniors with art projects including painting, drawing, and crafts. Help create a fun and supportive creative environment for older adults.",
+        skills: ["Art", "Communication", "Patience"],
+        spotsLeft: 6,
+        totalSpots: 12,
+        commitment: "Weekly",
+        image: "/event-volunteer-fair.png",
     },
     {
         id: 8,
         title: "Beach Cleanup Initiative",
+        organization: "Lake Ontario Waterkeeper",
         location: "1561 Lake Shore Blvd W, Toronto, ON M6K 3C1",
         date: "Sunday, August 17, 2025, 8:00 AM – 11:00 AM",
         dateISO: "2025-08-17",
@@ -145,16 +196,32 @@ const sampleApplications = [
         hours: "3 Hr",
         category: "Environment",
         status: "pending",
+        description: "Help keep Toronto's waterfront clean and beautiful. Collect litter and debris from the beach, learn about local ecosystems, and make a visible difference.",
+        skills: ["Outdoor Work", "Teamwork"],
+        spotsLeft: 25,
+        totalSpots: 50,
+        commitment: "One-time",
+        image: "/event-volunteer-fair.png",
     },
 ]
 
-// Saved opportunities
+// Saved opportunities (enriched for popup modal)
 const savedOpportunities = [
     {
         id: 1,
         title: "Trinity Bellwoods Park: Park Clean-Up",
+        organization: "Toronto Parks Foundation",
+        location: "790 Queen St W, Toronto, ON M6J 1G3",
         date: "July 30",
+        fullDate: "Wednesday, July 30, 2025, 2:00 PM – 4:00 PM",
+        hours: "2 Hr",
         category: "Environment",
+        description: "Join us for a community park clean-up. Help maintain one of Toronto's most beloved green spaces.",
+        skills: ["Outdoor Work", "Teamwork"],
+        spotsLeft: 12,
+        totalSpots: 25,
+        commitment: "One-time",
+        image: "/event-park-cleanup.png",
         icon: Leaf,
         iconBg: "bg-green-100",
         iconColor: "text-green-600",
@@ -162,8 +229,18 @@ const savedOpportunities = [
     {
         id: 2,
         title: "Library Reading Program",
+        organization: "Toronto Public Library",
+        location: "789 Yonge St, Toronto, ON M4W 2G8",
         date: "August 4",
+        fullDate: "Monday, August 4, 2025, 3:00 PM – 5:00 PM",
+        hours: "2 Hr",
         category: "Education",
+        description: "Read to children and help foster a love of books. Perfect for those who enjoy working with kids.",
+        skills: ["Reading", "Communication", "Patience"],
+        spotsLeft: 8,
+        totalSpots: 15,
+        commitment: "Weekly",
+        image: "/event-youth-mentorship.png",
         icon: BookOpen,
         iconBg: "bg-blue-100",
         iconColor: "text-blue-600",
@@ -171,8 +248,18 @@ const savedOpportunities = [
     {
         id: 3,
         title: "Beach Dune Restoration",
+        organization: "Lake Ontario Waterkeeper",
+        location: "Woodbine Beach, Toronto, ON M4L 3V7",
         date: "August 22",
+        fullDate: "Friday, August 22, 2025, 9:00 AM – 12:00 PM",
+        hours: "3 Hr",
         category: "Environment",
+        description: "Help restore beach dunes and protect native vegetation along Toronto's waterfront.",
+        skills: ["Outdoor Work", "Physical Work"],
+        spotsLeft: 20,
+        totalSpots: 40,
+        commitment: "One-time",
+        image: "/event-park-cleanup.png",
         icon: Leaf,
         iconBg: "bg-green-100",
         iconColor: "text-green-600",
@@ -180,8 +267,18 @@ const savedOpportunities = [
     {
         id: 4,
         title: "Habitat Restoration Project",
+        organization: "Toronto Wildlife Centre",
+        location: "60 Carl Hall Rd, Toronto, ON M3K 2C1",
         date: "August 29",
+        fullDate: "Friday, August 29, 2025, 10:00 AM – 1:00 PM",
+        hours: "3 Hr",
         category: "Environment",
+        description: "Assist with wildlife habitat restoration including planting native species and removing invasive plants.",
+        skills: ["Conservation", "Physical Work", "Teamwork"],
+        spotsLeft: 15,
+        totalSpots: 30,
+        commitment: "Monthly",
+        image: "/event-park-cleanup.png",
         icon: Leaf,
         iconBg: "bg-green-100",
         iconColor: "text-green-600",
@@ -189,8 +286,18 @@ const savedOpportunities = [
     {
         id: 5,
         title: "Community Food Bank Volunteer",
+        organization: "Daily Bread Food Bank",
+        location: "191 New Toronto St, Toronto, ON M8V 2E7",
         date: "September 5",
+        fullDate: "Friday, September 5, 2025, 9:00 AM – 12:00 PM",
+        hours: "3 Hr",
         category: "Community Outreach",
+        description: "Help sort and pack food donations for families in need. Make a direct impact on food security in Toronto.",
+        skills: ["Organization", "Physical Work", "Teamwork"],
+        spotsLeft: 25,
+        totalSpots: 50,
+        commitment: "Weekly",
+        image: "/event-volunteer-fair.png",
         icon: BookOpen,
         iconBg: "bg-orange-100",
         iconColor: "text-orange-600",
@@ -198,8 +305,18 @@ const savedOpportunities = [
     {
         id: 6,
         title: "Senior Center Companion Program",
+        organization: "Toronto Senior Services",
+        location: "55 Elm St, Toronto, ON M5G 1H1",
         date: "September 12",
+        fullDate: "Friday, September 12, 2025, 1:00 PM – 4:00 PM",
+        hours: "3 Hr",
         category: "Senior Care",
+        description: "Spend time with seniors, play games, share stories, and provide friendly companionship.",
+        skills: ["Communication", "Patience", "Empathy"],
+        spotsLeft: 10,
+        totalSpots: 20,
+        commitment: "Weekly",
+        image: "/event-volunteer-fair.png",
         icon: BookOpen,
         iconBg: "bg-rose-100",
         iconColor: "text-rose-600",
@@ -207,8 +324,18 @@ const savedOpportunities = [
     {
         id: 7,
         title: "Youth Soccer Coach Assistant",
+        organization: "Toronto Youth Athletics",
+        location: "1260 Broadview Ave, Toronto, ON M4K 2S9",
         date: "September 18",
+        fullDate: "Thursday, September 18, 2025, 4:00 PM – 6:00 PM",
+        hours: "2 Hr",
         category: "Youth Programs",
+        description: "Help coach young soccer players, run drills, and encourage teamwork and sportsmanship.",
+        skills: ["Sports", "Leadership", "Communication"],
+        spotsLeft: 5,
+        totalSpots: 10,
+        commitment: "Weekly",
+        image: "/event-youth-mentorship.png",
         icon: BookOpen,
         iconBg: "bg-cyan-100",
         iconColor: "text-cyan-600",
@@ -216,8 +343,18 @@ const savedOpportunities = [
     {
         id: 8,
         title: "Animal Shelter Dog Walker",
+        organization: "Toronto Humane Society",
+        location: "821 Progress Ave, Toronto, ON M1H 2X4",
         date: "September 24",
+        fullDate: "Wednesday, September 24, 2025, 10:00 AM – 12:00 PM",
+        hours: "2 Hr",
         category: "Animal Welfare",
+        description: "Walk shelter dogs and provide them with exercise and socialization. Help these dogs find their forever homes.",
+        skills: ["Animal Handling", "Physical Fitness"],
+        spotsLeft: 8,
+        totalSpots: 15,
+        commitment: "Weekly",
+        image: "/event-animal-shelter.png",
         icon: Leaf,
         iconBg: "bg-amber-100",
         iconColor: "text-amber-600",
@@ -225,8 +362,18 @@ const savedOpportunities = [
     {
         id: 9,
         title: "Hospital Gift Shop Volunteer",
+        organization: "Toronto General Hospital",
+        location: "200 Elizabeth St, Toronto, ON M5G 2C4",
         date: "October 2",
+        fullDate: "Thursday, October 2, 2025, 10:00 AM – 2:00 PM",
+        hours: "4 Hr",
         category: "Healthcare",
+        description: "Work in the hospital gift shop, assist customers, and help brighten the day for patients and visitors.",
+        skills: ["Customer Service", "Organization"],
+        spotsLeft: 4,
+        totalSpots: 8,
+        commitment: "Weekly",
+        image: "/event-volunteer-fair.png",
         icon: BookOpen,
         iconBg: "bg-pink-100",
         iconColor: "text-pink-600",
@@ -234,8 +381,18 @@ const savedOpportunities = [
     {
         id: 10,
         title: "Art Gallery Tour Guide",
+        organization: "Art Gallery of Ontario",
+        location: "317 Dundas St W, Toronto, ON M5T 1G4",
         date: "October 10",
+        fullDate: "Friday, October 10, 2025, 11:00 AM – 3:00 PM",
+        hours: "4 Hr",
         category: "Arts & Culture",
+        description: "Lead gallery tours, share art history, and help visitors appreciate the AGO's world-class collection.",
+        skills: ["Public Speaking", "Art Knowledge", "Communication"],
+        spotsLeft: 6,
+        totalSpots: 12,
+        commitment: "Monthly",
+        image: "/event-volunteer-fair.png",
         icon: BookOpen,
         iconBg: "bg-purple-100",
         iconColor: "text-purple-600",
@@ -243,8 +400,18 @@ const savedOpportunities = [
     {
         id: 11,
         title: "River Cleanup Initiative",
+        organization: "Don River Restoration",
+        location: "Don River Trail, Toronto, ON M4K 1N2",
         date: "October 18",
+        fullDate: "Saturday, October 18, 2025, 9:00 AM – 12:00 PM",
+        hours: "3 Hr",
         category: "Environment",
+        description: "Help clean up the Don River watershed. Remove litter and restore natural habitats.",
+        skills: ["Outdoor Work", "Physical Work", "Teamwork"],
+        spotsLeft: 30,
+        totalSpots: 60,
+        commitment: "One-time",
+        image: "/event-park-cleanup.png",
         icon: Leaf,
         iconBg: "bg-green-100",
         iconColor: "text-green-600",
@@ -252,8 +419,18 @@ const savedOpportunities = [
     {
         id: 12,
         title: "Charity Run Event Staff",
+        organization: "Run for the Cure",
+        location: "Nathan Phillips Square, Toronto, ON M5H 2N2",
         date: "October 25",
+        fullDate: "Saturday, October 25, 2025, 6:00 AM – 12:00 PM",
+        hours: "6 Hr",
         category: "Fundraising",
+        description: "Help organize and staff the annual charity run event. Roles include registration, water stations, and finish line.",
+        skills: ["Event Planning", "Organization", "Physical Stamina"],
+        spotsLeft: 50,
+        totalSpots: 100,
+        commitment: "One-time",
+        image: "/event-volunteer-fair.png",
         icon: BookOpen,
         iconBg: "bg-indigo-100",
         iconColor: "text-indigo-600",
@@ -289,9 +466,8 @@ const sortOptions = [
 const tabs = [
     { id: "progress", label: "Progress Tracking", icon: TrendingUp, href: "/dashboard" },
     { id: "applications", label: "Applications", icon: FileText, href: "/applications" },
-    { id: "forms", label: "Submit Own Form", icon: FolderOpen, href: "/submit-form" },
     { id: "account", label: "My Account", icon: User, href: "/account" },
-    { id: "preferences", label: "Preferences", icon: Settings, href: "/dashboard" },
+    { id: "preferences", label: "Preferences", icon: Settings, href: "/signup/preferences" },
 ]
 
 export default function ApplicationsPage() {
@@ -304,6 +480,8 @@ export default function ApplicationsPage() {
     const [showMobileFilters, setShowMobileFilters] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
     const [savedExpanded, setSavedExpanded] = useState(false)
+    const [selectedApplication, setSelectedApplication] = useState<typeof sampleApplications[0] | null>(null)
+    const [selectedSaved, setSelectedSaved] = useState<typeof savedOpportunities[0] | null>(null)
 
     const toggleStatus = (status: string) => {
         setSelectedStatuses((prev) =>
@@ -738,7 +916,8 @@ export default function ApplicationsPage() {
                                     return (
                                         <div
                                             key={app.id}
-                                            className={`border rounded-xl p-4 flex flex-col md:flex-row md:items-start justify-between gap-4 shadow-md hover:shadow-lg transition-shadow duration-200 ${categoryColor.cardBg}`}
+                                            className={`border rounded-xl p-4 flex flex-col md:flex-row md:items-start justify-between gap-4 shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-[1.01] ${categoryColor.cardBg}`}
+                                            onClick={() => setSelectedApplication(app)}
                                         >
                                             <div className="flex-1">
                                                 <h3 className="font-semibold text-foreground mb-2">{app.title}</h3>
@@ -776,6 +955,7 @@ export default function ApplicationsPage() {
                                                 <Button
                                                     variant="outline"
                                                     className="bg-orange-100 text-orange-700 border border-orange-300 hover:bg-orange-200 hover:text-orange-800 rounded-full"
+                                                    onClick={(e) => { e.stopPropagation(); setSelectedApplication(app); }}
                                                 >
                                                     View Posting
                                                 </Button>
@@ -827,7 +1007,8 @@ export default function ApplicationsPage() {
                                         {(savedExpanded ? savedOpportunities : savedOpportunities.slice(0, 5)).map((opp) => (
                                             <div
                                                 key={opp.id}
-                                                className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
+                                                onClick={() => setSelectedSaved(opp)}
+                                                className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-all cursor-pointer hover:scale-[1.02]"
                                             >
                                                 <div className={`w-8 h-8 rounded-lg ${opp.iconBg} flex items-center justify-center flex-shrink-0`}>
                                                     <opp.icon className={`w-4 h-4 ${opp.iconColor}`} />
@@ -867,6 +1048,302 @@ export default function ApplicationsPage() {
                     </div>
                 </div>
             </main>
+
+            {/* Application Detail Modal */}
+            {selectedApplication && (
+                <div
+                    className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+                    onClick={() => setSelectedApplication(null)}
+                >
+                    <div
+                        className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Modal Header with Image */}
+                        <div className="relative h-48">
+                            <Image
+                                src={selectedApplication.image}
+                                alt={selectedApplication.title}
+                                fill
+                                className="object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-transparent" />
+                            <button
+                                onClick={() => setSelectedApplication(null)}
+                                className="absolute top-4 right-4 w-10 h-10 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full flex items-center justify-center transition-colors shadow-lg"
+                            >
+                                <X className="w-5 h-5 text-slate-600" />
+                            </button>
+
+                            {/* Status Badge */}
+                            <div className="absolute top-4 left-4">
+                                <span
+                                    className={`px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1.5 border backdrop-blur-sm ${statusColors[selectedApplication.status].bg} ${statusColors[selectedApplication.status].text} ${statusColors[selectedApplication.status].border}`}
+                                >
+                                    {(() => { const StatusIcon = statusColors[selectedApplication.status].icon; return <StatusIcon className="w-4 h-4" />; })()}
+                                    {statusOptions.find(s => s.id === selectedApplication.status)?.label}
+                                </span>
+                            </div>
+
+                            {/* Title overlay */}
+                            <div className="absolute bottom-4 left-6 right-6">
+                                <h2 className="text-2xl font-bold text-white mb-1 drop-shadow-lg">{selectedApplication.title}</h2>
+                                <p className="text-white/90 drop-shadow">{selectedApplication.organization}</p>
+                            </div>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="p-6">
+                            {/* Tags */}
+                            <div className="flex flex-wrap gap-2 mb-5">
+                                <span className={`text-sm px-3 py-1 rounded-full ${categoryColors[selectedApplication.category]?.bg} ${categoryColors[selectedApplication.category]?.text}`}>
+                                    {selectedApplication.category}
+                                </span>
+                                <span className="text-sm px-3 py-1 rounded-full bg-blue-100 text-blue-700">
+                                    {selectedApplication.commitment}
+                                </span>
+                                <span className="text-sm px-3 py-1 rounded-full bg-sky-100 text-sky-700">
+                                    {selectedApplication.hours}
+                                </span>
+                            </div>
+
+                            {/* Quick Stats */}
+                            <div className="grid grid-cols-2 gap-4 mb-6">
+                                <div className="bg-sky-50 rounded-xl p-4 border border-sky-100">
+                                    <p className="text-2xl font-bold text-sky-700">{selectedApplication.spotsLeft}</p>
+                                    <p className="text-sm text-slate-600">Spots Remaining</p>
+                                </div>
+                                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                                    <p className="text-2xl font-bold text-slate-700">{selectedApplication.totalSpots}</p>
+                                    <p className="text-sm text-slate-600">Total Capacity</p>
+                                </div>
+                            </div>
+
+                            {/* Event Details */}
+                            <div className="space-y-3 mb-6">
+                                <div className="flex items-center gap-3 text-slate-600">
+                                    <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center">
+                                        <Calendar className="w-5 h-5 text-sky-600" />
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-slate-800">{selectedApplication.date.split(',').slice(0, 2).join(',')}</p>
+                                        <p className="text-sm">{selectedApplication.date.split(',').slice(2).join(',').trim()}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3 text-slate-600">
+                                    <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
+                                        <MapPin className="w-5 h-5 text-rose-600" />
+                                    </div>
+                                    <span>{selectedApplication.location}</span>
+                                </div>
+                            </div>
+
+                            {/* Skills */}
+                            <div className="mb-6">
+                                <h3 className="font-semibold text-slate-800 mb-2">Helpful Skills</h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {selectedApplication.skills.map((skill) => (
+                                        <span key={skill} className="text-sm px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
+                                            {skill}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Description */}
+                            <div className="mb-6">
+                                <h3 className="font-semibold text-slate-800 mb-2">About This Opportunity</h3>
+                                <p className="text-slate-600 leading-relaxed">
+                                    {selectedApplication.description}
+                                </p>
+                            </div>
+
+                            {/* Application Info */}
+                            <div className="bg-blue-50 rounded-xl p-4 mb-6 border border-blue-100">
+                                <h3 className="font-semibold text-blue-800 mb-2">Your Application</h3>
+                                <p className="text-sm text-blue-600">
+                                    Applied on: {new Date(selectedApplication.appliedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                                </p>
+                            </div>
+
+                            {/* Status-specific message */}
+                            {selectedApplication.status === 'pending' && (
+                                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+                                    <p className="text-yellow-800 text-sm">
+                                        <strong>Pending Review:</strong> Your application is currently being reviewed by the organization. You will be notified once a decision is made.
+                                    </p>
+                                </div>
+                            )}
+                            {selectedApplication.status === 'approved' && (
+                                <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+                                    <p className="text-green-800 text-sm">
+                                        <strong>Approved!</strong> Congratulations! Your application has been approved. Make sure to arrive on time at the specified location.
+                                    </p>
+                                </div>
+                            )}
+                            {selectedApplication.status === 'denied' && (
+                                <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+                                    <p className="text-red-800 text-sm">
+                                        <strong>Not Approved:</strong> Unfortunately, your application was not approved for this opportunity. Feel free to explore other opportunities that match your interests.
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-3">
+                                {selectedApplication.status === 'pending' && (
+                                    <Button variant="outline" className="flex-1 rounded-full py-6 border-red-300 text-red-600 hover:bg-red-50">
+                                        Withdraw Application
+                                    </Button>
+                                )}
+                                {selectedApplication.status === 'approved' && (
+                                    <Button className="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-full py-6">
+                                        Add to Calendar
+                                    </Button>
+                                )}
+                                {selectedApplication.status === 'denied' && (
+                                    <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6">
+                                        Browse Similar Opportunities
+                                    </Button>
+                                )}
+                                <Button
+                                    variant="outline"
+                                    className="px-6 rounded-full py-6 border-slate-300 text-slate-700 hover:bg-slate-100"
+                                    onClick={() => setSelectedApplication(null)}
+                                >
+                                    Close
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Saved Opportunity Detail Modal */}
+            {selectedSaved && (
+                <div
+                    className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+                    onClick={() => setSelectedSaved(null)}
+                >
+                    <div
+                        className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Modal Header with Image */}
+                        <div className="relative h-48">
+                            <Image
+                                src={selectedSaved.image}
+                                alt={selectedSaved.title}
+                                fill
+                                className="object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-transparent" />
+                            <button
+                                onClick={() => setSelectedSaved(null)}
+                                className="absolute top-4 right-4 w-10 h-10 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full flex items-center justify-center transition-colors shadow-lg"
+                            >
+                                <X className="w-5 h-5 text-slate-600" />
+                            </button>
+
+                            {/* Category Badge */}
+                            <div className="absolute top-4 left-4">
+                                <span
+                                    className={`px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1.5 border backdrop-blur-sm ${categoryColors[selectedSaved.category]?.bg} ${categoryColors[selectedSaved.category]?.text} ${categoryColors[selectedSaved.category]?.border}`}
+                                >
+                                    {selectedSaved.category}
+                                </span>
+                            </div>
+
+                            {/* Title overlay */}
+                            <div className="absolute bottom-4 left-6 right-6">
+                                <h2 className="text-2xl font-bold text-white mb-1 drop-shadow-lg">{selectedSaved.title}</h2>
+                                <p className="text-white/90 drop-shadow">{selectedSaved.organization}</p>
+                            </div>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="p-6">
+                            {/* Tags */}
+                            <div className="flex flex-wrap gap-2 mb-5">
+                                <span className={`text-sm px-3 py-1 rounded-full ${categoryColors[selectedSaved.category]?.bg} ${categoryColors[selectedSaved.category]?.text}`}>
+                                    {selectedSaved.category}
+                                </span>
+                                <span className="text-sm px-3 py-1 rounded-full bg-blue-100 text-blue-700">
+                                    {selectedSaved.commitment}
+                                </span>
+                                <span className="text-sm px-3 py-1 rounded-full bg-sky-100 text-sky-700">
+                                    {selectedSaved.hours}
+                                </span>
+                            </div>
+
+                            {/* Quick Stats */}
+                            <div className="grid grid-cols-2 gap-4 mb-6">
+                                <div className="bg-sky-50 rounded-xl p-4 border border-sky-100">
+                                    <p className="text-2xl font-bold text-sky-700">{selectedSaved.spotsLeft}</p>
+                                    <p className="text-sm text-slate-600">Spots Remaining</p>
+                                </div>
+                                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                                    <p className="text-2xl font-bold text-slate-700">{selectedSaved.totalSpots}</p>
+                                    <p className="text-sm text-slate-600">Total Capacity</p>
+                                </div>
+                            </div>
+
+                            {/* Event Details */}
+                            <div className="space-y-3 mb-6">
+                                <div className="flex items-center gap-3 text-slate-600">
+                                    <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center">
+                                        <Calendar className="w-5 h-5 text-sky-600" />
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-slate-800">{selectedSaved.fullDate.split(',').slice(0, 2).join(',')}</p>
+                                        <p className="text-sm">{selectedSaved.fullDate.split(',').slice(2).join(',').trim()}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3 text-slate-600">
+                                    <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
+                                        <MapPin className="w-5 h-5 text-rose-600" />
+                                    </div>
+                                    <span>{selectedSaved.location}</span>
+                                </div>
+                            </div>
+
+                            {/* Skills */}
+                            <div className="mb-6">
+                                <h3 className="font-semibold text-slate-800 mb-2">Helpful Skills</h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {selectedSaved.skills.map((skill) => (
+                                        <span key={skill} className="text-sm px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
+                                            {skill}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Description */}
+                            <div className="mb-6">
+                                <h3 className="font-semibold text-slate-800 mb-2">About This Opportunity</h3>
+                                <p className="text-slate-600 leading-relaxed">
+                                    {selectedSaved.description}
+                                </p>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-3">
+                                <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6">
+                                    Apply Now
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    className="px-6 rounded-full py-6 border-slate-300 text-slate-700 hover:bg-slate-100"
+                                    onClick={() => setSelectedSaved(null)}
+                                >
+                                    Close
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
