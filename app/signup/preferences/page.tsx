@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
@@ -81,10 +81,21 @@ export default function PreferencesPage() {
   const router = useRouter()
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
   const [interestLimitMessage, setInterestLimitMessage] = useState<string>("")
-  const [volunteerPreference, setVolunteerPreference] = useState("hybrid")
-  const [availability, setAvailability] = useState("weekends")
+  const [submitError, setSubmitError] = useState<string>("")
+  const [volunteerPreference, setVolunteerPreference] = useState("")
+  const [availability, setAvailability] = useState("")
+
+  const selectedInterestsRef = useRef<string[]>([])
+  const volunteerPreferenceRef = useRef("")
+  const availabilityRef = useRef("")
+  useEffect(() => {
+    selectedInterestsRef.current = selectedInterests
+    volunteerPreferenceRef.current = volunteerPreference
+    availabilityRef.current = availability
+  }, [selectedInterests, volunteerPreference, availability])
 
   const handleInterestToggle = (interestId: string) => {
+    setSubmitError("")
     setSelectedInterests((prev) => {
       if (prev.includes(interestId)) {
         setInterestLimitMessage("")
@@ -101,12 +112,33 @@ export default function PreferencesPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    setSubmitError("")
+
+    const interests = selectedInterestsRef.current
+    const volunteer = volunteerPreferenceRef.current
+    const avail = availabilityRef.current
+
+    const missing: string[] = []
+    if (interests.length === 0) {
+      missing.push("Pick 1-2 interests in \"What are you most interested in?\"")
+    }
+    if (!volunteer) {
+      missing.push("Choose an option in \"How do you prefer to Volunteer?\"")
+    }
+    if (!avail) {
+      missing.push("Choose an option in \"When are you available?\"")
+    }
+
+    if (missing.length > 0) {
+      setSubmitError("Please complete all sections before submitting: " + missing.join("; "))
+      return
+    }
+
     console.log("Preferences submitted", {
-      interests: selectedInterests,
-      volunteerPreference,
-      availability,
+      interests,
+      volunteerPreference: volunteer,
+      availability: avail,
     })
-    // Redirect to opportunities page after preferences are saved
     router.push("/opportunities")
   }
 
@@ -125,6 +157,11 @@ export default function PreferencesPage() {
           </div>
 
           <form onSubmit={handleSubmit}>
+            {submitError && (
+              <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
+                {submitError}
+              </div>
+            )}
             <div className="grid md:grid-cols-2 gap-8">
               {/* LEFT COLUMN - Interests */}
               <div>
@@ -184,7 +221,10 @@ export default function PreferencesPage() {
                     <CardContent className="p-4">
                       <RadioGroup
                         value={volunteerPreference}
-                        onValueChange={setVolunteerPreference}
+                        onValueChange={(value) => {
+                          setVolunteerPreference(value)
+                          setSubmitError("")
+                        }}
                         className="space-y-3"
                       >
                         <div className="flex items-center space-x-2">
@@ -237,7 +277,10 @@ export default function PreferencesPage() {
                     <CardContent className="p-4">
                       <RadioGroup
                         value={availability}
-                        onValueChange={setAvailability}
+                        onValueChange={(value) => {
+                          setAvailability(value)
+                          setSubmitError("")
+                        }}
                         className="space-y-3"
                       >
                         <div className="flex items-center space-x-2">

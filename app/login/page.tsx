@@ -15,9 +15,9 @@ export default function RoleSelectionPage() {
           <div className="text-center space-y-4 max-w-2xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-serif font-bold">
               Welcome to{" "}
-              <span className="text-primary">Volun</span>
-              <span className="text-orange-500 font-normal">Track</span>
-              <span className="text-primary"> Ontario</span>
+              <span className="font-serif font-normal text-primary">Volun</span>
+              <span className="font-serif font-normal text-orange-500">Track</span>
+              <span className="font-serif font-normal text-primary"> Ontario</span>
             </h1>
             <p className="text-lg text-muted-foreground">
               Select your role below to get started.

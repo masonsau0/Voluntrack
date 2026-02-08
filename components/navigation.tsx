@@ -29,9 +29,9 @@ export function Navigation() {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <span className="font-serif text-2xl md:text-3xl font-light tracking-wide">
-              <span className="text-primary">Volun</span>
-              <span className="text-orange-500 font-normal">Track</span>
-              <span className="text-primary"> Ontario</span>
+              <span className="font-serif font-normal text-primary">Volun</span>
+              <span className="font-serif font-normal text-orange-500">Track</span>
+              <span className="font-serif font-normal text-primary"> Ontario</span>
             </span>
           </Link>
 

@@ -22,10 +22,10 @@ export default function HomePage() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 w-full">
           <div className="max-w-xl">
-            <span className="text-sm font-medium tracking-widest uppercase mb-4 block">
-              <span className="text-primary">Volun</span>
-              <span className="text-orange-500 font-normal">Track</span>
-              <span className="text-primary"> Ontario</span>
+            <span className="text-sm font-medium tracking-widest uppercase mb-4 block font-serif">
+              <span className="font-serif font-normal text-primary">Volun</span>
+              <span className="font-serif font-normal text-orange-500">Track</span>
+              <span className="font-serif font-normal text-primary"> Ontario</span>
             </span>
             <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl font-light text-foreground mb-6 text-balance">
               Volunteer <span className="italic text-primary">Your Way</span>
@@ -110,9 +110,9 @@ export default function HomePage() {
               Our Solutions
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              Discover how <span className="text-primary">Volun</span>
-              <span className="text-orange-500 font-normal">Track</span>
-              <span className="text-primary"> Ontario</span> streamlines the volunteer experience for everyone involved.
+              Discover how <span className="font-serif font-normal text-primary">Volun</span>
+              <span className="font-serif font-normal text-orange-500">Track</span>
+              <span className="font-serif font-normal text-primary"> Ontario</span> streamlines the volunteer experience for everyone involved.
             </p>
           </div>
 

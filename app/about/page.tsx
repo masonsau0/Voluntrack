@@ -18,7 +18,7 @@ export default function AboutPage() {
           />
           <div className="relative z-20 text-center px-4 max-w-3xl mx-auto">
             <h1 className="font-serif text-5xl md:text-7xl font-light text-foreground mb-6 text-balance">
-              About <span className="text-primary">Volun</span><span className="text-orange-500 font-normal">Track</span>
+              About <span className="font-serif font-normal text-primary">Volun</span><span className="font-serif font-normal text-orange-500">Track</span>
             </h1>
             <p className="text-lg md:text-xl text-foreground/90 leading-relaxed">
               Connecting Ontario students with meaningful volunteer opportunities
@@ -32,7 +32,7 @@ export default function AboutPage() {
             <h2 className="font-serif text-4xl md:text-5xl font-light text-foreground mb-6">Our Mission</h2>
             <div className="space-y-6 text-muted-foreground leading-relaxed">
               <p>
-                <span className="text-primary">Volun</span><span className="text-orange-500 font-normal">Track</span> <span className="text-primary">Ontario</span> was created to solve a common challenge: connecting students with volunteer opportunities
+                <span className="font-serif font-normal text-primary">Volun</span><span className="font-serif font-normal text-orange-500">Track</span> <span className="font-serif font-normal text-primary">Ontario</span> was created to solve a common challenge: connecting students with volunteer opportunities
                 while making it easy to track and verify their community service hours. We believe every student deserves
                 access to meaningful volunteer experiences that build skills, create connections, and make a real difference.
               </p>
@@ -43,7 +43,7 @@ export default function AboutPage() {
               </p>
               <p>
                 Whether you're a student looking to fulfill your 40-hour graduation requirement, a guidance counsellor
-                managing applications, or an organization seeking volunteers, <span className="text-primary">Volun</span><span className="text-orange-500 font-normal">Track</span> <span className="text-primary">Ontario</span> is here to help you
+                managing applications, or an organization seeking volunteers, <span className="font-serif font-normal text-primary">Volun</span><span className="font-serif font-normal text-orange-500">Track</span> <span className="font-serif font-normal text-primary">Ontario</span> is here to help you
                 make a difference in your community.
               </p>
             </div>
@@ -55,7 +55,7 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <h2 className="font-serif text-4xl md:text-5xl font-light text-foreground mb-4">Who We Serve</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              <span className="text-primary">Volun</span><span className="text-orange-500 font-normal">Track</span> <span className="text-primary">Ontario</span> connects students and organizations to create meaningful volunteer experiences
+              <span className="font-serif font-normal text-primary">Volun</span><span className="font-serif font-normal text-orange-500">Track</span> <span className="font-serif font-normal text-primary">Ontario</span> connects students and organizations to create meaningful volunteer experiences
             </p>
           </div>
 
