@@ -18,7 +18,7 @@ export default function AboutPage() {
           />
           <div className="relative z-20 text-center px-4 max-w-3xl mx-auto">
             <h1 className="font-serif text-5xl md:text-7xl font-light text-foreground mb-6 text-balance">
-              About <span className="text-primary">Volun</span><span className="text-orange-500">Track</span>
+              About <span className="text-primary">Volun</span><span className="text-orange-500 font-normal">Track</span>
             </h1>
             <p className="text-lg md:text-xl text-foreground/90 leading-relaxed">
               Connecting Ontario students with meaningful volunteer opportunities
@@ -32,7 +32,7 @@ export default function AboutPage() {
             <h2 className="font-serif text-4xl md:text-5xl font-light text-foreground mb-6">Our Mission</h2>
             <div className="space-y-6 text-muted-foreground leading-relaxed">
               <p>
-                VolunTrack Ontario was created to solve a common challenge: connecting students with volunteer opportunities
+                <span className="text-primary">Volun</span><span className="text-orange-500 font-normal">Track</span> <span className="text-primary">Ontario</span> was created to solve a common challenge: connecting students with volunteer opportunities
                 while making it easy to track and verify their community service hours. We believe every student deserves
                 access to meaningful volunteer experiences that build skills, create connections, and make a real difference.
               </p>
@@ -43,7 +43,7 @@ export default function AboutPage() {
               </p>
               <p>
                 Whether you're a student looking to fulfill your 40-hour graduation requirement, a guidance counsellor
-                managing applications, or an organization seeking volunteers, VolunTrack Ontario is here to help you
+                managing applications, or an organization seeking volunteers, <span className="text-primary">Volun</span><span className="text-orange-500 font-normal">Track</span> <span className="text-primary">Ontario</span> is here to help you
                 make a difference in your community.
               </p>
             </div>
@@ -55,11 +55,11 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <h2 className="font-serif text-4xl md:text-5xl font-light text-foreground mb-4">Who We Serve</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              VolunTrack Ontario connects three key groups to create meaningful volunteer experiences
+              <span className="text-primary">Volun</span><span className="text-orange-500 font-normal">Track</span> <span className="text-primary">Ontario</span> connects students and organizations to create meaningful volunteer experiences
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {/* Students */}
             <div className="p-8 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-xl">
               <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-6">
@@ -75,23 +75,6 @@ export default function AboutPage() {
                 <li>• Apply with one click</li>
                 <li>• Track hours and earn badges</li>
                 <li>• Submit your own volunteer experiences</li>
-              </ul>
-            </div>
-
-            {/* Schools & Counsellors */}
-            <div className="p-8 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-xl">
-              <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mb-6">
-                <Users className="h-6 w-6 text-green-600" />
-              </div>
-              <h3 className="font-serif text-2xl font-light text-foreground mb-4">Schools & Counsellors</h3>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                Manage student applications, verify volunteer hours, and monitor progress toward graduation requirements.
-              </p>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>• Review and approve applications</li>
-                <li>• Verify completed hours</li>
-                <li>• Track student progress</li>
-                <li>• Generate reports for records</li>
               </ul>
             </div>
 

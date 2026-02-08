@@ -13,7 +13,7 @@ export default function StudentLoginPage() {
                         </h1>
                         <h2 className="text-4xl md:text-5xl font-bold">
                             <span className="text-sky-900">Volun</span>
-                            <span className="text-amber-500 italic">Track</span>
+                            <span className="text-orange-500 font-normal">Track</span>
                             <span className="text-sky-900"> Ontario</span>
                         </h2>
                         <p className="mt-4 text-lg text-sky-800 font-medium">

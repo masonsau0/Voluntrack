@@ -11,11 +11,13 @@ export function Navigation() {
   const notificationCount = 3
 
   const pathname = usePathname()
-  // Show logged-in state on dashboard and all related subpages
+  // Show logged-in state on dashboard, opportunities, feed, and all related subpages
   const isLoggedIn = pathname?.startsWith("/dashboard") ||
     pathname?.startsWith("/applications") ||
     pathname?.startsWith("/account") ||
-    pathname?.startsWith("/news")
+    pathname?.startsWith("/news") ||
+    pathname?.startsWith("/opportunities") ||
+    pathname?.startsWith("/feed")
 
   // Check if we're on a login page
   const isLoginPage = pathname?.startsWith("/login")
@@ -28,7 +30,7 @@ export function Navigation() {
           <Link href="/" className="flex items-center">
             <span className="font-serif text-2xl md:text-3xl font-light tracking-wide">
               <span className="text-primary">Volun</span>
-              <span className="text-orange-500">Track</span>
+              <span className="text-orange-500 font-normal">Track</span>
               <span className="text-primary"> Ontario</span>
             </span>
           </Link>
@@ -47,6 +49,12 @@ export function Navigation() {
                   className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
                 >
                   Dashboard
+                </Link>
+                <Link
+                  href="/feed"
+                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  Feed
                 </Link>
                 <Link
                   href="/about"
@@ -135,6 +143,13 @@ export function Navigation() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Dashboard
+                </Link>
+                <Link
+                  href="/feed"
+                  className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Feed
                 </Link>
                 <Link
                   href="/about"

@@ -8,19 +8,13 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
   TreePine,
   GraduationCap,
   Heart,
   Palette,
   Home,
   Brain,
+  CircleDot,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -73,36 +67,35 @@ const interests = [
     bgColor: "bg-pink-50",
     borderColor: "border-pink-200",
   },
-]
-
-const locations = [
-  "Toronto",
-  "Ottawa",
-  "Mississauga",
-  "Brampton",
-  "Hamilton",
-  "London",
-  "Markham",
-  "Vaughan",
-  "Kitchener",
-  "Windsor",
+  {
+    id: "other",
+    label: "No preference",
+    icon: CircleDot,
+    color: "text-slate-600",
+    bgColor: "bg-slate-50",
+    borderColor: "border-slate-200",
+  },
 ]
 
 export default function PreferencesPage() {
   const router = useRouter()
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
+  const [interestLimitMessage, setInterestLimitMessage] = useState<string>("")
   const [volunteerPreference, setVolunteerPreference] = useState("hybrid")
   const [availability, setAvailability] = useState("weekends")
-  const [location, setLocation] = useState<string>("")
 
   const handleInterestToggle = (interestId: string) => {
     setSelectedInterests((prev) => {
       if (prev.includes(interestId)) {
+        setInterestLimitMessage("")
         return prev.filter((id) => id !== interestId)
       } else if (prev.length < 2) {
+        setInterestLimitMessage("")
         return [...prev, interestId]
+      } else {
+        setInterestLimitMessage("You can only pick two.")
+        return prev
       }
-      return prev
     })
   }
 
@@ -112,7 +105,6 @@ export default function PreferencesPage() {
       interests: selectedInterests,
       volunteerPreference,
       availability,
-      location,
     })
     // Redirect to opportunities page after preferences are saved
     router.push("/opportunities")
@@ -139,6 +131,9 @@ export default function PreferencesPage() {
                 <Label className="text-base font-semibold mb-4 block text-sky-900">
                   What are you most interested in? (pick 1-2)
                 </Label>
+                {interestLimitMessage && (
+                  <p className="text-sm text-amber-600 font-medium mb-3">{interestLimitMessage}</p>
+                )}
                 <div className="space-y-3">
                   {interests.map((interest) => {
                     const Icon = interest.icon
@@ -269,7 +264,7 @@ export default function PreferencesPage() {
                             htmlFor="any-time"
                             className="font-normal cursor-pointer"
                           >
-                            Any time
+                            No preference
                           </Label>
                         </div>
                       </RadioGroup>
@@ -277,24 +272,6 @@ export default function PreferencesPage() {
                   </Card>
                 </div>
 
-                {/* Location */}
-                <div>
-                  <Label className="text-base font-semibold mb-4 block text-sky-900">
-                    Preferred Location(s)
-                  </Label>
-                  <Select value={location} onValueChange={setLocation}>
-                    <SelectTrigger className="w-full bg-sky-50 border-sky-200">
-                      <SelectValue placeholder="Choose Location(s)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {locations.map((loc) => (
-                        <SelectItem key={loc} value={loc}>
-                          {loc}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
             </div>
 

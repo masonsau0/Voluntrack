@@ -13,8 +13,11 @@ export default function RoleSelectionPage() {
 
           {/* Hero Section */}
           <div className="text-center space-y-4 max-w-2xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-serif text-sky-900 font-bold">
-              Welcome to VolunTrack Ontario
+            <h1 className="text-4xl md:text-5xl font-serif font-bold">
+              Welcome to{" "}
+              <span className="text-primary">Volun</span>
+              <span className="text-orange-500 font-normal">Track</span>
+              <span className="text-primary"> Ontario</span>
             </h1>
             <p className="text-lg text-muted-foreground">
               Select your role below to get started.

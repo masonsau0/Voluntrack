@@ -16,6 +16,7 @@ export function SignupForm({
 }: React.ComponentProps<"div">) {
     const [fullName, setFullName] = useState("")
     const [email, setEmail] = useState("")
+    const [school, setSchool] = useState("")
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
@@ -40,6 +41,7 @@ export function SignupForm({
 
         if (!fullName) newErrors.fullName = "Full Name is required"
         if (!email) newErrors.email = "Email is required"
+        if (!school) newErrors.school = "School name is required"
         if (!password) newErrors.password = "Password is required"
         if (!confirmPassword) newErrors.confirmPassword = "Confirm Password is required"
 
@@ -52,7 +54,7 @@ export function SignupForm({
 
         if (Object.keys(newErrors).length > 0) return
 
-        console.log("Signup submitted", { fullName, email, password })
+        console.log("Signup submitted", { fullName, email, school, password })
         // Redirect to preferences page after successful signup
         router.push("/signup/preferences")
     }
@@ -100,6 +102,20 @@ export function SignupForm({
                                     * Please use your school email address.
                                 </p>
                                 {errors.email && <p className="text-sm text-red-500 font-medium">{errors.email}</p>}
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="school">School name</Label>
+                                <Input
+                                    id="school"
+                                    placeholder=""
+                                    required
+                                    value={school}
+                                    onChange={(e) => {
+                                        setSchool(e.target.value)
+                                        if (errors.school) setErrors({ ...errors, school: undefined })
+                                    }}
+                                />
+                                {errors.school && <p className="text-sm text-red-500 font-medium">{errors.school}</p>}
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="password">Password</Label>
