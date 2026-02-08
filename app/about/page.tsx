@@ -1,7 +1,5 @@
 import { Navigation } from "@/components/navigation"
-import { Search, ClipboardCheck, Users, Zap, Target, Heart, GraduationCap } from "lucide-react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { Search, ClipboardCheck, Users, Zap, Heart, GraduationCap } from "lucide-react"
 
 
 export default function AboutPage() {
@@ -133,70 +131,49 @@ export default function AboutPage() {
               </div>
               <h3 className="font-serif text-2xl font-light text-foreground mb-4">Centralized Discovery</h3>
               <p className="text-muted-foreground leading-relaxed">
-                One platform to find all volunteer opportunities across Ontario. Browse by category, location,
-                date, or organization—no more scattered searches or outdated listings.
+                One platform to find all volunteer opportunities across Ontario — no more scattered searches or
+                outdated listings.
               </p>
             </div>
 
-            {/* Seamless Hour Tracking */}
+            {/* Integrated Hour Validation */}
             <div className="p-8 bg-muted/30 border border-border rounded-xl">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6">
                 <ClipboardCheck className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-serif text-2xl font-light text-foreground mb-4">Seamless Hour Tracking</h3>
+              <h3 className="font-serif text-2xl font-light text-foreground mb-4">Integrated Hour Validation</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Automatically log and verify volunteer hours with built-in approval workflows. No more paper forms,
-                lost signatures, or manual record-keeping.
+                A digitized verification system that replaces manual logging with secure, automated approval
+                workflows, ensuring data integrity and reducing the risk of lost records.
               </p>
             </div>
 
-            {/* Progress Dashboard */}
+            {/* Connected Community */}
             <div className="p-8 bg-muted/30 border border-border rounded-xl">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-                <Target className="h-6 w-6 text-primary" />
+                <Users className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-serif text-2xl font-light text-foreground mb-4">Progress Dashboard</h3>
+              <h3 className="font-serif text-2xl font-light text-foreground mb-4">Connected Community</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Visual progress tracking toward your 40-hour goal. See your completed hours, pending applications,
-                and earned badges all in one place.
+                A collaborative interface designed to bridge communication gaps between students, educational
+                institutions, and community partners through real-time updates and synchronization.
               </p>
             </div>
 
-            {/* Time-Saving Efficiency */}
+            {/* Gamified Milestones */}
             <div className="p-8 bg-muted/30 border border-border rounded-xl">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6">
                 <Zap className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-serif text-2xl font-light text-foreground mb-4">Time-Saving Efficiency</h3>
+              <h3 className="font-serif text-2xl font-light text-foreground mb-4">Gamified Milestones</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Reduce administrative burden for counsellors and organizations with streamlined approvals,
-                automated notifications, and easy reporting tools.
+                Visualize your progress toward graduation requirements with automated reporting and celebrate every
+                hour you give back.
               </p>
             </div>
           </div>
         </section>
 
-
-
-        {/* CTA Section */}
-        <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 text-center">
-          <h2 className="font-serif text-3xl md:text-4xl font-light text-foreground mb-4">Ready to Get Started?</h2>
-          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Join thousands of Ontario students making a difference in their communities.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/opportunities">
-              <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 px-8">
-                Explore Opportunities
-              </Button>
-            </Link>
-            <Link href="/signup">
-              <Button size="lg" variant="outline" className="px-8">
-                Create an Account
-              </Button>
-            </Link>
-          </div>
-        </section>
       </main>
 
     </div>

@@ -684,13 +684,6 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  <Link
-                    href="/resources"
-                    className="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1 mt-4"
-                  >
-                    View All
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
                 </CardContent>
               </Card>
 

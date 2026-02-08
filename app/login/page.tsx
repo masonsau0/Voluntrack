@@ -5,7 +5,7 @@ import { Navigation } from "@/components/navigation"
 
 export default function RoleSelectionPage() {
   return (
-    <div className="min-h-svh bg-sky-50">
+    <div className="min-h-svh bg-background">
       <Navigation />
 
       <div className="pt-32 pb-12 px-6 md:px-10 flex flex-col items-center justify-center">
@@ -21,7 +21,7 @@ export default function RoleSelectionPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
 
             {/* Students Card */}
             <Link href="/login/student" className="group h-full block">
@@ -43,31 +43,6 @@ export default function RoleSelectionPage() {
                 <CardFooter className="p-8 pt-0 bg-white group-hover:bg-sky-50/30 transition-colors">
                   <Button asChild className="w-full text-base py-6 transition-all duration-300 group-hover:bg-sky-700 group-hover:shadow-lg" size="lg">
                     <div>Log In as Student</div>
-                  </Button>
-                </CardFooter>
-              </Card>
-            </Link>
-
-            {/* Guidance Counsellors Card */}
-            <Link href="/login/counsellor" className="group h-full block">
-              <Card className="h-full overflow-hidden flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 border-0 shadow-md transform hover:scale-[1.02] hover:ring-2 hover:ring-sky-500/20">
-                <div className="relative h-56 overflow-hidden">
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500 z-10" />
-                  <img
-                    src="/guidance-counsellor-helping-students-in-office.jpg"
-                    alt="Guidance Counsellor"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                </div>
-                <CardContent className="p-8 pb-4 flex-grow bg-white relative z-20 group-hover:bg-sky-50/30 transition-colors">
-                  <h2 className="text-2xl font-serif text-sky-900 mb-3 group-hover:text-sky-700 transition-colors">Guidance Counsellors</h2>
-                  <p className="text-muted-foreground leading-relaxed text-sm">
-                    Approve hours, track student progress, and manage applications with ease
-                  </p>
-                </CardContent>
-                <CardFooter className="p-8 pt-0 bg-white group-hover:bg-sky-50/30 transition-colors">
-                  <Button asChild className="w-full text-base py-6 transition-all duration-300 group-hover:bg-sky-700 group-hover:shadow-lg" size="lg" variant="default">
-                    <div>Counsellor Portal</div>
                   </Button>
                 </CardFooter>
               </Card>
