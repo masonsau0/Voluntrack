@@ -17,7 +17,8 @@ export function Navigation() {
     pathname?.startsWith("/account") ||
     pathname?.startsWith("/news") ||
     pathname?.startsWith("/opportunities") ||
-    pathname?.startsWith("/feed")
+    pathname?.startsWith("/feed") ||
+    pathname?.startsWith("/about")
 
   // Check if we're on a login page
   const isLoginPage = pathname?.startsWith("/login")
