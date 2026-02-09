@@ -5,13 +5,12 @@ import { getFirestore, Firestore } from 'firebase/firestore';
 // Firebase configuration
 // These should be set in your .env.local file
 const firebaseConfig = {
-    apiKey: "AIzaSyCEbLFkW7I0l225oerXByjER8ugXYGgkhM",
-    authDomain: "voluntrack-d38ac.firebaseapp.com",
-    projectId: "voluntrack-d38ac",
-    storageBucket: "voluntrack-d38ac.firebasestorage.app",
-    messagingSenderId: "264097883289",
-    appId: "1:264097883289:web:5f5bae50a1c6b78f2e4408",
-    measurementId: "G-T25CJGNYDN"
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
   };
 
 // Initialize Firebase
