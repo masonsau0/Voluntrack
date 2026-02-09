@@ -17,13 +17,9 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
-<<<<<<< Updated upstream
-  const [errors, setErrors] = React.useState<{ email?: string; password?: string }>({})
-=======
   const [showPassword, setShowPassword] = React.useState(false)
   const [errors, setErrors] = React.useState<{ email?: string; password?: string; general?: string }>({})
   const [isLoading, setIsLoading] = React.useState(false)
->>>>>>> Stashed changes
 
   const router = useRouter()
 
@@ -116,19 +112,13 @@ export function LoginForm({
                   <p className="text-sm text-red-500 font-medium">{errors.password}</p>
                 )}
               </div>
-<<<<<<< Updated upstream
-=======
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Logging in..." : "Login"}
               </Button>
->>>>>>> Stashed changes
               <div className="flex items-center space-x-2">
                 <Checkbox id="remember" />
                 <Label htmlFor="remember">Remember me</Label>
               </div>
-              <Button type="submit" className="w-full">
-                Login
-              </Button>
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
                 <a href="/signup" className="underline underline-offset-4">
