@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { signUp } from "@/lib/firebase/auth"
 
 export function SignupForm({
     className,
@@ -20,6 +21,7 @@ export function SignupForm({
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [errors, setErrors] = useState<{ [key: string]: string | undefined }>({})
+    const [isLoading, setIsLoading] = useState(false)
 
     const requirements = [
         { label: "At least 6 characters", met: password.length >= 6 },
@@ -31,7 +33,7 @@ export function SignupForm({
         },
     ]
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         const newErrors: { [key: string]: string | undefined } = {}
 
@@ -49,7 +51,28 @@ export function SignupForm({
 
         if (Object.keys(newErrors).length > 0) return
 
+<<<<<<< Updated upstream
         console.log("Signup submitted", { fullName, email, password })
+=======
+        setIsLoading(true)
+        setErrors({})
+
+        try {
+            await signUp({
+                email,
+                password,
+                fullName,
+                school,
+            })
+            // Redirect to preferences page after successful signup
+            router.push("/signup/preferences")
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "An error occurred during signup"
+            setErrors({ general: errorMessage })
+        } finally {
+            setIsLoading(false)
+        }
+>>>>>>> Stashed changes
     }
 
     return (
@@ -64,6 +87,11 @@ export function SignupForm({
                                     Create an account to get started
                                 </p>
                             </div>
+                            {errors.general && (
+                                <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">
+                                    {errors.general}
+                                </div>
+                            )}
                             <div className="grid gap-2">
                                 <Label htmlFor="full-name">Full Name</Label>
                                 <Input
@@ -166,8 +194,8 @@ export function SignupForm({
                                     </li>
                                 ))}
                             </ul>
-                            <Button type="submit" className="w-full h-9">
-                                Sign Up
+                            <Button type="submit" className="w-full h-9" disabled={isLoading}>
+                                {isLoading ? "Creating account..." : "Sign Up"}
                             </Button>
                             <div className="text-center text-sm">
                                 Already have an account?{" "}

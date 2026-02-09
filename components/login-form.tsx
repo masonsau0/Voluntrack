@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
+import { signIn } from "@/lib/firebase/auth"
 
 export function LoginForm({
   className,
@@ -16,11 +17,17 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
+<<<<<<< Updated upstream
   const [errors, setErrors] = React.useState<{ email?: string; password?: string }>({})
+=======
+  const [showPassword, setShowPassword] = React.useState(false)
+  const [errors, setErrors] = React.useState<{ email?: string; password?: string; general?: string }>({})
+  const [isLoading, setIsLoading] = React.useState(false)
+>>>>>>> Stashed changes
 
   const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const newErrors: typeof errors = {}
 
@@ -37,9 +44,18 @@ export function LoginForm({
       return
     }
 
-    // Handle login logic here
-    console.log("Login submitted", { email, password })
-    router.push("/dashboard")
+    setIsLoading(true)
+    setErrors({})
+
+    try {
+      await signIn(email, password)
+      router.push("/dashboard")
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "An error occurred during login"
+      setErrors({ general: errorMessage })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -54,6 +70,11 @@ export function LoginForm({
                   {/* Login to your Acme Inc account */}
                 </p>
               </div>
+              {errors.general && (
+                <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">
+                  {errors.general}
+                </div>
+              )}
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -95,6 +116,12 @@ export function LoginForm({
                   <p className="text-sm text-red-500 font-medium">{errors.password}</p>
                 )}
               </div>
+<<<<<<< Updated upstream
+=======
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Logging in..." : "Login"}
+              </Button>
+>>>>>>> Stashed changes
               <div className="flex items-center space-x-2">
                 <Checkbox id="remember" />
                 <Label htmlFor="remember">Remember me</Label>
