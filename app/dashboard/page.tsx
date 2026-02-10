@@ -5,6 +5,7 @@ import type React from "react"
 import { useState, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useAuth } from "@/contexts/AuthContext"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -301,6 +302,7 @@ const monthNames = [
 ]
 
 export default function DashboardPage() {
+  const { userProfile, loading } = useAuth()
   const [activeTab, setActiveTab] = useState("progress")
   const [currentDate, setCurrentDate] = useState(new Date())
   const [isDragging, setIsDragging] = useState(false)
@@ -375,7 +377,18 @@ export default function DashboardPage() {
                     <Sparkles className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-2xl md:text-3xl font-bold text-foreground">Welcome back, John!</h1>
+                    <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                      Welcome back,{" "}
+                      {loading ? (
+                        "..."
+                      ) : (
+                        userProfile?.fullName
+                          ? userProfile.fullName.split(" ")[0].charAt(0).toUpperCase() +
+                            userProfile.fullName.split(" ")[0].slice(1).toLowerCase()
+                          : "User"
+                      )}
+                      !
+                    </h1>
                     <p className="text-muted-foreground mt-1">Ready to make a difference today?</p>
                   </div>
                 </div>
