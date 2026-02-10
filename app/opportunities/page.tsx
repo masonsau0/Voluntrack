@@ -8,6 +8,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Calendar as CalendarPicker } from "@/components/ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { format } from "date-fns"
+import type { DateRange } from "react-day-picker"
 import {
   Calendar,
   MapPin,
@@ -58,7 +66,6 @@ const commitmentColors: { [key: string]: { bg: string; text: string } } = {
   "One-time": { bg: "bg-green-100", text: "text-green-700" },
   "Weekly": { bg: "bg-blue-100", text: "text-blue-700" },
   "Monthly": { bg: "bg-purple-100", text: "text-purple-700" },
-  "Ongoing": { bg: "bg-orange-100", text: "text-orange-700" },
 }
 
 // Sample opportunities data
@@ -352,7 +359,7 @@ const sampleOpportunities = [
     spotsLeft: 12,
     totalSpots: 20,
     category: "Arts & Culture",
-    commitment: "Ongoing",
+    commitment: "Monthly",
     skills: ["Customer Service", "Flexibility"],
     featured: false,
     image: "/event-art-workshop.png",
@@ -398,7 +405,7 @@ const sampleOpportunities = [
 ]
 
 const allCategories = Object.keys(categoryColors)
-const commitmentTypes = ["One-time", "Weekly", "Monthly", "Ongoing"]
+const commitmentTypes = ["One-time", "Weekly", "Monthly"]
 const sortOptions = [
   { value: "date", label: "Date (Soonest)" },
   { value: "spots", label: "Spots Available" },
@@ -415,7 +422,7 @@ export default function OpportunitiesPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [selectedCommitments, setSelectedCommitments] = useState<string[]>([])
   const [selectedHours, setSelectedHours] = useState<string[]>([])
-  const [selectedDates, setSelectedDates] = useState<string[]>([])
+  const [selectedDateRange, setSelectedDateRange] = useState<DateRange | undefined>(undefined)
   const [sortBy, setSortBy] = useState("featured")
   const [showFilters, setShowFilters] = useState(false)
 
@@ -491,37 +498,25 @@ export default function OpportunitiesPage() {
       filtered = filtered.filter(opp => selectedCommitments.includes(opp.commitment))
     }
 
-    // Hours filter
+    // Hours filter ("Up to X hours" - shows opportunities that fit within user's available time)
     if (selectedHours.length > 0) {
-      filtered = filtered.filter(opp => {
-        const hours = opp.hours
-        return selectedHours.some(range => {
-          if (range === '1-2 hours') return hours >= 1 && hours <= 2
-          if (range === '3-4 hours') return hours >= 3 && hours <= 4
-          if (range === '5-6 hours') return hours >= 5 && hours <= 6
-          if (range === '7+ hours') return hours >= 7
-          return false
-        })
-      })
+      const maxHours = Math.max(...selectedHours.map(h => parseInt(h, 10)))
+      filtered = filtered.filter(opp => opp.hours <= maxHours)
     }
 
-    // Date filter
-    if (selectedDates.length > 0) {
-      const now = new Date()
-      const endOfWeek = new Date(now)
-      endOfWeek.setDate(now.getDate() + (7 - now.getDay()))
-      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-      const endOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 2, 0)
+    // Date filter (calendar date range)
+    if (selectedDateRange?.from) {
+      const rangeStart = new Date(selectedDateRange.from)
+      rangeStart.setHours(0, 0, 0, 0)
+      const rangeEnd = selectedDateRange.to
+        ? new Date(selectedDateRange.to)
+        : new Date(selectedDateRange.from)
+      rangeEnd.setHours(23, 59, 59, 999)
 
       filtered = filtered.filter(opp => {
         const oppDate = new Date(opp.dateISO)
-        return selectedDates.some(range => {
-          if (range === 'This Week') return oppDate >= now && oppDate <= endOfWeek
-          if (range === 'This Month') return oppDate >= now && oppDate <= endOfMonth
-          if (range === 'Next Month') return oppDate > endOfMonth && oppDate <= endOfNextMonth
-          if (range === 'Flexible') return true // Show all for flexible
-          return false
-        })
+        oppDate.setHours(12, 0, 0, 0)
+        return oppDate >= rangeStart && oppDate <= rangeEnd
       })
     }
 
@@ -542,7 +537,7 @@ export default function OpportunitiesPage() {
     }
 
     return filtered
-  }, [searchQuery, selectedCategories, selectedCommitments, selectedHours, selectedDates, sortBy])
+  }, [searchQuery, selectedCategories, selectedCommitments, selectedHours, selectedDateRange, sortBy])
 
   // Group by category
   const groupedByCategory = useMemo(() => {
@@ -574,30 +569,22 @@ export default function OpportunitiesPage() {
     )
   }
 
-  // Toggle hours filter
+  // Toggle hours filter (single select for "up to X hours" - click same to clear)
   const toggleHours = (hours: string) => {
     setSelectedHours(prev =>
       prev.includes(hours)
         ? prev.filter(h => h !== hours)
-        : [...prev, hours]
+        : [hours]
     )
   }
 
-  // Toggle date filter
-  const toggleDates = (date: string) => {
-    setSelectedDates(prev =>
-      prev.includes(date)
-        ? prev.filter(d => d !== date)
-        : [...prev, date]
-    )
-  }
 
   // Clear all filters
   const clearFilters = () => {
     setSelectedCategories([])
     setSelectedCommitments([])
     setSelectedHours([])
-    setSelectedDates([])
+    setSelectedDateRange(undefined)
     setSearchQuery("")
     setSortBy("featured")
   }
@@ -607,7 +594,7 @@ export default function OpportunitiesPage() {
     setSortBy(e.target.value)
   }
 
-  const hasActiveFilters = selectedCategories.length > 0 || selectedCommitments.length > 0 || selectedHours.length > 0 || selectedDates.length > 0 || searchQuery
+  const hasActiveFilters = selectedCategories.length > 0 || selectedCommitments.length > 0 || selectedHours.length > 0 || !!selectedDateRange?.from || searchQuery
 
   // Opportunity Card - memoized to prevent re-renders from parent state changes
   const OpportunityCard = React.memo(({ opportunity }: { opportunity: typeof sampleOpportunities[0] }) => {
@@ -999,42 +986,68 @@ export default function OpportunitiesPage() {
                   </div>
                 </div>
 
-                {/* Hours filter */}
+                {/* Hours filter - "Up to X hours" (single select) */}
                 <div>
-                  <h4 className="text-sm font-medium text-slate-700 mb-2">Hours</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {['1-2 hours', '3-4 hours', '5-6 hours', '7+ hours'].map(hours => (
+                  <h4 className="text-sm font-medium text-slate-700 mb-2">Hours (up to)</h4>
+                  <p className="text-xs text-slate-500 mb-2">Show opportunities that fit within your available time</p>
+                  <div className="flex flex-wrap gap-2 items-center">
+                    <button
+                      onClick={() => setSelectedHours([])}
+                      className={`px-3 py-1.5 rounded-full text-sm transition-all ${selectedHours.length === 0
+                        ? 'bg-sky-100 text-sky-700 ring-2 ring-offset-1 ring-sky-400'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                    >
+                      Any
+                    </button>
+                    {Array.from({ length: 10 }, (_, i) => i + 1).map(hours => (
                       <button
                         key={hours}
-                        onClick={() => toggleHours(hours)}
-                        className={`px-3 py-1.5 rounded-full text-sm transition-all ${selectedHours.includes(hours)
+                        onClick={() => toggleHours(String(hours))}
+                        className={`px-3 py-1.5 rounded-full text-sm transition-all ${selectedHours.includes(String(hours))
                           ? 'bg-sky-100 text-sky-700 ring-2 ring-offset-1 ring-sky-400'
                           : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                           }`}
                       >
-                        {hours}
+                        {hours} {hours === 1 ? 'hr' : 'hrs'}
                       </button>
                     ))}
                   </div>
                 </div>
 
-                {/* Date filter */}
+                {/* Date filter - Calendar */}
                 <div>
                   <h4 className="text-sm font-medium text-slate-700 mb-2">Date</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {['This Week', 'This Month', 'Next Month', 'Flexible'].map(date => (
-                      <button
-                        key={date}
-                        onClick={() => toggleDates(date)}
-                        className={`px-3 py-1.5 rounded-full text-sm transition-all ${selectedDates.includes(date)
-                          ? 'bg-sky-100 text-sky-700 ring-2 ring-offset-1 ring-sky-400'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                          }`}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={`w-full justify-start text-left font-normal rounded-lg ${!selectedDateRange?.from ? "text-slate-500" : "text-slate-700"}`}
                       >
-                        {date}
-                      </button>
-                    ))}
-                  </div>
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {selectedDateRange?.from ? (
+                          selectedDateRange.to ? (
+                            <>
+                              {format(selectedDateRange.from, "MMM d, yyyy")} – {format(selectedDateRange.to, "MMM d, yyyy")}
+                            </>
+                          ) : (
+                            format(selectedDateRange.from, "MMM d, yyyy")
+                          )
+                        ) : (
+                          "Pick a date or range"
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <CalendarPicker
+                        mode="range"
+                        defaultMonth={selectedDateRange?.from}
+                        selected={selectedDateRange}
+                        onSelect={setSelectedDateRange}
+                        numberOfMonths={2}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
               </div>
             )}
