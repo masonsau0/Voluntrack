@@ -13,8 +13,9 @@ import { signIn } from "@/lib/firebase/auth"
 
 export function LoginForm({
   className,
+  showSignUp = false,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & { showSignUp?: boolean }) {
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
   const [showPassword, setShowPassword] = React.useState(false)
@@ -56,7 +57,7 @@ export function LoginForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden bg-sky-50/80 backdrop-blur-sm border-sky-200/50">
         <CardContent className="p-0">
           <form className="p-6 md:p-8" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
@@ -100,7 +101,7 @@ export function LoginForm({
                 </div>
                 <Input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => {
@@ -111,28 +112,40 @@ export function LoginForm({
                 {errors.password && (
                   <p className="text-sm text-red-500 font-medium">{errors.password}</p>
                 )}
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="show-password" 
+                    checked={showPassword}
+                    onCheckedChange={(checked) => setShowPassword(checked === true)}
+                  />
+                  <Label htmlFor="show-password" className="cursor-pointer">
+                    Show Password
+                  </Label>
+                </div>
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Logging in..." : "Login"}
+              <Button type="submit" className="w-full">
+                Login
               </Button>
               <div className="flex items-center space-x-2">
                 <Checkbox id="remember" />
                 <Label htmlFor="remember">Remember me</Label>
               </div>
-              <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <a href="/signup" className="underline underline-offset-4">
-                  Sign up
-                </a>
-              </div>
+              {showSignUp && (
+                <div className="text-center text-sm pt-2">
+                  <span className="text-muted-foreground">Don't have an account? </span>
+                  <Link
+                    href="/signup"
+                    className="underline-offset-2 hover:underline text-primary font-medium"
+                  >
+                    Sign up
+                  </Link>
+                </div>
+              )}
             </div>
           </form>
         </CardContent>
       </Card>
-      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
-      </div>
+
     </div>
   )
 }

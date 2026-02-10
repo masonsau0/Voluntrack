@@ -4,14 +4,14 @@ export function Footer() {
   return (
     <footer className="bg-muted/30 border-t border-border mt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
           {/* Brand */}
           <div className="md:col-span-2">
             <Link href="/" className="inline-block mb-4">
               <span className="font-serif text-2xl font-light tracking-wide">
-                <span className="text-primary">Volun</span>
-                <span className="text-orange-500">Track</span>
-                <span className="text-primary"> Ontario</span>
+                <span className="font-serif font-normal text-primary">Volun</span>
+                <span className="font-serif font-normal text-orange-500">Track</span>
+                <span className="font-serif font-normal text-primary"> Ontario</span>
               </span>
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-md">
@@ -20,33 +20,7 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Shop */}
-          <div>
-            <h3 className="text-sm font-medium tracking-wider uppercase mb-4">Shop</h3>
-            <ul className="space-y-3">
-              <li>
-                <Link href="/shop" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  All Products
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/collections"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Collections
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/lookbook"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Lookbook
-                </Link>
-              </li>
-            </ul>
-          </div>
+
 
           {/* About */}
           <div>
@@ -76,7 +50,10 @@ export function Footer() {
 
         <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} VolunTrack Ontario. All rights reserved.
+            © {new Date().getFullYear()}{" "}
+            <span className="font-serif font-normal text-primary">Volun</span>
+            <span className="font-serif font-normal text-orange-500">Track</span>{" "}
+            <span className="font-serif font-normal text-primary">Ontario</span>. All rights reserved.
           </p>
           <div className="flex gap-6">
             <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
