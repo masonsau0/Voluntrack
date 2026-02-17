@@ -15,19 +15,13 @@ import { useAuth } from "@/contexts/AuthContext"
 
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { userProfile, loading, logout } = useAuth()
+  const { user, userProfile, loading, logout } = useAuth()
   const router = useRouter()
   const notificationCount = 0
 
   const pathname = usePathname()
-  // Show logged-in state on dashboard, opportunities, feed, and all related subpages
-  const isLoggedIn = pathname?.startsWith("/dashboard") ||
-    pathname?.startsWith("/applications") ||
-    pathname?.startsWith("/account") ||
-    pathname?.startsWith("/news") ||
-    pathname?.startsWith("/opportunities") ||
-    pathname?.startsWith("/feed") ||
-    pathname?.startsWith("/about")
+  // Show logged-in state based on actual authentication
+  const isLoggedIn = !!user
 
   // Check if we're on a login page
   const isLoginPage = pathname?.startsWith("/login")
@@ -90,7 +84,6 @@ export function Navigation() {
 
             {/* Authentication vs Profile */}
             {isLoggedIn ? (
-              /* Profile dropdown */
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="hidden sm:flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity outline-none">
@@ -101,7 +94,7 @@ export function Navigation() {
                       <span className="text-sm font-medium text-muted-foreground">Loading...</span>
                     ) : (
                       <span className="text-sm font-medium">
-                        {userProfile?.fullName?.split(" ")[0] || "User"}
+                        {userProfile?.firstName || userProfile?.fullName?.split(" ")[0] || "User"}
                       </span>
                     )}
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -137,8 +130,8 @@ export function Navigation() {
               <div className="hidden sm:flex items-center gap-4">
                 <Link href="/login">
                   <Button
-                    variant={isLoginPage ? "default" : "outline"}
-                    className={`rounded-full px-6 tracking-wide uppercase text-xs ${isLoginPage
+                    variant={pathname?.startsWith("/login") ? "default" : "outline"}
+                    className={`rounded-full px-6 tracking-wide uppercase text-xs ${pathname?.startsWith("/login")
                       ? "bg-primary text-primary-foreground"
                       : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                       }`}
@@ -152,6 +145,17 @@ export function Navigation() {
                     className="rounded-full px-6 tracking-wide uppercase text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     Sign up
+                  </Button>
+                </Link>
+                <Link href="/about">
+                  <Button
+                    variant={pathname?.startsWith("/about") ? "default" : "outline"}
+                    className={`rounded-full px-6 tracking-wide uppercase text-xs ${pathname?.startsWith("/about")
+                      ? "bg-primary text-primary-foreground"
+                      : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                      }`}
+                  >
+                    Learn More
                   </Button>
                 </Link>
               </div>
@@ -247,6 +251,13 @@ export function Navigation() {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Sign up
+                  </Link>
+                  <Link
+                    href="/about"
+                    className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Learn More
                   </Link>
                 </>
               )}

@@ -15,7 +15,8 @@ export function SignupForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
-    const [fullName, setFullName] = useState("")
+    const [firstName, setFirstName] = useState("")
+    const [lastName, setLastName] = useState("")
     const [email, setEmail] = useState("")
     const [school, setSchool] = useState("")
     const [password, setPassword] = useState("")
@@ -41,7 +42,8 @@ export function SignupForm({
         e.preventDefault()
         const newErrors: { [key: string]: string | undefined } = {}
 
-        if (!fullName) newErrors.fullName = "Full Name is required"
+        if (!firstName) newErrors.firstName = "First Name is required"
+        if (!lastName) newErrors.lastName = "Last Name is required"
         if (!email) newErrors.email = "Email is required"
         if (!school) newErrors.school = "School name is required"
         if (!password) newErrors.password = "Password is required"
@@ -59,7 +61,13 @@ export function SignupForm({
         setIsLoading(true)
         setErrors({})
         try {
-            await signUp({ fullName, email, school, password })
+            await signUp({
+                email,
+                password,
+                firstName,
+                lastName,
+                school
+            })
             router.push("/signup/preferences")
         } catch (err) {
             setErrors({ general: err instanceof Error ? err.message : "Sign up failed" })
@@ -72,7 +80,7 @@ export function SignupForm({
         <div className={cn("flex flex-col gap-6", className)} {...props}>
             <Card className="overflow-hidden">
                 <CardContent className="p-0">
-                    <form className="p-6 md:p-8" onSubmit={handleSubmit}>
+                    <form className="p-6 md:p-8" onSubmit={handleSubmit} noValidate>
                         <div className="flex flex-col gap-6">
                             <div className="flex flex-col items-center text-center">
                                 <h1 className="text-2xl font-bold">Sign Up</h1>
@@ -85,19 +93,35 @@ export function SignupForm({
                                     {errors.general}
                                 </div>
                             )}
-                            <div className="grid gap-2">
-                                <Label htmlFor="full-name">Full Name</Label>
-                                <Input
-                                    id="full-name"
-                                    placeholder="John Doe"
-                                    required
-                                    value={fullName}
-                                    onChange={(e) => {
-                                        setFullName(e.target.value)
-                                        if (errors.fullName) setErrors({ ...errors, fullName: undefined })
-                                    }}
-                                />
-                                {errors.fullName && <p className="text-sm text-red-500 font-medium">{errors.fullName}</p>}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="first-name">First Name</Label>
+                                    <Input
+                                        id="first-name"
+                                        placeholder="John"
+                                        required
+                                        value={firstName}
+                                        onChange={(e) => {
+                                            setFirstName(e.target.value)
+                                            if (errors.firstName) setErrors({ ...errors, firstName: undefined })
+                                        }}
+                                    />
+                                    {errors.firstName && <p className="text-sm text-red-500 font-medium">{errors.firstName}</p>}
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="last-name">Last Name</Label>
+                                    <Input
+                                        id="last-name"
+                                        placeholder="Doe"
+                                        required
+                                        value={lastName}
+                                        onChange={(e) => {
+                                            setLastName(e.target.value)
+                                            if (errors.lastName) setErrors({ ...errors, lastName: undefined })
+                                        }}
+                                    />
+                                    {errors.lastName && <p className="text-sm text-red-500 font-medium">{errors.lastName}</p>}
+                                </div>
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="email">Email</Label>

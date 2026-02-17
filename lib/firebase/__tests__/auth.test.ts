@@ -6,7 +6,10 @@ import { auth, db } from '../config';
 // Mock Firebase modules
 jest.mock('firebase/auth');
 jest.mock('firebase/firestore', () => ({
-  ...jest.requireActual('firebase/firestore'),
+  getFirestore: jest.fn(),
+  doc: jest.fn(),
+  setDoc: jest.fn(),
+  getDoc: jest.fn(),
   serverTimestamp: jest.fn(() => ({ seconds: Date.now() / 1000 })),
 }));
 jest.mock('../config', () => ({
@@ -92,7 +95,8 @@ describe('Firebase Auth Functions', () => {
       const signUpData = {
         email: 'newuser@example.com',
         password: 'password123',
-        fullName: 'John Doe',
+        firstName: 'John',
+        lastName: 'Doe',
         school: 'Test School',
       };
 
@@ -107,7 +111,8 @@ describe('Firebase Auth Functions', () => {
         doc(db, 'users', 'new-user-uid'),
         expect.objectContaining({
           email: 'newuser@example.com',
-          fullName: 'John Doe',
+          firstName: 'John',
+          lastName: 'Doe',
           school: 'Test School',
         })
       );
@@ -126,7 +131,8 @@ describe('Firebase Auth Functions', () => {
       const signUpData = {
         email: 'existing@example.com',
         password: 'password123',
-        fullName: 'John Doe',
+        firstName: 'John',
+        lastName: 'Doe',
         school: 'Test School',
       };
 
@@ -143,7 +149,8 @@ describe('Firebase Auth Functions', () => {
       const signUpData = {
         email: 'newuser@example.com',
         password: '123',
-        fullName: 'John Doe',
+        firstName: 'John',
+        lastName: 'Doe',
         school: 'Test School',
       };
 
@@ -173,7 +180,8 @@ describe('Firebase Auth Functions', () => {
     it('should successfully retrieve user profile from Firestore', async () => {
       const mockUserData = {
         email: 'test@example.com',
-        fullName: 'John Doe',
+        firstName: 'John',
+        lastName: 'Doe',
         school: 'Test School',
         createdAt: { seconds: 1234567890 },
         updatedAt: { seconds: 1234567890 },

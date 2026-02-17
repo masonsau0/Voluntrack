@@ -337,9 +337,9 @@ export default function DashboardPage() {
                       {loading ? (
                         "..."
                       ) : (
-                        userProfile?.fullName
-                          ? userProfile.fullName.split(" ")[0].charAt(0).toUpperCase() +
-                            userProfile.fullName.split(" ")[0].slice(1).toLowerCase()
+                        userProfile?.firstName
+                          ? userProfile.firstName.charAt(0).toUpperCase() +
+                            userProfile.firstName.slice(1).toLowerCase()
                           : "User"
                       )}
                       !
