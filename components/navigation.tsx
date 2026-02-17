@@ -129,8 +129,8 @@ export function Navigation() {
               <div className="hidden sm:flex items-center gap-4">
                 <Link href="/login">
                   <Button
-                    variant={isLoginPage ? "default" : "outline"}
-                    className={`rounded-full px-6 tracking-wide uppercase text-xs ${isLoginPage
+                    variant={pathname?.startsWith("/login") ? "default" : "outline"}
+                    className={`rounded-full px-6 tracking-wide uppercase text-xs ${pathname?.startsWith("/login")
                       ? "bg-primary text-primary-foreground"
                       : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                       }`}
@@ -144,6 +144,17 @@ export function Navigation() {
                     className="rounded-full px-6 tracking-wide uppercase text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     Sign up
+                  </Button>
+                </Link>
+                <Link href="/about">
+                  <Button
+                    variant={pathname?.startsWith("/about") ? "default" : "outline"}
+                    className={`rounded-full px-6 tracking-wide uppercase text-xs ${pathname?.startsWith("/about")
+                      ? "bg-primary text-primary-foreground"
+                      : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                      }`}
+                  >
+                    Learn More
                   </Button>
                 </Link>
               </div>
@@ -210,6 +221,13 @@ export function Navigation() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Sign up
+              </Link>
+              <Link
+                href="/about"
+                className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Learn More
               </Link>
             </div>
           </div>
