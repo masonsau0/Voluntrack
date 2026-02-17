@@ -1,0 +1,136 @@
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  User,
+  UserCredential,
+  AuthError,
+} from 'firebase/auth';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from './config';
+
+export interface SignUpData {
+  email: string;
+  password: string;
+  fullName: string;
+  school: string;
+}
+
+export interface UserProfile {
+  uid: string;
+  email: string;
+  fullName: string;
+  school: string;
+  createdAt: any;
+  updatedAt: any;
+}
+
+/**
+ * Sign in with email and password
+ */
+export async function signIn(email: string, password: string): Promise<User> {
+  try {
+    const userCredential: UserCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    return userCredential.user;
+  } catch (error) {
+    const authError = error as AuthError;
+    throw new Error(getAuthErrorMessage(authError.code));
+  }
+}
+
+/**
+ * Sign up a new user with email and password
+ * Creates the user in Firebase Auth and creates a user document in Firestore
+ */
+export async function signUp(data: SignUpData): Promise<User> {
+  try {
+    // Create user in Firebase Auth
+    const userCredential: UserCredential = await createUserWithEmailAndPassword(
+      auth,
+      data.email,
+      data.password
+    );
+
+    const user = userCredential.user;
+
+    // Create user document in Firestore
+    // The document ID must match the Auth UID per Firestore rules
+    const userProfile: Omit<UserProfile, 'uid'> = {
+      email: data.email,
+      fullName: data.fullName,
+      school: data.school,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+
+    await setDoc(doc(db, 'users', user.uid), userProfile);
+
+    return user;
+  } catch (error) {
+    const authError = error as AuthError;
+    throw new Error(getAuthErrorMessage(authError.code));
+  }
+}
+
+/**
+ * Sign out the current user
+ */
+export async function signOutUser(): Promise<void> {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    const authError = error as AuthError;
+    throw new Error(getAuthErrorMessage(authError.code));
+  }
+}
+
+/**
+ * Get user profile from Firestore
+ */
+export async function getUserProfile(uid: string): Promise<UserProfile | null> {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', uid));
+    if (userDoc.exists()) {
+      return {
+        uid: userDoc.id,
+        ...userDoc.data(),
+      } as UserProfile;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error getting user profile:', error);
+    throw error;
+  }
+}
+
+/**
+ * Convert Firebase Auth error codes to user-friendly messages
+ */
+function getAuthErrorMessage(errorCode: string): string {
+  switch (errorCode) {
+    case 'auth/invalid-email':
+      return 'Invalid email address.';
+    case 'auth/user-disabled':
+      return 'This account has been disabled.';
+    case 'auth/user-not-found':
+      return 'No account found with this email address.';
+    case 'auth/wrong-password':
+      return 'Incorrect password.';
+    case 'auth/email-already-in-use':
+      return 'An account with this email already exists.';
+    case 'auth/operation-not-allowed':
+      return 'Email/password accounts are not enabled.';
+    case 'auth/weak-password':
+      return 'Password is too weak.';
+    case 'auth/network-request-failed':
+      return 'Network error. Please check your connection.';
+    case 'auth/too-many-requests':
+      return 'Too many failed attempts. Please try again later.';
+    default:
+      return 'An error occurred. Please try again.';
+  }
+}

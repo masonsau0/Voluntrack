@@ -5,9 +5,11 @@ import { usePathname } from "next/navigation"
 import { Bell, Menu, X, ChevronDown, User } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { useAuth } from "@/contexts/AuthContext"
 
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { userProfile, loading } = useAuth()
   const notificationCount = 3
 
   const pathname = usePathname()
@@ -86,7 +88,13 @@ export function Navigation() {
                 <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
                   <User className="h-5 w-5 text-muted-foreground" />
                 </div>
-                <span className="text-sm font-medium">John D.</span>
+                {loading ? (
+                  <span className="text-sm font-medium text-muted-foreground">Loading...</span>
+                ) : (
+                  <span className="text-sm font-medium">
+                    {userProfile?.fullName?.split(" ")[0] || "User"}
+                  </span>
+                )}
                 <ChevronDown className="h-4 w-4 text-muted-foreground" />
               </div>
             ) : (

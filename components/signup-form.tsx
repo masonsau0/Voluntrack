@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { signUp } from "@/lib/firebase/auth"
 
 export function SignupForm({
     className,
@@ -22,6 +23,7 @@ export function SignupForm({
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [errors, setErrors] = useState<{ [key: string]: string | undefined }>({})
+    const [isLoading, setIsLoading] = useState(false)
 
     const router = useRouter()
 
@@ -35,7 +37,7 @@ export function SignupForm({
         },
     ]
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         const newErrors: { [key: string]: string | undefined } = {}
 
@@ -71,6 +73,11 @@ export function SignupForm({
                                     Create an account to get started
                                 </p>
                             </div>
+                            {errors.general && (
+                                <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">
+                                    {errors.general}
+                                </div>
+                            )}
                             <div className="grid gap-2">
                                 <Label htmlFor="full-name">Full Name</Label>
                                 <Input
@@ -187,8 +194,8 @@ export function SignupForm({
                                     </li>
                                 ))}
                             </ul>
-                            <Button type="submit" className="w-full h-9">
-                                Sign Up
+                            <Button type="submit" className="w-full h-9" disabled={isLoading}>
+                                {isLoading ? "Creating account..." : "Sign Up"}
                             </Button>
                             <div className="text-center text-sm">
                                 Already have an account?{" "}
