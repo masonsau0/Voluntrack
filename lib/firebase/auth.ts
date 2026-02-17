@@ -12,14 +12,17 @@ import { auth, db } from './config';
 export interface SignUpData {
   email: string;
   password: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   school: string;
 }
 
 export interface UserProfile {
   uid: string;
   email: string;
-  fullName: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
   school: string;
   interests?: string[];
   volunteerPreference?: string;
@@ -64,7 +67,8 @@ export async function signUp(data: SignUpData): Promise<User> {
     // The document ID must match the Auth UID per Firestore rules
     const userProfile: Omit<UserProfile, 'uid'> = {
       email: data.email,
-      fullName: data.fullName,
+      firstName: data.firstName,
+      lastName: data.lastName,
       school: data.school,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -97,6 +101,8 @@ export async function signOutUser(): Promise<void> {
 export async function updateUserProfile(
   uid: string,
   data: {
+    firstName?: string;
+    lastName?: string;
     fullName?: string;
     email?: string;
     school?: string;
@@ -109,6 +115,8 @@ export async function updateUserProfile(
     const updates: Record<string, unknown> = {
       updatedAt: serverTimestamp(),
     };
+    if (data.firstName !== undefined) updates.firstName = data.firstName;
+    if (data.lastName !== undefined) updates.lastName = data.lastName;
     if (data.fullName !== undefined) updates.fullName = data.fullName;
     if (data.email !== undefined) updates.email = data.email;
     if (data.school !== undefined) updates.school = data.school;

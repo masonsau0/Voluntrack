@@ -22,7 +22,7 @@ export default function StudentLoginPage() {
                     </header>
 
                     <div className="w-full max-w-md">
-                        <LoginForm showSignUp={true} />
+                        <LoginForm showSignUp={true} redirectTo="/opportunities" />
                     </div>
                 </div>
 

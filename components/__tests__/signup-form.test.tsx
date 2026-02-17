@@ -25,7 +25,8 @@ describe('SignupForm', () => {
   it('should render signup form with all required fields', () => {
     render(<SignupForm />);
 
-    expect(screen.getByLabelText(/full name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/last name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/school name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument();
@@ -40,11 +41,12 @@ describe('SignupForm', () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/full name is required/i)).toBeInTheDocument();
+      expect(screen.getByText(/first name is required/i)).toBeInTheDocument();
+      expect(screen.getByText(/last name is required/i)).toBeInTheDocument();
       expect(screen.getByText(/email is required/i)).toBeInTheDocument();
       expect(screen.getByText(/school name is required/i)).toBeInTheDocument();
-      expect(screen.getByText(/password is required/i)).toBeInTheDocument();
-      expect(screen.getByText(/confirm password is required/i)).toBeInTheDocument();
+      expect(screen.getByText(/^password is required$/i)).toBeInTheDocument();
+      expect(screen.getByText(/^confirm password is required$/i)).toBeInTheDocument();
     });
 
     expect(mockSignUp).not.toHaveBeenCalled();
@@ -58,14 +60,16 @@ describe('SignupForm', () => {
 
     render(<SignupForm />);
 
-    const fullNameInput = screen.getByLabelText(/full name/i);
+    const firstNameInput = screen.getByLabelText(/first name/i);
+    const lastNameInput = screen.getByLabelText(/last name/i);
     const emailInput = screen.getByLabelText(/email/i);
     const schoolInput = screen.getByLabelText(/school name/i);
     const passwordInput = screen.getByLabelText(/^password$/i);
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
     const submitButton = screen.getByRole('button', { name: /sign up/i });
 
-    fireEvent.change(fullNameInput, { target: { value: 'John Doe' } });
+    fireEvent.change(firstNameInput, { target: { value: 'John' } });
+    fireEvent.change(lastNameInput, { target: { value: 'Doe' } });
     fireEvent.change(emailInput, { target: { value: 'john@example.com' } });
     fireEvent.change(schoolInput, { target: { value: 'Test School' } });
     fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
@@ -76,7 +80,8 @@ describe('SignupForm', () => {
       expect(mockSignUp).toHaveBeenCalledWith({
         email: 'john@example.com',
         password: 'Password123!',
-        fullName: 'John Doe',
+        firstName: 'John',
+        lastName: 'Doe',
         school: 'Test School',
       });
     });
@@ -87,14 +92,16 @@ describe('SignupForm', () => {
 
     render(<SignupForm />);
 
-    const fullNameInput = screen.getByLabelText(/full name/i);
+    const firstNameInput = screen.getByLabelText(/first name/i);
+    const lastNameInput = screen.getByLabelText(/last name/i);
     const emailInput = screen.getByLabelText(/email/i);
     const schoolInput = screen.getByLabelText(/school name/i);
     const passwordInput = screen.getByLabelText(/^password$/i);
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
     const submitButton = screen.getByRole('button', { name: /sign up/i });
 
-    fireEvent.change(fullNameInput, { target: { value: 'John Doe' } });
+    fireEvent.change(firstNameInput, { target: { value: 'John' } });
+    fireEvent.change(lastNameInput, { target: { value: 'Doe' } });
     fireEvent.change(emailInput, { target: { value: 'existing@example.com' } });
     fireEvent.change(schoolInput, { target: { value: 'Test School' } });
     fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
@@ -113,14 +120,16 @@ describe('SignupForm', () => {
 
     render(<SignupForm />);
 
-    const fullNameInput = screen.getByLabelText(/full name/i);
+    const firstNameInput = screen.getByLabelText(/first name/i);
+    const lastNameInput = screen.getByLabelText(/last name/i);
     const emailInput = screen.getByLabelText(/email/i);
     const schoolInput = screen.getByLabelText(/school name/i);
     const passwordInput = screen.getByLabelText(/^password$/i);
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
     const submitButton = screen.getByRole('button', { name: /sign up/i });
 
-    fireEvent.change(fullNameInput, { target: { value: 'John Doe' } });
+    fireEvent.change(firstNameInput, { target: { value: 'John' } });
+    fireEvent.change(lastNameInput, { target: { value: 'Doe' } });
     fireEvent.change(emailInput, { target: { value: 'john@example.com' } });
     fireEvent.change(schoolInput, { target: { value: 'Test School' } });
     fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
@@ -186,19 +195,19 @@ describe('SignupForm', () => {
   it('should clear errors when user starts typing in a field', async () => {
     render(<SignupForm />);
 
-    const fullNameInput = screen.getByLabelText(/full name/i);
+    const firstNameInput = screen.getByLabelText(/first name/i);
     const submitButton = screen.getByRole('button', { name: /sign up/i });
 
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/full name is required/i)).toBeInTheDocument();
+      expect(screen.getByText(/first name is required/i)).toBeInTheDocument();
     });
 
-    fireEvent.change(fullNameInput, { target: { value: 'John Doe' } });
+    fireEvent.change(firstNameInput, { target: { value: 'John' } });
 
     await waitFor(() => {
-      expect(screen.queryByText(/full name is required/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/first name is required/i)).not.toBeInTheDocument();
     });
   });
 });

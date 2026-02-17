@@ -77,6 +77,14 @@ export default function RoleSelectionPage() {
             </Link>
 
           </div>
+
+          {/* Sign up prompt */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-2 text-base md:text-lg">
+            <span className="text-foreground font-medium">Don&apos;t have an account?</span>
+            <Button asChild size="lg" variant="outline" className="rounded-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+              <Link href="/signup">Sign up</Link>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

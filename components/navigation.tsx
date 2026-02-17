@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Bell, Menu, X, ChevronDown, User, LogOut, UserCircle, HelpCircle } from "lucide-react"
+import { Bell, Menu, X, ChevronDown, User, LogOut, UserCircle, Info } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,7 +15,7 @@ import { useAuth } from "@/contexts/AuthContext"
 
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { userProfile, loading, logout } = useAuth()
+  const { user, userProfile, loading, logout } = useAuth()
   const router = useRouter()
   const notificationCount = 0
 
@@ -53,29 +53,23 @@ export function Navigation() {
               <>
                 <Link
                   href="/opportunities"
-                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors whitespace-nowrap"
                 >
                   Opportunities
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors whitespace-nowrap"
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/feed"
-                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors whitespace-nowrap"
                 >
                   Feed
                 </Link>
-                <Link
-                  href="/about"
-                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
-                >
-                  About
-                </Link>
-              </>
+              </div>
             )}
             {isLoggedIn && isOrgView && (
               <>
@@ -104,7 +98,7 @@ export function Navigation() {
             )}
           </div>
 
-          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4">
             {isLoggedIn && (
               <Button variant="ghost" size="icon" className="relative hidden sm:flex">
                 <Bell className="h-5 w-5" />
@@ -118,7 +112,6 @@ export function Navigation() {
 
             {/* Authentication vs Profile */}
             {isLoggedIn ? (
-              /* Profile dropdown */
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="hidden sm:flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity outline-none">
@@ -129,7 +122,7 @@ export function Navigation() {
                       <span className="text-sm font-medium text-muted-foreground">Loading...</span>
                     ) : (
                       <span className="text-sm font-medium">
-                        {userProfile?.fullName?.split(" ")[0] || "User"}
+                        {userProfile?.firstName || userProfile?.fullName?.split(" ")[0] || "User"}
                       </span>
                     )}
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -144,8 +137,8 @@ export function Navigation() {
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/about" className="flex items-center gap-2 cursor-pointer">
-                      <HelpCircle className="h-4 w-4" />
-                      Help
+                      <Info className="h-4 w-4" />
+                      About
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -165,8 +158,8 @@ export function Navigation() {
               <div className="hidden sm:flex items-center gap-4">
                 <Link href="/login">
                   <Button
-                    variant={isLoginPage ? "default" : "outline"}
-                    className={`rounded-full px-6 tracking-wide uppercase text-xs ${isLoginPage
+                    variant={pathname?.startsWith("/login") ? "default" : "outline"}
+                    className={`rounded-full px-6 tracking-wide uppercase text-xs ${pathname?.startsWith("/login")
                       ? "bg-primary text-primary-foreground"
                       : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                       }`}
@@ -193,6 +186,7 @@ export function Navigation() {
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -272,7 +266,7 @@ export function Navigation() {
                     className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Help
+                    About
                   </Link>
                   <button
                     className="block text-base tracking-wider uppercase text-destructive font-medium transition-colors text-left w-full"
