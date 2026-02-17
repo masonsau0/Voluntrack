@@ -69,7 +69,7 @@ export function Navigation() {
                 >
                   Feed
                 </Link>
-              </div>
+              </>
             )}
             {isLoggedIn && isOrgView && (
               <>
@@ -187,7 +187,6 @@ export function Navigation() {
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
             </div>
-          </div>
         </div>
       </div>
 
