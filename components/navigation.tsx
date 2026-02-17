@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Bell, Menu, X, ChevronDown, User, LogOut, UserCircle, HelpCircle } from "lucide-react"
+import { Bell, Menu, X, ChevronDown, User, LogOut, UserCircle, Info } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
@@ -39,38 +39,31 @@ export function Navigation() {
             </span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-8">
+          <div className="flex items-center gap-6 lg:gap-8">
             {isLoggedIn && (
-              <>
+              <div className="hidden md:flex items-center gap-6 lg:gap-8">
                 <Link
                   href="/opportunities"
-                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors whitespace-nowrap"
                 >
                   Opportunities
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors whitespace-nowrap"
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/feed"
-                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors whitespace-nowrap"
                 >
                   Feed
                 </Link>
-                <Link
-                  href="/about"
-                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
-                >
-                  About
-                </Link>
-              </>
+              </div>
             )}
-          </div>
 
-          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4">
             {isLoggedIn && (
               <Button variant="ghost" size="icon" className="relative hidden sm:flex">
                 <Bell className="h-5 w-5" />
@@ -109,8 +102,8 @@ export function Navigation() {
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/about" className="flex items-center gap-2 cursor-pointer">
-                      <HelpCircle className="h-4 w-4" />
-                      Help
+                      <Info className="h-4 w-4" />
+                      About
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -147,17 +140,6 @@ export function Navigation() {
                     Sign up
                   </Button>
                 </Link>
-                <Link href="/about">
-                  <Button
-                    variant={pathname?.startsWith("/about") ? "default" : "outline"}
-                    className={`rounded-full px-6 tracking-wide uppercase text-xs ${pathname?.startsWith("/about")
-                      ? "bg-primary text-primary-foreground"
-                      : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                      }`}
-                  >
-                    Learn More
-                  </Button>
-                </Link>
               </div>
             )}
 
@@ -169,6 +151,7 @@ export function Navigation() {
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -223,7 +206,7 @@ export function Navigation() {
                     className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Help
+                    About
                   </Link>
                   <button
                     className="block text-base tracking-wider uppercase text-destructive font-medium transition-colors text-left w-full"
@@ -251,13 +234,6 @@ export function Navigation() {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Sign up
-                  </Link>
-                  <Link
-                    href="/about"
-                    className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Learn More
                   </Link>
                 </>
               )}

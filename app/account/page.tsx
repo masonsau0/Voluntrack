@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { updateUserProfile } from "@/lib/firebase/auth"
 import { toast } from "sonner"
 import { INTERESTS, VOLUNTEER_OPTIONS, AVAILABILITY_OPTIONS } from "@/lib/preferences"
+import { sampleApplications } from "@/lib/applications-data"
 import { cn } from "@/lib/utils"
 import {
     Sparkles,
@@ -34,7 +35,8 @@ const tabs = [
 export default function AccountPage() {
     const { user, userProfile, loading, refreshProfile } = useAuth()
     const [isEditing, setIsEditing] = useState(false)
-    const [fullName, setFullName] = useState("")
+    const [firstName, setFirstName] = useState("")
+    const [lastName, setLastName] = useState("")
     const [email, setEmail] = useState("")
     const [school, setSchool] = useState("")
     const [selectedInterests, setSelectedInterests] = useState<string[]>([])
@@ -47,8 +49,10 @@ export default function AccountPage() {
 
     useEffect(() => {
         if (userProfile) {
-            setFullName(userProfile.fullName || "")
-            setEmail(userProfile.email || "")
+            const parts = (userProfile.fullName || "").trim().split(" ")
+            setFirstName(userProfile.firstName || parts[0] || "")
+            setLastName(userProfile.lastName || (parts.length > 1 ? parts.slice(1).join(" ") : "") || "")
+            setEmail(userProfile.email || user?.email || "")
             setSchool(userProfile.school || "")
             setSelectedInterests(
                 (userProfile.interests || []).map((id) => (id === "senior-security" ? "senior-care" : id))
@@ -56,7 +60,7 @@ export default function AccountPage() {
             setVolunteerPreference(userProfile.volunteerPreference || "")
             setAvailability(userProfile.availability || "")
         }
-    }, [userProfile])
+    }, [userProfile, user?.email])
 
     const [interestLimitMessage, setInterestLimitMessage] = useState("")
 
@@ -81,7 +85,7 @@ export default function AccountPage() {
         setIsSaving(true)
         setSaveError(null)
         try {
-            await updateUserProfile(user.uid, { fullName, email, school })
+            await updateUserProfile(user.uid, { firstName, lastName, email, school })
             await refreshProfile()
             setIsEditing(false)
             toast.success("Changes saved successfully")
@@ -130,7 +134,7 @@ export default function AccountPage() {
                                     </div>
                                     <div>
                                         <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-                                            Welcome back, {loading ? "..." : (userProfile?.fullName?.split(" ")[0] || "User")}!
+                                            Welcome back, {loading ? "..." : (userProfile?.firstName || userProfile?.fullName?.split(" ")[0] || "User")}!
                                         </h1>
                                         <p className="text-muted-foreground mt-1">Ready to make a difference today?</p>
                                     </div>
@@ -146,7 +150,9 @@ export default function AccountPage() {
                                     </div>
                                     <div>
                                         <p className="text-xs text-teal-600 font-medium">Completed</p>
-                                        <p className="text-xl font-bold text-teal-700">5</p>
+                                        <p className="text-xl font-bold text-teal-700">
+                                            {sampleApplications.filter((a) => a.status === "completed").length}
+                                        </p>
                                     </div>
                                 </div>
 
@@ -157,7 +163,9 @@ export default function AccountPage() {
                                     </div>
                                     <div>
                                         <p className="text-xs text-orange-600 font-medium">Pending</p>
-                                        <p className="text-xl font-bold text-orange-700">3</p>
+                                        <p className="text-xl font-bold text-orange-700">
+                                            {sampleApplications.filter((a) => a.status === "pending").length}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -211,8 +219,9 @@ export default function AccountPage() {
                                                 onClick={() => {
                                                     setIsEditing(false)
                                                     if (userProfile) {
-                                                        setFullName(userProfile.fullName || "")
-                                                        setEmail(userProfile.email || "")
+                                                        setFirstName(userProfile.firstName || "")
+                                                        setLastName(userProfile.lastName || "")
+                                                        setEmail(userProfile.email || user?.email || "")
                                                         setSchool(userProfile.school || "")
                                                     }
                                                 }}
@@ -247,17 +256,31 @@ export default function AccountPage() {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="grid gap-2">
-                                        <Label htmlFor="full-name">Full Name</Label>
+                                        <Label htmlFor="first-name">First Name</Label>
                                         {isEditing ? (
                                             <Input
-                                                id="full-name"
-                                                value={fullName}
-                                                onChange={(e) => setFullName(e.target.value)}
-                                                placeholder="John Doe"
+                                                id="first-name"
+                                                value={firstName}
+                                                onChange={(e) => setFirstName(e.target.value)}
+                                                placeholder="John"
                                                 required
                                             />
                                         ) : (
-                                            <p className="font-medium text-foreground py-2">{fullName || "—"}</p>
+                                            <p className="font-medium text-foreground py-2">{firstName || "—"}</p>
+                                        )}
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="last-name">Last Name</Label>
+                                        {isEditing ? (
+                                            <Input
+                                                id="last-name"
+                                                value={lastName}
+                                                onChange={(e) => setLastName(e.target.value)}
+                                                placeholder="Doe"
+                                                required
+                                            />
+                                        ) : (
+                                            <p className="font-medium text-foreground py-2">{lastName || "—"}</p>
                                         )}
                                     </div>
                                     <div className="grid gap-2">

@@ -11,7 +11,7 @@ export default function RedirectIfAuthenticated({ children }: { children: React.
 
   useEffect(() => {
     if (!loading && user) {
-      router.push("/")
+      router.push("/opportunities")
     }
   }, [user, loading, router])
 

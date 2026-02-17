@@ -20,8 +20,9 @@ export interface SignUpData {
 export interface UserProfile {
   uid: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
   school: string;
   interests?: string[];
   volunteerPreference?: string;
@@ -100,6 +101,8 @@ export async function signOutUser(): Promise<void> {
 export async function updateUserProfile(
   uid: string,
   data: {
+    firstName?: string;
+    lastName?: string;
     fullName?: string;
     email?: string;
     school?: string;
@@ -112,6 +115,8 @@ export async function updateUserProfile(
     const updates: Record<string, unknown> = {
       updatedAt: serverTimestamp(),
     };
+    if (data.firstName !== undefined) updates.firstName = data.firstName;
+    if (data.lastName !== undefined) updates.lastName = data.lastName;
     if (data.fullName !== undefined) updates.fullName = data.fullName;
     if (data.email !== undefined) updates.email = data.email;
     if (data.school !== undefined) updates.school = data.school;
