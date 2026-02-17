@@ -98,7 +98,7 @@ export function Navigation() {
                       <span className="text-sm font-medium text-muted-foreground">Loading...</span>
                     ) : (
                       <span className="text-sm font-medium">
-                        {userProfile?.fullName?.split(" ")[0] || "User"}
+                        {userProfile?.firstName || "User"}
                       </span>
                     )}
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />

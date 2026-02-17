@@ -12,14 +12,16 @@ import { auth, db } from './config';
 export interface SignUpData {
   email: string;
   password: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   school: string;
 }
 
 export interface UserProfile {
   uid: string;
   email: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   school: string;
   createdAt: any;
   updatedAt: any;
@@ -61,7 +63,8 @@ export async function signUp(data: SignUpData): Promise<User> {
     // The document ID must match the Auth UID per Firestore rules
     const userProfile: Omit<UserProfile, 'uid'> = {
       email: data.email,
-      fullName: data.fullName,
+      firstName: data.firstName,
+      lastName: data.lastName,
       school: data.school,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
