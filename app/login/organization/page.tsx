@@ -22,7 +22,7 @@ export default function OrganizationLoginPage() {
                     </header>
 
                     <div className="w-full max-w-md">
-                        <LoginForm />
+                        <LoginForm redirectTo="/org/dashboard" />
                     </div>
                 </div>
 

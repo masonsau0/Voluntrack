@@ -20,6 +20,8 @@ export function Navigation() {
   const notificationCount = 0
 
   const pathname = usePathname()
+  // Detect if user is in org view
+  const isOrgView = pathname?.startsWith("/org")
   // Show logged-in state on dashboard, opportunities, feed, and all related subpages
   const isLoggedIn = pathname?.startsWith("/dashboard") ||
     pathname?.startsWith("/applications") ||
@@ -27,7 +29,8 @@ export function Navigation() {
     pathname?.startsWith("/news") ||
     pathname?.startsWith("/opportunities") ||
     pathname?.startsWith("/feed") ||
-    pathname?.startsWith("/about")
+    pathname?.startsWith("/about") ||
+    pathname?.startsWith("/org")
 
   // Check if we're on a login page
   const isLoginPage = pathname?.startsWith("/login")
@@ -46,7 +49,7 @@ export function Navigation() {
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
-            {isLoggedIn && (
+            {isLoggedIn && !isOrgView && (
               <>
                 <Link
                   href="/opportunities"
@@ -65,6 +68,30 @@ export function Navigation() {
                   className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
                 >
                   Feed
+                </Link>
+                <Link
+                  href="/about"
+                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  About
+                </Link>
+              </>
+            )}
+            {isLoggedIn && isOrgView && (
+              <>
+                <Link
+                  href="/org/dashboard"
+                  className={`text-sm tracking-wider uppercase transition-colors ${pathname?.startsWith("/org/dashboard") ? "text-foreground font-semibold" : "text-foreground/70 hover:text-foreground"
+                    }`}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/org/opportunities"
+                  className={`text-sm tracking-wider uppercase transition-colors ${pathname?.startsWith("/org/opportunities") ? "text-foreground font-semibold" : "text-foreground/70 hover:text-foreground"
+                    }`}
+                >
+                  Opportunities
                 </Link>
                 <Link
                   href="/about"
@@ -172,7 +199,7 @@ export function Navigation() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background">
           <div className="px-4 py-6 space-y-4">
-            {isLoggedIn && (
+            {isLoggedIn && !isOrgView && (
               <>
                 <Link
                   href="/opportunities"
@@ -194,6 +221,31 @@ export function Navigation() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Feed
+                </Link>
+                <Link
+                  href="/about"
+                  className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  About
+                </Link>
+              </>
+            )}
+            {isLoggedIn && isOrgView && (
+              <>
+                <Link
+                  href="/org/dashboard"
+                  className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/org/opportunities"
+                  className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Opportunities
                 </Link>
                 <Link
                   href="/about"

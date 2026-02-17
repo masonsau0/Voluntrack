@@ -14,8 +14,9 @@ import { signIn } from "@/lib/firebase/auth"
 export function LoginForm({
   className,
   showSignUp = false,
+  redirectTo = "/dashboard",
   ...props
-}: React.ComponentProps<"div"> & { showSignUp?: boolean }) {
+}: React.ComponentProps<"div"> & { showSignUp?: boolean; redirectTo?: string }) {
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
   const [showPassword, setShowPassword] = React.useState(false)
@@ -46,7 +47,7 @@ export function LoginForm({
 
     try {
       await signIn(email, password)
-      router.push("/dashboard")
+      router.push(redirectTo)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An error occurred during login"
       setErrors({ general: errorMessage })
@@ -113,8 +114,8 @@ export function LoginForm({
                   <p className="text-sm text-red-500 font-medium">{errors.password}</p>
                 )}
                 <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="show-password" 
+                  <Checkbox
+                    id="show-password"
                     checked={showPassword}
                     onCheckedChange={(checked) => setShowPassword(checked === true)}
                   />
