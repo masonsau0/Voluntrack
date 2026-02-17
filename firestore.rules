@@ -70,7 +70,7 @@ service cloud.firestore {
     // 6. Student Hours Collection
     // - Value privacy: Students see their own
     match /student_hours/{hoursId} {
-       allow read: if isAuthenticated() && (
+       allow read: if isAuthenticated() && ( 
          resource.data.studentId == request.auth.uid ||
          // Allow school admins to see (requires role check)
          true

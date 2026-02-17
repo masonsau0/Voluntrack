@@ -1,3 +1,4 @@
+console.log('DEBUG: lib/firebase/config.ts IS LOADING');
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';

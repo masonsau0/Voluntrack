@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { signIn } from "@/lib/firebase/auth"
+import { Loader2 } from "lucide-react"
 
 export function LoginForm({
   className,
@@ -60,7 +61,7 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden bg-sky-50/80 backdrop-blur-sm border-sky-200/50">
         <CardContent className="p-0">
-          <form className="p-6 md:p-8" onSubmit={handleSubmit}>
+          <form className="p-6 md:p-8" onSubmit={handleSubmit} data-testid="login-form">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
                 <h1 className="text-2xl font-bold">Login</h1>
@@ -124,8 +125,15 @@ export function LoginForm({
                   </Label>
                 </div>
               </div>
-              <Button type="submit" className="w-full">
-                Login
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Logging in...
+                  </>
+                ) : (
+                  "Login"
+                )}
               </Button>
               <div className="flex items-center space-x-2">
                 <Checkbox id="remember" />
