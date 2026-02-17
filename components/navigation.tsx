@@ -20,8 +20,17 @@ export function Navigation() {
   const notificationCount = 0
 
   const pathname = usePathname()
-  // Show logged-in state based on actual authentication
-  const isLoggedIn = !!user
+  // Detect if user is in org view
+  const isOrgView = pathname?.startsWith("/org")
+  // Show logged-in state on dashboard, opportunities, feed, and all related subpages
+  const isLoggedIn = pathname?.startsWith("/dashboard") ||
+    pathname?.startsWith("/applications") ||
+    pathname?.startsWith("/account") ||
+    pathname?.startsWith("/news") ||
+    pathname?.startsWith("/opportunities") ||
+    pathname?.startsWith("/feed") ||
+    pathname?.startsWith("/about") ||
+    pathname?.startsWith("/org")
 
   // Check if we're on a login page
   const isLoginPage = pathname?.startsWith("/login")
@@ -31,7 +40,7 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
+          <Link href={isOrgView ? "/org" : "/"} className="flex items-center">
             <span className="font-serif text-2xl md:text-3xl font-light tracking-wide">
               <span className="font-serif font-normal text-primary">Volun</span>
               <span className="font-serif font-normal text-orange-500">Track</span>
@@ -39,9 +48,9 @@ export function Navigation() {
             </span>
           </Link>
 
-          <div className="flex items-center gap-6 lg:gap-8">
-            {isLoggedIn && (
-              <div className="hidden md:flex items-center gap-6 lg:gap-8">
+          <div className="hidden md:flex items-center gap-8">
+            {isLoggedIn && !isOrgView && (
+              <>
                 <Link
                   href="/opportunities"
                   className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors whitespace-nowrap"
@@ -62,6 +71,32 @@ export function Navigation() {
                 </Link>
               </div>
             )}
+            {isLoggedIn && isOrgView && (
+              <>
+                <Link
+                  href="/org/dashboard"
+                  className={`text-sm tracking-wider uppercase transition-colors ${pathname?.startsWith("/org/dashboard") ? "text-foreground font-semibold" : "text-foreground/70 hover:text-foreground"
+                    }`}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/org/opportunities"
+                  className={`text-sm tracking-wider uppercase transition-colors ${pathname?.startsWith("/org/opportunities") ? "text-foreground font-semibold" : "text-foreground/70 hover:text-foreground"
+                    }`}
+                >
+                  Opportunities
+                </Link>
+                <Link
+                  href="/org/about"
+                  className={`text-sm tracking-wider uppercase transition-colors ${pathname?.startsWith("/org/about") ? "text-foreground font-semibold" : "text-foreground/70 hover:text-foreground"
+                    }`}
+                >
+                  About
+                </Link>
+              </>
+            )}
+          </div>
 
             <div className="flex items-center gap-4">
             {isLoggedIn && (
@@ -159,7 +194,7 @@ export function Navigation() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background">
           <div className="px-4 py-6 space-y-4">
-            {isLoggedIn && (
+            {isLoggedIn && !isOrgView && (
               <>
                 <Link
                   href="/opportunities"
@@ -184,6 +219,31 @@ export function Navigation() {
                 </Link>
                 <Link
                   href="/about"
+                  className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  About
+                </Link>
+              </>
+            )}
+            {isLoggedIn && isOrgView && (
+              <>
+                <Link
+                  href="/org/dashboard"
+                  className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/org/opportunities"
+                  className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Opportunities
+                </Link>
+                <Link
+                  href="/org/about"
                   className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
