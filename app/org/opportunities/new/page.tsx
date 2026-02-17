@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Navigation } from "@/components/navigation"
 import { useAuth } from "@/contexts/AuthContext"
@@ -49,6 +49,7 @@ const requirementOptions = [
 
 export default function PostOpportunityPage() {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const { userProfile } = useAuth()
     const [showSuccess, setShowSuccess] = useState(false)
 
@@ -140,11 +141,11 @@ export default function PostOpportunityPage() {
             <div className="pt-16 md:pt-20 bg-gradient-to-r from-sky-500 to-indigo-600 border-b border-sky-600">
                 <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <Link
-                        href="/org/opportunities"
+                        href={searchParams.get("from") === "dashboard" ? "/org/dashboard" : "/org/opportunities"}
                         className="inline-flex items-center gap-2 text-sm text-white/80 hover:text-white transition-colors mb-2"
                     >
                         <ArrowLeft className="w-4 h-4" />
-                        Back to Manage Postings
+                        {searchParams.get("from") === "dashboard" ? "Back to Dashboard" : "Back to Manage Postings"}
                     </Link>
                     <h1 className="text-2xl md:text-3xl font-bold text-white">
                         Post an Opportunity

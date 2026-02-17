@@ -149,7 +149,7 @@ export default function OrgDashboardPage() {
 
                     {/* Quick Action Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
-                        <Link href="/org/opportunities/new" className="group">
+                        <Link href="/org/opportunities/new?from=dashboard" className="group">
                             <Card className="bg-gradient-to-br from-sky-400 to-blue-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer">
                                 <CardContent className="p-6 flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
@@ -162,7 +162,7 @@ export default function OrgDashboardPage() {
                                 </CardContent>
                             </Card>
                         </Link>
-                        <Link href="/org/opportunities?view=manage" className="group">
+                        <Link href="/org/opportunities?view=manage&from=dashboard" className="group">
                             <Card className="bg-gradient-to-br from-violet-500 to-purple-700 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer">
                                 <CardContent className="p-6 flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">

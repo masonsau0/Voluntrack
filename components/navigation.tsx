@@ -40,7 +40,7 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
+          <Link href={isOrgView ? "/org" : "/"} className="flex items-center">
             <span className="font-serif text-2xl md:text-3xl font-light tracking-wide">
               <span className="font-serif font-normal text-primary">Volun</span>
               <span className="font-serif font-normal text-orange-500">Track</span>
@@ -94,8 +94,9 @@ export function Navigation() {
                   Opportunities
                 </Link>
                 <Link
-                  href="/about"
-                  className="text-sm tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  href="/org/about"
+                  className={`text-sm tracking-wider uppercase transition-colors ${pathname?.startsWith("/org/about") ? "text-foreground font-semibold" : "text-foreground/70 hover:text-foreground"
+                    }`}
                 >
                   About
                 </Link>
@@ -248,7 +249,7 @@ export function Navigation() {
                   Opportunities
                 </Link>
                 <Link
-                  href="/about"
+                  href="/org/about"
                   className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >

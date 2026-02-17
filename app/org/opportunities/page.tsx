@@ -51,6 +51,7 @@ import {
   Trash2,
   Eye,
   LayoutGrid,
+  ArrowLeft,
 } from "lucide-react"
 import { CATEGORIES } from "@/lib/preferences"
 
@@ -809,39 +810,64 @@ export default function OrgOpportunitiesPage() {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-sky-50 via-white to-sky-50">
       <Navigation />
 
-      {/* View Toggle Bar */}
-      <div className="pt-16 md:pt-20 bg-gradient-to-r from-sky-100 via-sky-50 to-indigo-50 border-b border-sky-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setViewMode("browse")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${viewMode === "browse"
-                ? "bg-sky-600 text-white shadow-md"
-                : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200"
-                }`}
+      {/* Blue Header Bar - shown when navigating from dashboard */}
+      {searchParams.get("from") === "dashboard" && (
+        <div className="pt-16 md:pt-20 bg-gradient-to-r from-sky-500 to-indigo-600 border-b border-sky-600">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+            <Link
+              href="/org/dashboard"
+              className="inline-flex items-center gap-2 text-sm text-white/80 hover:text-white transition-colors mb-2"
             >
-              <LayoutGrid className="w-4 h-4" />
-              Browse Opportunities
-            </button>
-            <button
-              onClick={() => setViewMode("manage")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${viewMode === "manage"
-                ? "bg-sky-600 text-white shadow-md"
-                : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200"
-                }`}
-            >
-              <Eye className="w-4 h-4" />
-              Manage Postings
-            </button>
+              <ArrowLeft className="w-4 h-4" />
+              Back to Dashboard
+            </Link>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-white">
+                Manage Postings
+              </h1>
+              <p className="text-sky-100 mt-0.5 text-sm">
+                View and manage your organization&apos;s volunteer opportunities
+              </p>
+            </div>
           </div>
-          <Link href="/org/opportunities/new">
-            <Button className="bg-sky-600 hover:bg-sky-700 text-white rounded-full px-5 py-2.5 shadow-lg shadow-sky-200 hover:shadow-sky-300 transition-all duration-300 flex items-center gap-2 text-sm font-semibold">
-              <Plus className="w-4 h-4" />
-              Post New Opportunity
-            </Button>
-          </Link>
         </div>
-      </div>
+      )}
+
+      {/* View Toggle Bar - hidden when coming from dashboard */}
+      {searchParams.get("from") !== "dashboard" && (
+        <div className="pt-16 md:pt-20 bg-gradient-to-r from-sky-100 via-sky-50 to-indigo-50 border-b border-sky-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setViewMode("browse")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${viewMode === "browse"
+                  ? "bg-sky-600 text-white shadow-md"
+                  : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200"
+                  }`}
+              >
+                <LayoutGrid className="w-4 h-4" />
+                Browse Opportunities
+              </button>
+              <button
+                onClick={() => setViewMode("manage")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${viewMode === "manage"
+                  ? "bg-sky-600 text-white shadow-md"
+                  : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200"
+                  }`}
+              >
+                <Eye className="w-4 h-4" />
+                Manage Postings
+              </button>
+            </div>
+            <Link href="/org/opportunities/new">
+              <Button className="bg-sky-600 hover:bg-sky-700 text-white rounded-full px-5 py-2.5 shadow-lg shadow-sky-200 hover:shadow-sky-300 transition-all duration-300 flex items-center gap-2 text-sm font-semibold">
+                <Plus className="w-4 h-4" />
+                Post New Opportunity
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
 
       {viewMode === "manage" ? (
         /* ===== Manage Postings View ===== */
