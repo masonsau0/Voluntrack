@@ -1,16 +1,23 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Bell, Menu, X, ChevronDown, User } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { Bell, Menu, X, ChevronDown, User, LogOut, UserCircle, HelpCircle } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/contexts/AuthContext"
 
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { userProfile, loading } = useAuth()
-  const notificationCount = 3
+  const { userProfile, loading, logout } = useAuth()
+  const router = useRouter()
+  const notificationCount = 0
 
   const pathname = usePathname()
   // Show logged-in state on dashboard, opportunities, feed, and all related subpages
@@ -83,20 +90,48 @@ export function Navigation() {
 
             {/* Authentication vs Profile */}
             {isLoggedIn ? (
-              /* Profile section */
-              <div className="hidden sm:flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-                <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
-                  <User className="h-5 w-5 text-muted-foreground" />
-                </div>
-                {loading ? (
-                  <span className="text-sm font-medium text-muted-foreground">Loading...</span>
-                ) : (
-                  <span className="text-sm font-medium">
-                    {userProfile?.fullName?.split(" ")[0] || "User"}
-                  </span>
-                )}
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              </div>
+              /* Profile dropdown */
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="hidden sm:flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity outline-none">
+                    <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
+                      <User className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    {loading ? (
+                      <span className="text-sm font-medium text-muted-foreground">Loading...</span>
+                    ) : (
+                      <span className="text-sm font-medium">
+                        {userProfile?.fullName?.split(" ")[0] || "User"}
+                      </span>
+                    )}
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Link href="/account" className="flex items-center gap-2 cursor-pointer">
+                      <UserCircle className="h-4 w-4" />
+                      My account
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/about" className="flex items-center gap-2 cursor-pointer">
+                      <HelpCircle className="h-4 w-4" />
+                      Help
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="text-destructive focus:text-destructive cursor-pointer"
+                    onClick={async () => {
+                      await logout()
+                      router.push("/")
+                    }}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               /* Auth Buttons */
               <div className="hidden sm:flex items-center gap-4">
@@ -170,20 +205,51 @@ export function Navigation() {
               </>
             )}
             <div className="pt-4 border-t border-border flex flex-col gap-4">
-              <Link
-                href="/login"
-                className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Log in
-              </Link>
-              <Link
-                href="/signup"
-                className="block text-base tracking-wider uppercase text-primary font-medium transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Sign up
-              </Link>
+              {isLoggedIn ? (
+                <>
+                  <Link
+                    href="/account"
+                    className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    My account
+                  </Link>
+                  <Link
+                    href="/about"
+                    className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Help
+                  </Link>
+                  <button
+                    className="block text-base tracking-wider uppercase text-destructive font-medium transition-colors text-left w-full"
+                    onClick={async () => {
+                      setMobileMenuOpen(false)
+                      await logout()
+                      router.push("/")
+                    }}
+                  >
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="block text-base tracking-wider uppercase text-primary font-medium transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Sign up
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

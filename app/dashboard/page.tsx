@@ -23,7 +23,6 @@ import {
   FileText,
   Zap,
   BarChart3,
-  Settings,
   User,
   Newspaper,
   Award,
@@ -39,15 +38,18 @@ import {
   BookOpen,
   X,
   CheckCircle,
+  CheckCircle2,
   XCircle,
   Clock3,
+  Flag,
 } from "lucide-react"
+import { sampleApplications } from "@/lib/applications-data"
+import { toast } from "sonner"
 
 const tabs = [
   { id: "progress", label: "Progress Tracking", icon: TrendingUp },
   { id: "applications", label: "Applications", icon: FileText },
   { id: "account", label: "My Account", icon: User },
-  { id: "preferences", label: "Preferences", icon: Settings },
 ]
 
 const favouritedOpportunities = [
@@ -217,74 +219,23 @@ const badges = [
 const statusColors: { [key: string]: { bg: string; text: string; border: string; icon: typeof CheckCircle } } = {
   approved: { bg: "bg-green-100", text: "text-green-700", border: "border-green-300", icon: CheckCircle },
   pending: { bg: "bg-yellow-100", text: "text-yellow-700", border: "border-yellow-300", icon: Clock3 },
+  completed: { bg: "bg-teal-100", text: "text-teal-700", border: "border-teal-300", icon: CheckCircle2 },
   denied: { bg: "bg-red-100", text: "text-red-700", border: "border-red-300", icon: XCircle },
 }
 
 // Category color mapping (expanded for popup modal)
 const categoryColors: { [key: string]: { bg: string; text: string; border: string; cardBg: string } } = {
   Environment: { bg: "bg-green-100", text: "text-green-700", border: "border-green-300", cardBg: "bg-green-50 border-green-200" },
-  "Community Outreach": { bg: "bg-orange-100", text: "text-orange-700", border: "border-orange-300", cardBg: "bg-orange-50 border-orange-200" },
   Education: { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-300", cardBg: "bg-blue-50 border-blue-200" },
   Healthcare: { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-300", cardBg: "bg-pink-50 border-pink-200" },
   "Animal Welfare": { bg: "bg-amber-100", text: "text-amber-700", border: "border-amber-300", cardBg: "bg-amber-50 border-amber-200" },
   "Arts & Culture": { bg: "bg-purple-100", text: "text-purple-700", border: "border-purple-300", cardBg: "bg-purple-50 border-purple-200" },
-  "Youth Programs": { bg: "bg-cyan-100", text: "text-cyan-700", border: "border-cyan-300", cardBg: "bg-cyan-50 border-cyan-200" },
   "Senior Care": { bg: "bg-rose-100", text: "text-rose-700", border: "border-rose-300", cardBg: "bg-rose-50 border-rose-200" },
+  "Mental Health": { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-300", cardBg: "bg-pink-50 border-pink-200" },
 }
 
-const sampleApplications = [
-  {
-    id: 1,
-    title: "Trinity Bellwoods Park: Park Clean-Up",
-    organization: "Toronto Parks Foundation",
-    location: "790 Queen St W, Toronto, ON M6J 1G3",
-    date: "Saturday, July 30, 2025, 10:00 AM – 12:00 PM",
-    appliedDate: "2025-01-15",
-    hours: "2 Hr",
-    category: "Environment",
-    status: "pending",
-    description: "Join us for a community park clean-up at Trinity Bellwoods Park. Help maintain one of Toronto's most beloved green spaces by picking up litter, raking leaves, and keeping pathways clear.",
-    skills: ["Outdoor Work", "Teamwork"],
-    spotsLeft: 8,
-    totalSpots: 20,
-    commitment: "One-time",
-    image: "/event-park-cleanup.png",
-  },
-  {
-    id: 2,
-    title: "Food Bank Sorting",
-    organization: "Daily Bread Food Bank",
-    location: "125 Main St, Toronto, ON M4C 1A1",
-    date: "Saturday, June 14, 2025, 7:00 AM – 9:00 AM",
-    appliedDate: "2025-01-10",
-    hours: "2 Hr",
-    category: "Community Outreach",
-    status: "approved",
-    description: "Help sort and distribute food donations to families in need. Tasks include organizing donations, checking expiry dates, and packing food hampers for distribution.",
-    skills: ["Organization", "Physical Work", "Teamwork"],
-    spotsLeft: 15,
-    totalSpots: 30,
-    commitment: "Weekly",
-    image: "/event-volunteer-fair.png",
-  },
-  {
-    id: 3,
-    title: "Community Garden Planting",
-    organization: "FoodShare Toronto",
-    location: "456 Oak St, Toronto, ON M5H 2N2",
-    date: "Sunday, July 13, 2025, 12:00 AM – 2:00 PM",
-    appliedDate: "2025-01-12",
-    hours: "2 Hr",
-    category: "Environment",
-    status: "approved",
-    description: "Help grow fresh vegetables for community food programs. Tasks include planting, weeding, watering, and harvesting. Learn urban farming techniques.",
-    skills: ["Gardening", "Physical Work"],
-    spotsLeft: 10,
-    totalSpots: 20,
-    commitment: "Monthly",
-    image: "/event-park-cleanup.png",
-  },
-]
+const recentApplications = sampleApplications.filter((app) => app.status !== "completed")
+const completedOpportunities = sampleApplications.filter((app) => app.status === "completed")
 
 const monthNames = [
   "January",
@@ -312,6 +263,10 @@ export default function DashboardPage() {
   const [hasApplications] = useState(true)
   const [selectedApplication, setSelectedApplication] = useState<typeof sampleApplications[0] | null>(null)
   const [selectedSaved, setSelectedSaved] = useState<typeof favouritedOpportunities[0] | null>(null)
+  const [reflectionText, setReflectionText] = useState("")
+  const [reportOpportunity, setReportOpportunity] = useState<typeof sampleApplications[0] | null>(null)
+  const [reportConcern, setReportConcern] = useState("")
+  const completedOpportunitiesRef = useRef<HTMLDivElement>(null)
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!badgesRef.current) return
@@ -402,10 +357,10 @@ export default function DashboardPage() {
                   <div className="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center">
                     <Award className="w-5 h-5 text-white" />
                   </div>
-                  <div>
-                    <p className="text-xs text-teal-600 font-medium">Completed</p>
-                    <p className="text-xl font-bold text-teal-700">5</p>
-                  </div>
+                                    <div>
+                                        <p className="text-xs text-teal-600 font-medium">Completed</p>
+                                        <p className="text-xl font-bold text-teal-700">{completedOpportunities.length}</p>
+                                    </div>
                 </div>
 
                 {/* Pending Applications Stat */}
@@ -426,11 +381,11 @@ export default function DashboardPage() {
           <div className="bg-white rounded-xl mb-6 shadow-sm overflow-x-auto">
             <div className="flex w-full">
               {tabs.map((tab) => {
-                const isLinkTab = tab.id === "applications" || tab.id === "account" || tab.id === "preferences"
+                const isLinkTab = tab.id === "applications" || tab.id === "account"
                 const isActive = isLinkTab ? false : activeTab === tab.id
 
                 if (isLinkTab) {
-                  const href = tab.id === "applications" ? "/applications" : tab.id === "account" ? "/account" : "/signup/preferences"
+                  const href = tab.id === "applications" ? "/applications" : "/account"
                   return (
                     <Link
                       key={tab.id}
@@ -464,7 +419,10 @@ export default function DashboardPage() {
             {/* Left side: Full-width Hour Progress Card */}
             <div className="lg:col-span-3">
               {/* Blue Card - Hours Progress with Rocket - Now Full Width */}
-              <Card className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500 border-0 text-white overflow-hidden transition-all duration-300 hover:scale-[1.01] cursor-pointer h-[260px] shadow-xl hover:shadow-2xl ring-1 ring-white/10">
+              <Card
+                className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500 border-0 text-white overflow-hidden transition-all duration-300 hover:scale-[1.01] cursor-pointer h-[260px] shadow-xl hover:shadow-2xl ring-1 ring-white/10"
+                onClick={() => completedOpportunitiesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              >
                 <CardContent className="p-4 h-full relative">
                   <HorizontalProgressTracker completedHours={24} goalHours={40} />
                 </CardContent>
@@ -648,16 +606,16 @@ export default function DashboardPage() {
           <div className="grid lg:grid-cols-4 gap-6">
             {/* Recent Applications */}
             <div className="lg:col-span-3">
-              <Card className="shadow-sm h-full">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                        <FolderOpen className="w-5 h-5 text-blue-600" />
+              <Card className="shadow-sm">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                        <FolderOpen className="w-4 h-4 text-blue-600" />
                       </div>
                       <div>
-                        <h2 className="text-lg font-semibold">Recent Applications</h2>
-                        <p className="text-sm text-muted-foreground">Your latest volunteer applications</p>
+                        <h2 className="text-base font-semibold">Recent Applications</h2>
+                        <p className="text-xs text-muted-foreground">Your latest volunteer applications</p>
                       </div>
                     </div>
                     <Link
@@ -671,78 +629,158 @@ export default function DashboardPage() {
 
                   {hasApplications ? (
                     <div>
-                      <div className="space-y-4">
-                        {sampleApplications.map((app) => (
+                      <div className="space-y-2">
+                        {recentApplications.map((app) => (
                           <div
                             key={app.id}
                             onClick={() => setSelectedApplication(app)}
-                            className={`border rounded-xl p-4 flex flex-col md:flex-row md:items-start justify-between gap-4 shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-[1.01] ${categoryColors[app.category]?.cardBg || "bg-gray-50 border-gray-200"}`}
+                            className={`border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm hover:shadow transition-all duration-200 cursor-pointer ${categoryColors[app.category]?.cardBg || "bg-gray-50 border-gray-200"}`}
                           >
-                            <div className="flex-1">
-                              <h3 className="font-semibold text-foreground mb-2">{app.title}</h3>
-                              <div className="space-y-1 text-sm">
-                                <p className="flex items-center gap-2">
-                                  <span className="text-red-500 font-medium">Location</span>
-                                  <MapPin className="w-3 h-3 text-red-500" />
-                                  <span className="text-muted-foreground">: {app.location}</span>
-                                </p>
-                                <p className="flex items-center gap-2">
-                                  <span className="text-yellow-600 font-medium">Time</span>
-                                  <Clock className="w-3 h-3 text-yellow-600" />
-                                  <span className="text-muted-foreground">: {app.date}</span>
-                                </p>
-                                <p>
-                                  <span className="font-medium">Volunteer Hours</span>
-                                  <span className="text-muted-foreground"> : {app.hours}</span>
-                                </p>
-                                <p>
-                                  <span className="font-medium">Category:</span>
-                                  <span className="text-muted-foreground"> {app.category}</span>
-                                </p>
-                              </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-medium text-foreground text-sm truncate">{app.title}</h3>
+                              <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5 flex-wrap">
+                                <MapPin className="w-3 h-3 shrink-0 text-red-500" />
+                                <span className="truncate">{app.location.split(",")[0]}</span>
+                                <span>•</span>
+                                <span>{app.hours}</span>
+                                <span>•</span>
+                                <span>{app.category}</span>
+                              </p>
                             </div>
-                            <div className="flex flex-col items-end gap-2">
+                            <div className="flex items-center gap-2 shrink-0">
                               <span
-                                className={`px-3 py-1 rounded-full text-sm font-medium ${app.status === "pending"
-                                  ? "bg-yellow-100 text-yellow-700 border border-yellow-300"
-                                  : "bg-green-100 text-green-700 border border-green-300"
-                                  }`}
+                                className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                  app.status === "pending"
+                                    ? "bg-yellow-100 text-yellow-700 border border-yellow-300"
+                                    : app.status === "completed"
+                                      ? "bg-teal-100 text-teal-700 border border-teal-300"
+                                      : app.status === "denied"
+                                        ? "bg-red-100 text-red-700 border border-red-300"
+                                        : "bg-green-100 text-green-700 border border-green-300"
+                                }`}
                               >
-                                {app.status === "pending" ? "Pending" : "Approved"}
+                                {app.status === "pending"
+                                  ? "Pending"
+                                  : app.status === "completed"
+                                    ? "Completed"
+                                    : app.status === "denied"
+                                      ? "Not Approved"
+                                      : "Approved"}
                               </span>
                               <Button
                                 variant="outline"
-                                className="bg-orange-100 text-orange-700 border border-orange-300 hover:bg-orange-200 hover:text-orange-800 rounded-full"
+                                size="sm"
+                                className="bg-orange-100 text-orange-700 border border-orange-300 hover:bg-orange-200 hover:text-orange-800 rounded-full text-xs h-7"
                                 onClick={(e) => { e.stopPropagation(); setSelectedApplication(app); }}
                               >
-                                View Posting
+                                View
                               </Button>
                             </div>
                           </div>
                         ))}
                       </div>
-                      <p className="text-center mt-6 font-semibold">
-                        Total Applications Submitted: {sampleApplications.length}
+                      <p className="text-center mt-3 text-sm font-medium text-muted-foreground">
+                        Total: {recentApplications.length}
                       </p>
                     </div>
                   ) : (
                     /* Empty State */
-                    <div className="text-center py-12">
-                      <div className="w-16 h-16 rounded-xl bg-muted mx-auto flex items-center justify-center mb-4">
-                        <FolderOpen className="w-8 h-8 text-muted-foreground" />
+                    <div className="text-center py-6">
+                      <div className="w-12 h-12 rounded-lg bg-muted mx-auto flex items-center justify-center mb-3">
+                        <FolderOpen className="w-6 h-6 text-muted-foreground" />
                       </div>
-                      <h3 className="text-lg font-medium text-foreground">No applications yet</h3>
-                      <p className="text-muted-foreground mt-1 mb-6">
+                      <h3 className="text-sm font-medium text-foreground">No applications yet</h3>
+                      <p className="text-muted-foreground text-xs mt-1 mb-3">
                         Start exploring opportunities to make a difference
                       </p>
-                      <Button className="bg-blue-500 hover:bg-blue-600 text-white gap-2">
-                        <Plus className="w-4 h-4" />
+                      <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white gap-1">
+                        <Plus className="w-3 h-3" />
                         Browse Opportunities
                       </Button>
                     </div>
                   )}
                 </CardContent>
               </Card>
+
+              {/* Completed Opportunities */}
+              <div ref={completedOpportunitiesRef}>
+                <Card className="shadow-sm mt-4">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center">
+                        <CheckCircle2 className="w-4 h-4 text-teal-600" />
+                      </div>
+                      <div>
+                        <h2 className="text-base font-semibold">Completed Opportunities</h2>
+                        <p className="text-xs text-muted-foreground">Volunteer opportunities you've finished</p>
+                      </div>
+                    </div>
+                    <Link
+                      href="/applications"
+                      className="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1"
+                    >
+                      View All
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+
+                  {completedOpportunities.length > 0 ? (
+                    <div>
+                      <div className="space-y-2">
+                        {completedOpportunities.map((app) => (
+                          <div
+                            key={app.id}
+                            onClick={() => setSelectedApplication(app)}
+                            className={`border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm hover:shadow transition-all duration-200 cursor-pointer ${categoryColors[app.category]?.cardBg || "bg-gray-50 border-gray-200"}`}
+                          >
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-medium text-foreground text-sm truncate">{app.title}</h3>
+                              <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5 flex-wrap">
+                                <MapPin className="w-3 h-3 shrink-0 text-red-500" />
+                                <span className="truncate">{app.location.split(",")[0]}</span>
+                                <span>•</span>
+                                <span>{app.hours}</span>
+                                <span>•</span>
+                                <span>{app.category}</span>
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setReportOpportunity(app); setReportConcern(""); }}
+                                className="p-1.5 rounded-full text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                                title="Report a concern"
+                              >
+                                <Flag className="w-4 h-4" />
+                              </button>
+                              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-700 border border-teal-300">
+                                Completed
+                              </span>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="bg-orange-100 text-orange-700 border border-orange-300 hover:bg-orange-200 hover:text-orange-800 rounded-full text-xs h-7"
+                                onClick={(e) => { e.stopPropagation(); setSelectedApplication(app); }}
+                              >
+                                View
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-center mt-3 text-sm font-medium text-muted-foreground">
+                        Total: {completedOpportunities.length}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-muted-foreground text-xs">No completed opportunities yet.</p>
+                      <p className="text-muted-foreground text-xs mt-0.5">Complete approved opportunities to see them here.</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              </div>
             </div>
 
             {/* Resources and Quick Actions Column */}
@@ -822,7 +860,7 @@ export default function DashboardPage() {
                   className={`px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1.5 border backdrop-blur-sm ${statusColors[selectedApplication.status].bg} ${statusColors[selectedApplication.status].text} ${statusColors[selectedApplication.status].border}`}
                 >
                   {(() => { const StatusIcon = statusColors[selectedApplication.status].icon; return <StatusIcon className="w-4 h-4" />; })()}
-                  {selectedApplication.status === "pending" ? "Pending" : selectedApplication.status === "approved" ? "Approved" : "Not Approved"}
+                  {selectedApplication.status === "pending" ? "Pending" : selectedApplication.status === "approved" ? "Approved" : selectedApplication.status === "completed" ? "Completed" : "Not Approved"}
                 </span>
               </div>
 
@@ -922,6 +960,29 @@ export default function DashboardPage() {
                   </p>
                 </div>
               )}
+              {selectedApplication.status === 'completed' && (
+                <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 mb-6">
+                  <p className="text-teal-800 text-sm">
+                    <strong>Completed!</strong> Great work! You've successfully completed this volunteer opportunity.
+                  </p>
+                </div>
+              )}
+
+              {selectedApplication.status === 'completed' && (
+                <div className="mb-6">
+                  <label htmlFor="reflection" className="block text-sm font-medium text-foreground mb-2">
+                    Reflection (optional): Reflect on your volunteer experience: What did you do, what impact did you make, and what did you learn?
+                  </label>
+                  <textarea
+                    id="reflection"
+                    value={reflectionText}
+                    onChange={(e) => setReflectionText(e.target.value)}
+                    placeholder="Share your thoughts on this volunteer experience..."
+                    className="w-full min-h-[100px] px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-y"
+                    rows={4}
+                  />
+                </div>
+              )}
 
               {/* Action Buttons */}
               <div className="flex gap-3">
@@ -935,14 +996,80 @@ export default function DashboardPage() {
                     Add to Calendar
                   </Button>
                 )}
+                {selectedApplication.status === 'completed' && (
+                  <Button
+                    variant="outline"
+                    className="flex-1 rounded-full py-6 border-red-300 text-red-600 hover:bg-red-50 gap-2"
+                    onClick={() => { setReportOpportunity(selectedApplication); setReportConcern(""); }}
+                  >
+                    <Flag className="w-4 h-4" />
+                    Report
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   className="px-6 rounded-full py-6 border-slate-300 text-slate-700 hover:bg-slate-100"
-                  onClick={() => setSelectedApplication(null)}
+                  onClick={() => { setSelectedApplication(null); setReflectionText(""); }}
                 >
                   Close
                 </Button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Report Concern Modal */}
+      {reportOpportunity && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => { setReportOpportunity(null); setReportConcern(""); }}
+        >
+          <div
+            className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                <Flag className="w-5 h-5 text-red-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold">Report a Concern</h2>
+                <p className="text-sm text-muted-foreground">{reportOpportunity.title}</p>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Please express your concern and we will get back to you within 24 hours.
+            </p>
+            <textarea
+              value={reportConcern}
+              onChange={(e) => setReportConcern(e.target.value)}
+              placeholder="Describe your concern..."
+              className="w-full min-h-[120px] px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-y mb-4"
+              rows={4}
+            />
+            <div className="flex gap-3">
+              <Button
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                onClick={() => {
+                  const trimmed = reportConcern.trim()
+                  if (!trimmed) {
+                    toast.error("Please describe your concern before submitting.")
+                    return
+                  }
+                  setReportOpportunity(null)
+                  setReportConcern("")
+                  toast.success("Report has been successfully submitted. We'll get back to you within 24 hours.")
+                }}
+              >
+                Submit Report
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => { setReportOpportunity(null); setReportConcern(""); }}
+              >
+                Cancel
+              </Button>
             </div>
           </div>
         </div>

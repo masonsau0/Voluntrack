@@ -8,60 +8,34 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Calendar, MapPin, Clock, Sparkles, ChevronRight } from "lucide-react"
 
-const achievementPosts = [
-  {
-    id: "1",
-    name: "John Matthews",
-    hours: 20,
-    timeAgo: "2h",
-    cheers: 268,
-    avatarInitials: "JM",
-  },
-  {
-    id: "2",
-    name: "Sarah Lee",
-    hours: 15,
-    timeAgo: "5h",
-    cheers: 89,
-    avatarInitials: "SL",
-  },
-]
-
-const activityPosts = [
-  {
-    id: "a1",
-    name: "Emily Chen",
-    timeAgo: "4h",
-    text: "Just volunteered at **River Clean-Up!** 🌊 Collected trash along the Humber River",
-    image: "/event-park-cleanup.png",
-    imageAlt: "River clean-up volunteers",
-  },
-  {
-    id: "a2",
-    name: "Ryan Campbell",
-    timeAgo: "1d",
-    text: "Ryan Campbell completed the **Ravine Restoration Project** 🌳 Bloor-Dufferin Park",
-    image: null,
-    imageAlt: null,
-  },
-]
-
-const featuredOpportunities = [
-  {
-    id: "o1",
-    title: "Trinity Bellwoods Park Clean-Up",
-    organization: "Toronto Parks Foundation",
-    hours: 3,
-    date: "Saturday, Jan 25, 2026",
-    location: "790 Queen St W",
-    description:
-      "Join us for a community park clean-up event! Help maintain our beautiful urban green spaces by picking up litter, removing invasive plants, and beautifying the park.",
-    spotsLeft: 12,
-    totalSpots: 30,
-  },
-]
-
 export default function FeedPage() {
+  const achievementPosts: Array<{
+    id: string
+    name: string
+    hours: number
+    timeAgo: string
+    cheers: number
+    avatarInitials: string
+  }> = []
+  const activityPosts: Array<{
+    id: string
+    name: string
+    timeAgo: string
+    text: string
+    image: string | null
+    imageAlt: string | null
+  }> = []
+  const featuredOpportunities: Array<{
+    id: string
+    title: string
+    organization: string
+    hours: number
+    date: string
+    location: string
+    description: string
+    spotsLeft: number
+    totalSpots: number
+  }> = []
   return (
     <div className="min-h-screen bg-muted/30">
       <Navigation />
@@ -78,6 +52,9 @@ export default function FeedPage() {
           </div>
 
           {/* Achievement posts */}
+          {achievementPosts.length === 0 && (
+            <p className="text-sm text-muted-foreground py-4">No achievements to show yet.</p>
+          )}
           {achievementPosts.map((post) => (
             <Card key={post.id} className="overflow-hidden shadow-sm">
               <CardContent className="p-0">
@@ -129,7 +106,10 @@ export default function FeedPage() {
             </Card>
           ))}
 
-          {/* Activity post with image */}
+          {/* Activity posts */}
+          {activityPosts.length === 0 && (
+            <p className="text-sm text-muted-foreground py-4">No activity to show yet.</p>
+          )}
           {activityPosts.map((post) => (
             <Card key={post.id} className="overflow-hidden shadow-sm">
               <CardContent className="p-4">
@@ -165,6 +145,9 @@ export default function FeedPage() {
           ))}
 
           {/* Featured opportunity cards */}
+          {featuredOpportunities.length === 0 && (
+            <p className="text-sm text-muted-foreground py-4">No featured opportunities right now.</p>
+          )}
           {featuredOpportunities.map((opp) => (
             <Card key={opp.id} className="overflow-hidden shadow-sm">
               <CardContent className="p-0">

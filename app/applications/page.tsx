@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react"
 import Link from "next/link"
+import { useAuth } from "@/contexts/AuthContext"
 import Image from "next/image"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
@@ -22,7 +23,6 @@ import {
     FolderOpen,
     Newspaper,
     User,
-    Settings,
     Search,
     ArrowRight,
     Award,
@@ -33,21 +33,24 @@ import {
     BookOpen,
     ArrowUpDown,
     CheckCircle,
+    CheckCircle2,
     XCircle,
     Clock3,
+    Flag,
 } from "lucide-react"
+import { sampleApplications } from "@/lib/applications-data"
+import { toast } from "sonner"
+import { CATEGORIES } from "@/lib/preferences"
 
-// Color-coded category colors
+// Color-coded category colors - matches signup preferences (lib/preferences.ts CATEGORY_OPTIONS)
 const categoryColors: { [key: string]: { bg: string; text: string; border: string; cardBg: string } } = {
-    "Environment": { bg: "bg-green-100", text: "text-green-700", border: "border-green-300", cardBg: "bg-green-50 border-green-200" },
-    "Community Outreach": { bg: "bg-orange-100", text: "text-orange-700", border: "border-orange-300", cardBg: "bg-orange-50 border-orange-200" },
-    "Education": { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-300", cardBg: "bg-blue-50 border-blue-200" },
-    "Healthcare": { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-300", cardBg: "bg-pink-50 border-pink-200" },
-    "Animal Welfare": { bg: "bg-amber-100", text: "text-amber-700", border: "border-amber-300", cardBg: "bg-amber-50 border-amber-200" },
-    "Arts & Culture": { bg: "bg-purple-100", text: "text-purple-700", border: "border-purple-300", cardBg: "bg-purple-50 border-purple-200" },
-    "Youth Programs": { bg: "bg-cyan-100", text: "text-cyan-700", border: "border-cyan-300", cardBg: "bg-cyan-50 border-cyan-200" },
-    "Senior Care": { bg: "bg-rose-100", text: "text-rose-700", border: "border-rose-300", cardBg: "bg-rose-50 border-rose-200" },
-    "Fundraising": { bg: "bg-indigo-100", text: "text-indigo-700", border: "border-indigo-300", cardBg: "bg-indigo-50 border-indigo-200" },
+    "Environment": { bg: "bg-green-100", text: "text-green-700", border: "border-green-200", cardBg: "bg-green-50 border-green-200" },
+    "Education": { bg: "bg-amber-100", text: "text-amber-700", border: "border-amber-200", cardBg: "bg-amber-50 border-amber-200" },
+    "Healthcare": { bg: "bg-red-100", text: "text-red-700", border: "border-red-200", cardBg: "bg-red-50 border-red-200" },
+    "Animal Welfare": { bg: "bg-teal-100", text: "text-teal-700", border: "border-teal-200", cardBg: "bg-teal-50 border-teal-200" },
+    "Arts & Culture": { bg: "bg-purple-100", text: "text-purple-700", border: "border-purple-200", cardBg: "bg-purple-50 border-purple-200" },
+    "Senior Care": { bg: "bg-amber-100", text: "text-amber-700", border: "border-amber-200", cardBg: "bg-amber-50 border-amber-200" },
+    "Mental Health": { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-200", cardBg: "bg-pink-50 border-pink-200" },
 }
 
 // Status colors
@@ -55,155 +58,8 @@ const statusColors: { [key: string]: { bg: string; text: string; border: string;
     "approved": { bg: "bg-green-100", text: "text-green-700", border: "border-green-300", icon: CheckCircle },
     "pending": { bg: "bg-yellow-100", text: "text-yellow-700", border: "border-yellow-300", icon: Clock3 },
     "denied": { bg: "bg-red-100", text: "text-red-700", border: "border-red-300", icon: XCircle },
+    "completed": { bg: "bg-teal-100", text: "text-teal-700", border: "border-teal-300", icon: CheckCircle2 },
 }
-
-// Sample applications data (expanded)
-const sampleApplications = [
-    {
-        id: 1,
-        title: "Trinity Bellwoods Park: Park Clean-Up",
-        organization: "Toronto Parks Foundation",
-        location: "790 Queen St W, Toronto, ON M6J 1G3",
-        date: "Saturday, July 30, 2025, 10:00 AM – 12:00 PM",
-        dateISO: "2025-07-30",
-        appliedDate: "2025-01-15",
-        hours: "2 Hr",
-        category: "Environment",
-        status: "pending",
-        description: "Join us for a community park clean-up at Trinity Bellwoods Park. Help maintain one of Toronto's most beloved green spaces by picking up litter, raking leaves, and keeping pathways clear.",
-        skills: ["Outdoor Work", "Teamwork"],
-        spotsLeft: 8,
-        totalSpots: 20,
-        commitment: "One-time",
-        image: "/event-volunteer-fair.png",
-    },
-    {
-        id: 2,
-        title: "Food Bank Sorting",
-        organization: "Daily Bread Food Bank",
-        location: "125 Main St, Toronto, ON M4C 1A1",
-        date: "Saturday, June 14, 2025, 7:00 AM – 9:00 AM",
-        dateISO: "2025-06-14",
-        appliedDate: "2025-01-10",
-        hours: "2 Hr",
-        category: "Community Outreach",
-        status: "approved",
-        description: "Help sort and distribute food donations to families in need. Tasks include organizing donations, checking expiry dates, and packing food hampers for distribution.",
-        skills: ["Organization", "Physical Work", "Teamwork"],
-        spotsLeft: 15,
-        totalSpots: 30,
-        commitment: "Weekly",
-        image: "/event-volunteer-fair.png",
-    },
-    {
-        id: 3,
-        title: "Community Garden Planting",
-        organization: "FoodShare Toronto",
-        location: "456 Oak St, Toronto, ON M5H 2N2",
-        date: "Sunday, July 13, 2025, 12:00 AM – 2:00 PM",
-        dateISO: "2025-07-13",
-        appliedDate: "2025-01-12",
-        hours: "2 Hr",
-        category: "Environment",
-        status: "approved",
-        description: "Help grow fresh vegetables for community food programs. Tasks include planting, weeding, watering, and harvesting. Learn urban farming techniques.",
-        skills: ["Gardening", "Physical Work"],
-        spotsLeft: 10,
-        totalSpots: 20,
-        commitment: "Monthly",
-        image: "/event-volunteer-fair.png",
-    },
-    {
-        id: 4,
-        title: "Hospital Volunteer Program",
-        organization: "Toronto General Hospital",
-        location: "200 Elizabeth St, Toronto, ON M5G 2C4",
-        date: "Monday, August 4, 2025, 9:00 AM – 1:00 PM",
-        dateISO: "2025-08-04",
-        appliedDate: "2025-01-18",
-        hours: "4 Hr",
-        category: "Healthcare",
-        status: "pending",
-        description: "Provide friendly companionship to hospital patients. Duties include chatting, reading, playing games, and offering emotional support to patients and their families.",
-        skills: ["Communication", "Empathy", "Patience"],
-        spotsLeft: 5,
-        totalSpots: 15,
-        commitment: "Weekly",
-        image: "/event-volunteer-fair.png",
-    },
-    {
-        id: 5,
-        title: "Youth Mentorship Session",
-        organization: "Big Brothers Big Sisters",
-        location: "100 Queen's Park, Toronto, ON M5S 2C6",
-        date: "Wednesday, July 23, 2025, 3:00 PM – 5:00 PM",
-        dateISO: "2025-07-23",
-        appliedDate: "2025-01-05",
-        hours: "2 Hr",
-        category: "Education",
-        status: "approved",
-        description: "Mentor elementary and high school students in various subjects including math, science, and English. Help build confidence and academic skills in young learners.",
-        skills: ["Teaching", "Communication", "Patience"],
-        spotsLeft: 12,
-        totalSpots: 25,
-        commitment: "Weekly",
-        image: "/event-youth-mentorship.png",
-    },
-    {
-        id: 6,
-        title: "Animal Shelter Helper",
-        organization: "Toronto Humane Society",
-        location: "821 Progress Ave, Toronto, ON M1H 2X4",
-        date: "Saturday, August 9, 2025, 10:00 AM – 2:00 PM",
-        dateISO: "2025-08-09",
-        appliedDate: "2025-01-20",
-        hours: "4 Hr",
-        category: "Animal Welfare",
-        status: "denied",
-        description: "Walk dogs, socialize cats, and help with basic animal care. Experience the joy of helping shelter animals find their forever homes.",
-        skills: ["Animal Handling", "Physical Fitness"],
-        spotsLeft: 0,
-        totalSpots: 20,
-        commitment: "Weekly",
-        image: "/event-animal-shelter.png",
-    },
-    {
-        id: 7,
-        title: "Senior Center Art Class Assistant",
-        organization: "Toronto Senior Services",
-        location: "55 Elm St, Toronto, ON M5G 1H1",
-        date: "Thursday, July 17, 2025, 1:00 PM – 3:00 PM",
-        dateISO: "2025-07-17",
-        appliedDate: "2025-01-08",
-        hours: "2 Hr",
-        category: "Arts & Culture",
-        status: "approved",
-        description: "Assist seniors with art projects including painting, drawing, and crafts. Help create a fun and supportive creative environment for older adults.",
-        skills: ["Art", "Communication", "Patience"],
-        spotsLeft: 6,
-        totalSpots: 12,
-        commitment: "Weekly",
-        image: "/event-volunteer-fair.png",
-    },
-    {
-        id: 8,
-        title: "Beach Cleanup Initiative",
-        organization: "Lake Ontario Waterkeeper",
-        location: "1561 Lake Shore Blvd W, Toronto, ON M6K 3C1",
-        date: "Sunday, August 17, 2025, 8:00 AM – 11:00 AM",
-        dateISO: "2025-08-17",
-        appliedDate: "2025-01-22",
-        hours: "3 Hr",
-        category: "Environment",
-        status: "pending",
-        description: "Help keep Toronto's waterfront clean and beautiful. Collect litter and debris from the beach, learn about local ecosystems, and make a visible difference.",
-        skills: ["Outdoor Work", "Teamwork"],
-        spotsLeft: 25,
-        totalSpots: 50,
-        commitment: "One-time",
-        image: "/event-volunteer-fair.png",
-    },
-]
 
 // Saved opportunities (enriched for popup modal)
 const savedOpportunities = [
@@ -291,7 +147,7 @@ const savedOpportunities = [
         date: "September 5",
         fullDate: "Friday, September 5, 2025, 9:00 AM – 12:00 PM",
         hours: "3 Hr",
-        category: "Community Outreach",
+        category: "Education",
         description: "Help sort and pack food donations for families in need. Make a direct impact on food security in Toronto.",
         skills: ["Organization", "Physical Work", "Teamwork"],
         spotsLeft: 25,
@@ -329,7 +185,7 @@ const savedOpportunities = [
         date: "September 18",
         fullDate: "Thursday, September 18, 2025, 4:00 PM – 6:00 PM",
         hours: "2 Hr",
-        category: "Youth Programs",
+        category: "Education",
         description: "Help coach young soccer players, run drills, and encourage teamwork and sportsmanship.",
         skills: ["Sports", "Leadership", "Communication"],
         spotsLeft: 5,
@@ -424,7 +280,7 @@ const savedOpportunities = [
         date: "October 25",
         fullDate: "Saturday, October 25, 2025, 6:00 AM – 12:00 PM",
         hours: "6 Hr",
-        category: "Fundraising",
+        category: "Education",
         description: "Help organize and staff the annual charity run event. Roles include registration, water stations, and finish line.",
         skills: ["Event Planning", "Organization", "Physical Stamina"],
         spotsLeft: 50,
@@ -437,22 +293,13 @@ const savedOpportunities = [
     },
 ]
 
-const eventCategories = [
-    "Environment",
-    "Community Outreach",
-    "Education",
-    "Healthcare",
-    "Animal Welfare",
-    "Arts & Culture",
-    "Youth Programs",
-    "Senior Care",
-    "Fundraising",
-]
+const eventCategories = [...CATEGORIES]
 
 const statusOptions = [
     { id: "approved", label: "Approved", color: statusColors.approved },
     { id: "pending", label: "Pending", color: statusColors.pending },
     { id: "denied", label: "Not Approved", color: statusColors.denied },
+    { id: "completed", label: "Completed", color: statusColors.completed },
 ]
 
 const sortOptions = [
@@ -467,10 +314,10 @@ const tabs = [
     { id: "progress", label: "Progress Tracking", icon: TrendingUp, href: "/dashboard" },
     { id: "applications", label: "Applications", icon: FileText, href: "/applications" },
     { id: "account", label: "My Account", icon: User, href: "/account" },
-    { id: "preferences", label: "Preferences", icon: Settings, href: "/signup/preferences" },
 ]
 
 export default function ApplicationsPage() {
+    const { userProfile, loading } = useAuth()
     const [selectedStatuses, setSelectedStatuses] = useState<string[]>([])
     const [selectedCategories, setSelectedCategories] = useState<string[]>([])
     const [startDate, setStartDate] = useState("")
@@ -482,6 +329,9 @@ export default function ApplicationsPage() {
     const [savedExpanded, setSavedExpanded] = useState(false)
     const [selectedApplication, setSelectedApplication] = useState<typeof sampleApplications[0] | null>(null)
     const [selectedSaved, setSelectedSaved] = useState<typeof savedOpportunities[0] | null>(null)
+    const [reflectionText, setReflectionText] = useState("")
+    const [reportOpportunity, setReportOpportunity] = useState<typeof sampleApplications[0] | null>(null)
+    const [reportConcern, setReportConcern] = useState("")
 
     const toggleStatus = (status: string) => {
         setSelectedStatuses((prev) =>
@@ -771,7 +621,16 @@ export default function ApplicationsPage() {
                                         <Sparkles className="w-6 h-6 text-white" />
                                     </div>
                                     <div>
-                                        <h1 className="text-2xl md:text-3xl font-bold text-foreground">Welcome back, John!</h1>
+                                        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                                            Welcome back,{" "}
+                                            {loading
+                                                ? "..."
+                                                : userProfile?.fullName
+                                                    ? userProfile.fullName.split(" ")[0].charAt(0).toUpperCase() +
+                                                      userProfile.fullName.split(" ")[0].slice(1).toLowerCase()
+                                                    : "User"}
+                                            !
+                                        </h1>
                                         <p className="text-muted-foreground mt-1">Ready to make a difference today?</p>
                                     </div>
                                 </div>
@@ -795,7 +654,7 @@ export default function ApplicationsPage() {
                                     </div>
                                     <div>
                                         <p className="text-xs text-teal-600 font-medium">Completed</p>
-                                        <p className="text-xl font-bold text-teal-700">5</p>
+                                        <p className="text-xl font-bold text-teal-700">{sampleApplications.filter(a => a.status === "completed").length}</p>
                                     </div>
                                 </div>
 
@@ -946,12 +805,23 @@ export default function ApplicationsPage() {
                                                 </div>
                                             </div>
                                             <div className="flex flex-col items-end gap-2">
-                                                <span
-                                                    className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 border ${statusColor.bg} ${statusColor.text} ${statusColor.border}`}
-                                                >
-                                                    <StatusIcon className="w-3 h-3" />
-                                                    {statusOptions.find(s => s.id === app.status)?.label}
-                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    {app.status === "completed" && (
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); setReportOpportunity(app); setReportConcern(""); }}
+                                                            className="p-1.5 rounded-full text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                                                            title="Report a concern"
+                                                        >
+                                                            <Flag className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                    <span
+                                                        className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 border ${statusColor.bg} ${statusColor.text} ${statusColor.border}`}
+                                                    >
+                                                        <StatusIcon className="w-3 h-3" />
+                                                        {statusOptions.find(s => s.id === app.status)?.label}
+                                                    </span>
+                                                </div>
                                                 <Button
                                                     variant="outline"
                                                     className="bg-orange-100 text-orange-700 border border-orange-300 hover:bg-orange-200 hover:text-orange-800 rounded-full"
@@ -1188,6 +1058,29 @@ export default function ApplicationsPage() {
                                     </p>
                                 </div>
                             )}
+                            {selectedApplication.status === 'completed' && (
+                                <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 mb-6">
+                                    <p className="text-teal-800 text-sm">
+                                        <strong>Completed!</strong> Great work! You've successfully completed this volunteer opportunity.
+                                    </p>
+                                </div>
+                            )}
+
+                            {selectedApplication.status === 'completed' && (
+                                <div className="mb-6">
+                                    <label htmlFor="reflection" className="block text-sm font-medium text-foreground mb-2">
+                                        Reflection (optional): Reflect on your volunteer experience: What did you do, what impact did you make, and what did you learn?
+                                    </label>
+                                    <textarea
+                                        id="reflection"
+                                        value={reflectionText}
+                                        onChange={(e) => setReflectionText(e.target.value)}
+                                        placeholder="Share your thoughts on this volunteer experience..."
+                                        className="w-full min-h-[100px] px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-y"
+                                        rows={4}
+                                    />
+                                </div>
+                            )}
 
                             {/* Action Buttons */}
                             <div className="flex gap-3">
@@ -1206,14 +1099,80 @@ export default function ApplicationsPage() {
                                         Browse Similar Opportunities
                                     </Button>
                                 )}
+                                {selectedApplication.status === 'completed' && (
+                                    <Button
+                                        variant="outline"
+                                        className="flex-1 rounded-full py-6 border-red-300 text-red-600 hover:bg-red-50 gap-2"
+                                        onClick={() => { setReportOpportunity(selectedApplication); setReportConcern(""); }}
+                                    >
+                                        <Flag className="w-4 h-4" />
+                                        Report
+                                    </Button>
+                                )}
                                 <Button
                                     variant="outline"
                                     className="px-6 rounded-full py-6 border-slate-300 text-slate-700 hover:bg-slate-100"
-                                    onClick={() => setSelectedApplication(null)}
+                                    onClick={() => { setSelectedApplication(null); setReflectionText(""); }}
                                 >
                                     Close
                                 </Button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Report Concern Modal */}
+            {reportOpportunity && (
+                <div
+                    className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+                    onClick={() => { setReportOpportunity(null); setReportConcern(""); }}
+                >
+                    <div
+                        className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-6"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                                <Flag className="w-5 h-5 text-red-600" />
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-semibold">Report a Concern</h2>
+                                <p className="text-sm text-muted-foreground">{reportOpportunity.title}</p>
+                            </div>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-4">
+                            Please express your concern and we will get back to you within 24 hours.
+                        </p>
+                        <textarea
+                            value={reportConcern}
+                            onChange={(e) => setReportConcern(e.target.value)}
+                            placeholder="Describe your concern..."
+                            className="w-full min-h-[120px] px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-y mb-4"
+                            rows={4}
+                        />
+                        <div className="flex gap-3">
+                            <Button
+                                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                                onClick={() => {
+                                    const trimmed = reportConcern.trim()
+                                    if (!trimmed) {
+                                        toast.error("Please describe your concern before submitting.")
+                                        return
+                                    }
+                                    setReportOpportunity(null)
+                                    setReportConcern("")
+                                    toast.success("Report has been successfully submitted. We'll get back to you within 24 hours.")
+                                }}
+                            >
+                                Submit Report
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => { setReportOpportunity(null); setReportConcern(""); }}
+                            >
+                                Cancel
+                            </Button>
                         </div>
                     </div>
                 </div>

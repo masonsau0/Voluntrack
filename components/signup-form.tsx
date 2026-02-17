@@ -56,9 +56,16 @@ export function SignupForm({
 
         if (Object.keys(newErrors).length > 0) return
 
-        console.log("Signup submitted", { fullName, email, school, password })
-        // Redirect to preferences page after successful signup
-        router.push("/signup/preferences")
+        setIsLoading(true)
+        setErrors({})
+        try {
+            await signUp({ fullName, email, school, password })
+            router.push("/signup/preferences")
+        } catch (err) {
+            setErrors({ general: err instanceof Error ? err.message : "Sign up failed" })
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     return (

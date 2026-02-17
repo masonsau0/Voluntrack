@@ -3,82 +3,19 @@
 import React, { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Navigation } from "@/components/navigation"
+import { useAuth } from "@/contexts/AuthContext"
+import { updateUserProfile } from "@/lib/firebase/auth"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import {
-  TreePine,
-  GraduationCap,
-  Heart,
-  Palette,
-  Home,
-  Brain,
-  CircleDot,
-} from "lucide-react"
+import { INTERESTS } from "@/lib/preferences"
 import { cn } from "@/lib/utils"
-
-const interests = [
-  {
-    id: "environment",
-    label: "Environment",
-    icon: TreePine,
-    color: "text-green-600",
-    bgColor: "bg-green-50",
-    borderColor: "border-green-200",
-  },
-  {
-    id: "education",
-    label: "Education",
-    icon: GraduationCap,
-    color: "text-amber-600",
-    bgColor: "bg-amber-50",
-    borderColor: "border-amber-200",
-  },
-  {
-    id: "healthcare",
-    label: "Healthcare",
-    icon: Heart,
-    color: "text-red-600",
-    bgColor: "bg-red-50",
-    borderColor: "border-red-200",
-  },
-  {
-    id: "arts-culture",
-    label: "Arts & Culture",
-    icon: Palette,
-    color: "text-purple-600",
-    bgColor: "bg-purple-50",
-    borderColor: "border-purple-200",
-  },
-  {
-    id: "senior-security",
-    label: "Senior Security",
-    icon: Home,
-    color: "text-amber-700",
-    bgColor: "bg-amber-50",
-    borderColor: "border-amber-200",
-  },
-  {
-    id: "mental-health",
-    label: "Mental Health",
-    icon: Brain,
-    color: "text-pink-600",
-    bgColor: "bg-pink-50",
-    borderColor: "border-pink-200",
-  },
-  {
-    id: "other",
-    label: "No preference",
-    icon: CircleDot,
-    color: "text-slate-600",
-    bgColor: "bg-slate-50",
-    borderColor: "border-slate-200",
-  },
-]
 
 export default function PreferencesPage() {
   const router = useRouter()
+  const { user, refreshProfile } = useAuth()
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
   const [interestLimitMessage, setInterestLimitMessage] = useState<string>("")
   const [submitError, setSubmitError] = useState<string>("")
@@ -110,7 +47,9 @@ export default function PreferencesPage() {
     })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSaving, setIsSaving] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitError("")
 
@@ -134,11 +73,24 @@ export default function PreferencesPage() {
       return
     }
 
-    console.log("Preferences submitted", {
-      interests,
-      volunteerPreference: volunteer,
-      availability: avail,
-    })
+    if (user?.uid) {
+      setIsSaving(true)
+      try {
+        await updateUserProfile(user.uid, {
+          interests,
+          volunteerPreference: volunteer,
+          availability: avail,
+        })
+        await refreshProfile()
+        toast.success("Preferences saved successfully")
+      } catch (err) {
+        setSubmitError(err instanceof Error ? err.message : "Failed to save preferences")
+        setIsSaving(false)
+        return
+      }
+      setIsSaving(false)
+    }
+
     router.push("/opportunities")
   }
 
@@ -172,7 +124,7 @@ export default function PreferencesPage() {
                   <p className="text-sm text-amber-600 font-medium mb-3">{interestLimitMessage}</p>
                 )}
                 <div className="space-y-3">
-                  {interests.map((interest) => {
+                  {INTERESTS.map((interest) => {
                     const Icon = interest.icon
                     const isSelected = selectedInterests.includes(interest.id)
                     return (
@@ -323,8 +275,9 @@ export default function PreferencesPage() {
                 type="submit"
                 size="lg"
                 className="px-12 bg-primary text-primary-foreground"
+                disabled={isSaving}
               >
-                Submit
+                {isSaving ? "Saving..." : "Submit"}
               </Button>
             </div>
           </form>

@@ -47,18 +47,17 @@ import {
   Plus,
   SlidersHorizontal,
 } from "lucide-react"
+import { CATEGORIES } from "@/lib/preferences"
 
-// Category colors matching existing scheme
+// Category colors matching preferences (lib/preferences.ts)
 const categoryColors: { [key: string]: { bg: string; text: string; border: string; gradient: string; icon: typeof Leaf; heroGradient: string } } = {
   "Environment": { bg: "bg-green-100", text: "text-green-700", border: "border-green-300", gradient: "from-green-500/15 to-emerald-600/15", heroGradient: "from-green-900/90 via-green-800/60 to-transparent", icon: Leaf },
-  "Community Outreach": { bg: "bg-orange-100", text: "text-orange-700", border: "border-orange-300", gradient: "from-orange-500/15 to-amber-600/15", heroGradient: "from-orange-900/90 via-orange-800/60 to-transparent", icon: HandHeart },
   "Education": { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-300", gradient: "from-blue-500/15 to-indigo-600/15", heroGradient: "from-blue-900/90 via-blue-800/60 to-transparent", icon: GraduationCap },
   "Healthcare": { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-300", gradient: "from-pink-500/15 to-rose-600/15", heroGradient: "from-pink-900/90 via-pink-800/60 to-transparent", icon: Stethoscope },
   "Animal Welfare": { bg: "bg-amber-100", text: "text-amber-700", border: "border-amber-300", gradient: "from-amber-500/15 to-yellow-600/15", heroGradient: "from-amber-900/90 via-amber-800/60 to-transparent", icon: Dog },
   "Arts & Culture": { bg: "bg-purple-100", text: "text-purple-700", border: "border-purple-300", gradient: "from-purple-500/15 to-violet-600/15", heroGradient: "from-purple-900/90 via-purple-800/60 to-transparent", icon: Palette },
-  "Youth Programs": { bg: "bg-cyan-100", text: "text-cyan-700", border: "border-cyan-300", gradient: "from-cyan-500/15 to-teal-600/15", heroGradient: "from-cyan-900/90 via-cyan-800/60 to-transparent", icon: Users },
   "Senior Care": { bg: "bg-rose-100", text: "text-rose-700", border: "border-rose-300", gradient: "from-rose-500/15 to-pink-600/15", heroGradient: "from-rose-900/90 via-rose-800/60 to-transparent", icon: Heart },
-  "Corporate": { bg: "bg-slate-100", text: "text-slate-700", border: "border-slate-300", gradient: "from-slate-500/15 to-gray-600/15", heroGradient: "from-slate-900/90 via-slate-800/60 to-transparent", icon: Building2 },
+  "Mental Health": { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-300", gradient: "from-pink-500/15 to-rose-600/15", heroGradient: "from-pink-900/90 via-pink-800/60 to-transparent", icon: Heart },
 }
 
 // Commitment level colors for light theme
@@ -228,7 +227,7 @@ const sampleOpportunities = [
     hours: 4,
     spotsLeft: 8,
     totalSpots: 20,
-    category: "Community Outreach",
+    category: "Education",
     commitment: "Weekly",
     skills: ["Organization", "Physical Work"],
     featured: true,
@@ -246,7 +245,7 @@ const sampleOpportunities = [
     hours: 7,
     spotsLeft: 25,
     totalSpots: 40,
-    category: "Community Outreach",
+    category: "Education",
     commitment: "One-time",
     skills: ["Physical Work", "Teamwork"],
     featured: true,
@@ -396,7 +395,7 @@ const sampleOpportunities = [
     hours: 5,
     spotsLeft: 3,
     totalSpots: 10,
-    category: "Youth Programs",
+    category: "Education",
     commitment: "Monthly",
     skills: ["Programming", "Teaching"],
     featured: true,
@@ -404,7 +403,7 @@ const sampleOpportunities = [
   },
 ]
 
-const allCategories = Object.keys(categoryColors)
+const allCategories = [...CATEGORIES]
 const commitmentTypes = ["One-time", "Weekly", "Monthly"]
 const sortOptions = [
   { value: "date", label: "Date (Soonest)" },
@@ -1360,12 +1359,12 @@ export default function OpportunitiesPage() {
 
               {/* Action Buttons */}
               <div className="flex gap-3">
-                <Button className="flex-1 bg-sky-600 hover:bg-sky-700 text-white rounded-full py-6 text-lg shadow-lg shadow-sky-200">
+                <Button className="flex-1 bg-sky-600 hover:bg-sky-500 text-white rounded-full py-6 text-base font-medium shadow-lg shadow-sky-200 transition-all hover:scale-[1.02] hover:shadow-xl">
                   <Zap className="w-5 h-5 mr-2" />
                   Apply Now
                 </Button>
-                <Button variant="outline" className="px-6 rounded-full py-6 border-slate-300 text-slate-700 hover:bg-slate-100">
-                  <Plus className="w-5 h-5" />
+                <Button variant="outline" className="flex-1 rounded-full py-6 text-base font-medium border-slate-300 text-slate-700 hover:bg-slate-400 hover:text-slate-900 hover:border-slate-400 transition-all hover:scale-[1.02]">
+                  Save for later
                 </Button>
               </div>
             </div>

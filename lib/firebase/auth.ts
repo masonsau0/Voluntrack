@@ -6,7 +6,7 @@ import {
   UserCredential,
   AuthError,
 } from 'firebase/auth';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from './config';
 
 export interface SignUpData {
@@ -21,6 +21,9 @@ export interface UserProfile {
   email: string;
   fullName: string;
   school: string;
+  interests?: string[];
+  volunteerPreference?: string;
+  availability?: string;
   createdAt: any;
   updatedAt: any;
 }
@@ -85,6 +88,37 @@ export async function signOutUser(): Promise<void> {
   } catch (error) {
     const authError = error as AuthError;
     throw new Error(getAuthErrorMessage(authError.code));
+  }
+}
+
+/**
+ * Update user profile in Firestore
+ */
+export async function updateUserProfile(
+  uid: string,
+  data: {
+    fullName?: string;
+    email?: string;
+    school?: string;
+    interests?: string[];
+    volunteerPreference?: string;
+    availability?: string;
+  }
+): Promise<void> {
+  try {
+    const updates: Record<string, unknown> = {
+      updatedAt: serverTimestamp(),
+    };
+    if (data.fullName !== undefined) updates.fullName = data.fullName;
+    if (data.email !== undefined) updates.email = data.email;
+    if (data.school !== undefined) updates.school = data.school;
+    if (data.interests !== undefined) updates.interests = data.interests;
+    if (data.volunteerPreference !== undefined) updates.volunteerPreference = data.volunteerPreference;
+    if (data.availability !== undefined) updates.availability = data.availability;
+    await updateDoc(doc(db, 'users', uid), updates);
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    throw error;
   }
 }
 
