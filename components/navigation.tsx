@@ -1,26 +1,29 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Bell, Menu, X, ChevronDown, User } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { Bell, Menu, X, ChevronDown, User, LogOut, Settings } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/AuthContext"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { userProfile, loading } = useAuth()
+  const { user, userProfile, loading, logout } = useAuth()
   const notificationCount = 3
+  const router = useRouter()
 
   const pathname = usePathname()
-  // Show logged-in state on dashboard, opportunities, feed, and all related subpages
-  const isLoggedIn = pathname?.startsWith("/dashboard") ||
-    pathname?.startsWith("/applications") ||
-    pathname?.startsWith("/account") ||
-    pathname?.startsWith("/news") ||
-    pathname?.startsWith("/opportunities") ||
-    pathname?.startsWith("/feed") ||
-    pathname?.startsWith("/about")
+  // Show logged-in state based on actual authentication
+  const isLoggedIn = !!user
 
   // Check if we're on a login page
   const isLoginPage = pathname?.startsWith("/login")
@@ -84,19 +87,43 @@ export function Navigation() {
             {/* Authentication vs Profile */}
             {isLoggedIn ? (
               /* Profile section */
-              <div className="hidden sm:flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-                <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
-                  <User className="h-5 w-5 text-muted-foreground" />
-                </div>
-                {loading ? (
-                  <span className="text-sm font-medium text-muted-foreground">Loading...</span>
-                ) : (
-                  <span className="text-sm font-medium">
-                    {userProfile?.fullName?.split(" ")[0] || "User"}
-                  </span>
-                )}
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              </div>
+              /* Profile section */
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="hidden sm:flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+                    <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
+                      <User className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    {loading ? (
+                      <span className="text-sm font-medium text-muted-foreground">Loading...</span>
+                    ) : (
+                      <span className="text-sm font-medium">
+                        {userProfile?.fullName?.split(" ")[0] || "User"}
+                      </span>
+                    )}
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem disabled>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Edit User</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={async () => {
+                      await logout()
+                      router.push("/login")
+                    }}
+                    className="text-red-600 focus:text-red-600"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Sign out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               /* Auth Buttons */
               <div className="hidden sm:flex items-center gap-4">
