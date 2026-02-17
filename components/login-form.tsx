@@ -14,7 +14,7 @@ import { signIn } from "@/lib/firebase/auth"
 export function LoginForm({
   className,
   showSignUp = false,
-  redirectTo = "/opportunities",
+  redirectTo = "/dashboard",
   ...props
 }: React.ComponentProps<"div"> & { showSignUp?: boolean; redirectTo?: string }) {
   const [email, setEmail] = React.useState("")
@@ -114,8 +114,8 @@ export function LoginForm({
                   <p className="text-sm text-red-500 font-medium">{errors.password}</p>
                 )}
                 <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="show-password" 
+                  <Checkbox
+                    id="show-password"
                     checked={showPassword}
                     onCheckedChange={(checked) => setShowPassword(checked === true)}
                   />
