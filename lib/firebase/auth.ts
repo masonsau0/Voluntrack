@@ -27,6 +27,9 @@ export interface UserProfile {
   interests?: string[];
   volunteerPreference?: string;
   availability?: string;
+  totalHours: number;
+  goalHours: number;
+  badges: string[];
   createdAt: any;
   updatedAt: any;
 }
@@ -70,6 +73,9 @@ export async function signUp(data: SignUpData): Promise<User> {
       firstName: data.firstName,
       lastName: data.lastName,
       school: data.school,
+      totalHours: 0,
+      goalHours: 40,
+      badges: [],
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
@@ -109,6 +115,9 @@ export async function updateUserProfile(
     interests?: string[];
     volunteerPreference?: string;
     availability?: string;
+    totalHours?: number;
+    goalHours?: number;
+    badges?: string[];
   }
 ): Promise<void> {
   try {
@@ -123,6 +132,9 @@ export async function updateUserProfile(
     if (data.interests !== undefined) updates.interests = data.interests;
     if (data.volunteerPreference !== undefined) updates.volunteerPreference = data.volunteerPreference;
     if (data.availability !== undefined) updates.availability = data.availability;
+    if (data.totalHours !== undefined) updates.totalHours = data.totalHours;
+    if (data.goalHours !== undefined) updates.goalHours = data.goalHours;
+    if (data.badges !== undefined) updates.badges = data.badges;
     await updateDoc(doc(db, 'users', uid), updates);
   } catch (error) {
     console.error('Error updating user profile:', error);

@@ -1,83 +1,31 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper functions
-    function isAuthenticated() {
-      return request.auth != null;
+    // Allow users to read and write their own profile
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
     
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
-    }
-
-    // 1. Users Collection
-    // - Doc ID must match Auth UID
-    // - Users can read/write their own profile
-    // - Authenticated users can read other profiles (to see names/roles)
-    match /users/{userId} {
-      allow create: if isAuthenticated() && request.auth.uid == userId
-        && request.resource.data.firstName is string
-        && request.resource.data.lastName is string;
-      allow read: if isAuthenticated(); 
-      allow update: if isOwner(userId)
-        && request.resource.data.firstName is string
-        && request.resource.data.lastName is string;
-      allow delete: if isOwner(userId);
-    }
-
-    // 2. Schools Collection
-    // - Public read
-    // - Only authenticated users can manage (for now)
-    match /schools/{schoolId} {
-      allow read: if true;
-      allow write: if isAuthenticated(); 
-    }
-
-    // 3. Volunteer Orgs Collection
-    // - Public read
-    // - Authenticated users can create
-    // - Only the creator should technically update, but simplifying for now
-    match /volunteer_orgs/{orgId} {
-      allow read: if true;
-      allow create: if isAuthenticated();
-      // Only allow update if the user listed as 'createdBy' is the one making the request
-      allow update, delete: if isAuthenticated() && resource.data.createdBy == request.auth.uid;
-    }
-
-    // 4. Opportunities Collection
-    // - Public read
-    // - Authenticated users can create/manage
-    match /opportunities/{opportunityId} {
-      allow read: if true;
-      allow create: if isAuthenticated();
-      // Ideally check if user owns the parent Org, simplifying to auth for now
-      allow update, delete: if isAuthenticated();
-    }
-
-    // 5. Opportunity Enrollment Collection
-    // - Users can read/write their own enrollments
-    match /opportunity_enrollment/{enrollmentId} {
-      allow read: if isAuthenticated() && (
-        resource.data.userId == request.auth.uid || 
-        // Allow Org owners to read enrollments for their opps (requires complex queries/functions, simplifying for MVP)
-        true 
+    // Allow authenticated users to read and write their own applications
+    match /user_applications/{applicationId} {
+      allow read, write: if request.auth != null && (
+        (resource == null || resource.data.userId == request.auth.uid) &&
+        (request.resource == null || request.resource.data.userId == request.auth.uid)
       );
-      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-      allow update: if isAuthenticated();
     }
-
-    // 6. Student Hours Collection
-    // - Value privacy: Students see their own
-    match /student_hours/{hoursId} {
-       allow read: if isAuthenticated() && ( 
-         resource.data.studentId == request.auth.uid ||
-         // Allow school admins to see (requires role check)
-         true
-       );
-       allow create: if isAuthenticated() && request.resource.data.studentId == request.auth.uid;
-       allow update, delete: if isAuthenticated() && resource.data.studentId == request.auth.uid;
+    
+    // Allow authenticated users to read and write their own saved opportunities
+    match /user_saved_opportunities/{saveId} {
+      allow read, write: if request.auth != null && (
+        (resource == null || resource.data.userId == request.auth.uid) &&
+        (request.resource == null || request.resource.data.userId == request.auth.uid)
+      );
     }
-
+    
+    // Allow all authenticated users to read opportunities
+    match /opportunities/{opportunityId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Only admin via backend/script should write
+    }
   }
 }

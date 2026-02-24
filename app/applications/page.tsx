@@ -38,7 +38,13 @@ import {
     Clock3,
     Flag,
 } from "lucide-react"
-import { sampleApplications } from "@/lib/applications-data"
+import {
+    getUserApplications,
+    getUserSaved,
+    updateApplicationStatus,
+    UserApplication,
+    SavedOpportunity
+} from "@/lib/firebase/dashboard"
 import { toast } from "sonner"
 import { CATEGORIES } from "@/lib/preferences"
 
@@ -60,238 +66,6 @@ const statusColors: { [key: string]: { bg: string; text: string; border: string;
     "denied": { bg: "bg-red-100", text: "text-red-700", border: "border-red-300", icon: XCircle },
     "completed": { bg: "bg-teal-100", text: "text-teal-700", border: "border-teal-300", icon: CheckCircle2 },
 }
-
-// Saved opportunities (enriched for popup modal)
-const savedOpportunities = [
-    {
-        id: 1,
-        title: "Trinity Bellwoods Park: Park Clean-Up",
-        organization: "Toronto Parks Foundation",
-        location: "790 Queen St W, Toronto, ON M6J 1G3",
-        date: "July 30",
-        fullDate: "Wednesday, July 30, 2025, 2:00 PM – 4:00 PM",
-        hours: "2 Hr",
-        category: "Environment",
-        description: "Join us for a community park clean-up. Help maintain one of Toronto's most beloved green spaces.",
-        skills: ["Outdoor Work", "Teamwork"],
-        spotsLeft: 12,
-        totalSpots: 25,
-        commitment: "One-time",
-        image: "/event-park-cleanup.png",
-        icon: Leaf,
-        iconBg: "bg-green-100",
-        iconColor: "text-green-600",
-    },
-    {
-        id: 2,
-        title: "Library Reading Program",
-        organization: "Toronto Public Library",
-        location: "789 Yonge St, Toronto, ON M4W 2G8",
-        date: "August 4",
-        fullDate: "Monday, August 4, 2025, 3:00 PM – 5:00 PM",
-        hours: "2 Hr",
-        category: "Education",
-        description: "Read to children and help foster a love of books. Perfect for those who enjoy working with kids.",
-        skills: ["Reading", "Communication", "Patience"],
-        spotsLeft: 8,
-        totalSpots: 15,
-        commitment: "Weekly",
-        image: "/event-youth-mentorship.png",
-        icon: BookOpen,
-        iconBg: "bg-blue-100",
-        iconColor: "text-blue-600",
-    },
-    {
-        id: 3,
-        title: "Beach Dune Restoration",
-        organization: "Lake Ontario Waterkeeper",
-        location: "Woodbine Beach, Toronto, ON M4L 3V7",
-        date: "August 22",
-        fullDate: "Friday, August 22, 2025, 9:00 AM – 12:00 PM",
-        hours: "3 Hr",
-        category: "Environment",
-        description: "Help restore beach dunes and protect native vegetation along Toronto's waterfront.",
-        skills: ["Outdoor Work", "Physical Work"],
-        spotsLeft: 20,
-        totalSpots: 40,
-        commitment: "One-time",
-        image: "/event-park-cleanup.png",
-        icon: Leaf,
-        iconBg: "bg-green-100",
-        iconColor: "text-green-600",
-    },
-    {
-        id: 4,
-        title: "Habitat Restoration Project",
-        organization: "Toronto Wildlife Centre",
-        location: "60 Carl Hall Rd, Toronto, ON M3K 2C1",
-        date: "August 29",
-        fullDate: "Friday, August 29, 2025, 10:00 AM – 1:00 PM",
-        hours: "3 Hr",
-        category: "Environment",
-        description: "Assist with wildlife habitat restoration including planting native species and removing invasive plants.",
-        skills: ["Conservation", "Physical Work", "Teamwork"],
-        spotsLeft: 15,
-        totalSpots: 30,
-        commitment: "Monthly",
-        image: "/event-park-cleanup.png",
-        icon: Leaf,
-        iconBg: "bg-green-100",
-        iconColor: "text-green-600",
-    },
-    {
-        id: 5,
-        title: "Community Food Bank Volunteer",
-        organization: "Daily Bread Food Bank",
-        location: "191 New Toronto St, Toronto, ON M8V 2E7",
-        date: "September 5",
-        fullDate: "Friday, September 5, 2025, 9:00 AM – 12:00 PM",
-        hours: "3 Hr",
-        category: "Education",
-        description: "Help sort and pack food donations for families in need. Make a direct impact on food security in Toronto.",
-        skills: ["Organization", "Physical Work", "Teamwork"],
-        spotsLeft: 25,
-        totalSpots: 50,
-        commitment: "Weekly",
-        image: "/event-volunteer-fair.png",
-        icon: BookOpen,
-        iconBg: "bg-orange-100",
-        iconColor: "text-orange-600",
-    },
-    {
-        id: 6,
-        title: "Senior Center Companion Program",
-        organization: "Toronto Senior Services",
-        location: "55 Elm St, Toronto, ON M5G 1H1",
-        date: "September 12",
-        fullDate: "Friday, September 12, 2025, 1:00 PM – 4:00 PM",
-        hours: "3 Hr",
-        category: "Senior Care",
-        description: "Spend time with seniors, play games, share stories, and provide friendly companionship.",
-        skills: ["Communication", "Patience", "Empathy"],
-        spotsLeft: 10,
-        totalSpots: 20,
-        commitment: "Weekly",
-        image: "/event-volunteer-fair.png",
-        icon: BookOpen,
-        iconBg: "bg-rose-100",
-        iconColor: "text-rose-600",
-    },
-    {
-        id: 7,
-        title: "Youth Soccer Coach Assistant",
-        organization: "Toronto Youth Athletics",
-        location: "1260 Broadview Ave, Toronto, ON M4K 2S9",
-        date: "September 18",
-        fullDate: "Thursday, September 18, 2025, 4:00 PM – 6:00 PM",
-        hours: "2 Hr",
-        category: "Education",
-        description: "Help coach young soccer players, run drills, and encourage teamwork and sportsmanship.",
-        skills: ["Sports", "Leadership", "Communication"],
-        spotsLeft: 5,
-        totalSpots: 10,
-        commitment: "Weekly",
-        image: "/event-youth-mentorship.png",
-        icon: BookOpen,
-        iconBg: "bg-cyan-100",
-        iconColor: "text-cyan-600",
-    },
-    {
-        id: 8,
-        title: "Animal Shelter Dog Walker",
-        organization: "Toronto Humane Society",
-        location: "821 Progress Ave, Toronto, ON M1H 2X4",
-        date: "September 24",
-        fullDate: "Wednesday, September 24, 2025, 10:00 AM – 12:00 PM",
-        hours: "2 Hr",
-        category: "Animal Welfare",
-        description: "Walk shelter dogs and provide them with exercise and socialization. Help these dogs find their forever homes.",
-        skills: ["Animal Handling", "Physical Fitness"],
-        spotsLeft: 8,
-        totalSpots: 15,
-        commitment: "Weekly",
-        image: "/event-animal-shelter.png",
-        icon: Leaf,
-        iconBg: "bg-amber-100",
-        iconColor: "text-amber-600",
-    },
-    {
-        id: 9,
-        title: "Hospital Gift Shop Volunteer",
-        organization: "Toronto General Hospital",
-        location: "200 Elizabeth St, Toronto, ON M5G 2C4",
-        date: "October 2",
-        fullDate: "Thursday, October 2, 2025, 10:00 AM – 2:00 PM",
-        hours: "4 Hr",
-        category: "Healthcare",
-        description: "Work in the hospital gift shop, assist customers, and help brighten the day for patients and visitors.",
-        skills: ["Customer Service", "Organization"],
-        spotsLeft: 4,
-        totalSpots: 8,
-        commitment: "Weekly",
-        image: "/event-volunteer-fair.png",
-        icon: BookOpen,
-        iconBg: "bg-pink-100",
-        iconColor: "text-pink-600",
-    },
-    {
-        id: 10,
-        title: "Art Gallery Tour Guide",
-        organization: "Art Gallery of Ontario",
-        location: "317 Dundas St W, Toronto, ON M5T 1G4",
-        date: "October 10",
-        fullDate: "Friday, October 10, 2025, 11:00 AM – 3:00 PM",
-        hours: "4 Hr",
-        category: "Arts & Culture",
-        description: "Lead gallery tours, share art history, and help visitors appreciate the AGO's world-class collection.",
-        skills: ["Public Speaking", "Art Knowledge", "Communication"],
-        spotsLeft: 6,
-        totalSpots: 12,
-        commitment: "Monthly",
-        image: "/event-volunteer-fair.png",
-        icon: BookOpen,
-        iconBg: "bg-purple-100",
-        iconColor: "text-purple-600",
-    },
-    {
-        id: 11,
-        title: "River Cleanup Initiative",
-        organization: "Don River Restoration",
-        location: "Don River Trail, Toronto, ON M4K 1N2",
-        date: "October 18",
-        fullDate: "Saturday, October 18, 2025, 9:00 AM – 12:00 PM",
-        hours: "3 Hr",
-        category: "Environment",
-        description: "Help clean up the Don River watershed. Remove litter and restore natural habitats.",
-        skills: ["Outdoor Work", "Physical Work", "Teamwork"],
-        spotsLeft: 30,
-        totalSpots: 60,
-        commitment: "One-time",
-        image: "/event-park-cleanup.png",
-        icon: Leaf,
-        iconBg: "bg-green-100",
-        iconColor: "text-green-600",
-    },
-    {
-        id: 12,
-        title: "Charity Run Event Staff",
-        organization: "Run for the Cure",
-        location: "Nathan Phillips Square, Toronto, ON M5H 2N2",
-        date: "October 25",
-        fullDate: "Saturday, October 25, 2025, 6:00 AM – 12:00 PM",
-        hours: "6 Hr",
-        category: "Education",
-        description: "Help organize and staff the annual charity run event. Roles include registration, water stations, and finish line.",
-        skills: ["Event Planning", "Organization", "Physical Stamina"],
-        spotsLeft: 50,
-        totalSpots: 100,
-        commitment: "One-time",
-        image: "/event-volunteer-fair.png",
-        icon: BookOpen,
-        iconBg: "bg-indigo-100",
-        iconColor: "text-indigo-600",
-    },
-]
 
 const eventCategories = [...CATEGORIES]
 
@@ -327,11 +101,49 @@ export default function ApplicationsPage() {
     const [showMobileFilters, setShowMobileFilters] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
     const [savedExpanded, setSavedExpanded] = useState(false)
-    const [selectedApplication, setSelectedApplication] = useState<typeof sampleApplications[0] | null>(null)
-    const [selectedSaved, setSelectedSaved] = useState<typeof savedOpportunities[0] | null>(null)
+    const [applications, setApplications] = useState<UserApplication[]>([])
+    const [savedOpps, setSavedOpps] = useState<SavedOpportunity[]>([])
+    const [dataLoading, setDataLoading] = useState(true)
+    const [selectedApplication, setSelectedApplication] = useState<UserApplication | null>(null)
+    const [selectedSaved, setSelectedSaved] = useState<SavedOpportunity | null>(null)
     const [reflectionText, setReflectionText] = useState("")
-    const [reportOpportunity, setReportOpportunity] = useState<typeof sampleApplications[0] | null>(null)
+    const [reportOpportunity, setReportOpportunity] = useState<UserApplication | null>(null)
     const [reportConcern, setReportConcern] = useState("")
+
+    const { user } = useAuth()
+
+    const fetchData = React.useCallback(async () => {
+        if (!user?.uid) return
+        setDataLoading(true)
+        try {
+            const [userApps, userSaved] = await Promise.all([
+                getUserApplications(user.uid),
+                getUserSaved(user.uid)
+            ])
+            setApplications(userApps)
+            setSavedOpps(userSaved)
+        } catch (error) {
+            console.error("Error fetching applications data:", error)
+            toast.error("Failed to load your applications.")
+        } finally {
+            setDataLoading(false)
+        }
+    }, [user?.uid])
+
+    React.useEffect(() => {
+        fetchData()
+    }, [fetchData])
+
+    const handleMarkComplete = async (app: UserApplication) => {
+        if (!user?.uid) return
+        try {
+            await updateApplicationStatus(user.uid, app.opportunityId, "completed")
+            toast.success("Opportunity marked as complete! Hours updated.")
+            fetchData() // Refresh data
+        } catch (error) {
+            toast.error("Failed to update status.")
+        }
+    }
 
     const toggleStatus = (status: string) => {
         setSelectedStatuses((prev) =>
@@ -356,7 +168,7 @@ export default function ApplicationsPage() {
 
     // Filter and sort applications
     const filteredApplications = useMemo(() => {
-        let result = sampleApplications.filter((app) => {
+        let result = applications.filter((app) => {
             // Filter by status
             if (selectedStatuses.length > 0 && !selectedStatuses.includes(app.status)) {
                 return false
@@ -625,9 +437,9 @@ export default function ApplicationsPage() {
                                             Welcome back,{" "}
                                             {loading
                                                 ? "..."
-                                                : userProfile?.fullName
-                                                    ? userProfile.fullName.split(" ")[0].charAt(0).toUpperCase() +
-                                                      userProfile.fullName.split(" ")[0].slice(1).toLowerCase()
+                                                : userProfile?.firstName
+                                                    ? userProfile.firstName.charAt(0).toUpperCase() +
+                                                    userProfile.firstName.slice(1).toLowerCase()
                                                     : "User"}
                                             !
                                         </h1>
@@ -654,7 +466,7 @@ export default function ApplicationsPage() {
                                     </div>
                                     <div>
                                         <p className="text-xs text-teal-600 font-medium">Completed</p>
-                                        <p className="text-xl font-bold text-teal-700">{sampleApplications.filter(a => a.status === "completed").length}</p>
+                                        <p className="text-xl font-bold text-teal-700">{applications.filter(a => a.status === "completed").length}</p>
                                     </div>
                                 </div>
 
@@ -665,7 +477,7 @@ export default function ApplicationsPage() {
                                     </div>
                                     <div>
                                         <p className="text-xs text-orange-600 font-medium">Pending</p>
-                                        <p className="text-xl font-bold text-orange-700">3</p>
+                                        <p className="text-xl font-bold text-orange-700">{applications.filter(a => a.status === "pending").length}</p>
                                     </div>
                                 </div>
                             </div>
@@ -762,7 +574,7 @@ export default function ApplicationsPage() {
 
                             {/* Results count */}
                             <p className="text-sm text-muted-foreground mb-4">
-                                Showing {filteredApplications.length} of {sampleApplications.length} applications
+                                Showing {filteredApplications.length} of {applications.length} applications
                             </p>
 
                             {/* Applications Cards */}
@@ -822,13 +634,24 @@ export default function ApplicationsPage() {
                                                         {statusOptions.find(s => s.id === app.status)?.label}
                                                     </span>
                                                 </div>
-                                                <Button
-                                                    variant="outline"
-                                                    className="bg-orange-100 text-orange-700 border border-orange-300 hover:bg-orange-200 hover:text-orange-800 rounded-full"
-                                                    onClick={(e) => { e.stopPropagation(); setSelectedApplication(app); }}
-                                                >
-                                                    View Posting
-                                                </Button>
+                                                <div className="flex gap-2">
+                                                    {app.status === "approved" && (
+                                                        <Button
+                                                            variant="outline"
+                                                            className="bg-green-100 text-green-700 border border-green-300 hover:bg-green-200 hover:text-green-800 rounded-full"
+                                                            onClick={(e) => { e.stopPropagation(); handleMarkComplete(app); }}
+                                                        >
+                                                            Complete
+                                                        </Button>
+                                                    )}
+                                                    <Button
+                                                        variant="outline"
+                                                        className="bg-orange-100 text-orange-700 border border-orange-300 hover:bg-orange-200 hover:text-orange-800 rounded-full"
+                                                        onClick={(e) => { e.stopPropagation(); setSelectedApplication(app); }}
+                                                    >
+                                                        View Posting
+                                                    </Button>
+                                                </div>
                                             </div>
                                         </div>
                                     )
@@ -874,14 +697,14 @@ export default function ApplicationsPage() {
                                     </div>
 
                                     <div className={`space-y-3 ${savedExpanded ? 'flex-1 overflow-y-auto pr-1' : ''}`}>
-                                        {(savedExpanded ? savedOpportunities : savedOpportunities.slice(0, 5)).map((opp) => (
+                                        {(savedExpanded ? savedOpps : savedOpps.slice(0, 5)).map((opp) => (
                                             <div
-                                                key={opp.id}
+                                                key={opp.opportunityId}
                                                 onClick={() => setSelectedSaved(opp)}
                                                 className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-all cursor-pointer hover:scale-[1.02]"
                                             >
-                                                <div className={`w-8 h-8 rounded-lg ${opp.iconBg} flex items-center justify-center flex-shrink-0`}>
-                                                    <opp.icon className={`w-4 h-4 ${opp.iconColor}`} />
+                                                <div className={`w-8 h-8 rounded-lg ${categoryColors[opp.category]?.bg || "bg-amber-100"} flex items-center justify-center flex-shrink-0`}>
+                                                    <Bookmark className={`w-4 h-4 ${categoryColors[opp.category]?.text || "text-amber-600"}`} />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <h3 className="text-sm font-medium text-foreground line-clamp-2">
@@ -996,8 +819,8 @@ export default function ApplicationsPage() {
                                         <Calendar className="w-5 h-5 text-sky-600" />
                                     </div>
                                     <div>
-                                        <p className="font-medium text-slate-800">{selectedApplication.date.split(',').slice(0, 2).join(',')}</p>
-                                        <p className="text-sm">{selectedApplication.date.split(',').slice(2).join(',').trim()}</p>
+                                        <p className="font-medium text-slate-800">{(selectedApplication.date || "").split(',').slice(0, 2).join(',')}</p>
+                                        <p className="text-sm">{(selectedApplication.date || "").split(',').slice(2).join(',').trim()}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 text-slate-600">
@@ -1012,7 +835,7 @@ export default function ApplicationsPage() {
                             <div className="mb-6">
                                 <h3 className="font-semibold text-slate-800 mb-2">Helpful Skills</h3>
                                 <div className="flex flex-wrap gap-2">
-                                    {selectedApplication.skills.map((skill) => (
+                                    {(selectedApplication.skills || []).map((skill) => (
                                         <span key={skill} className="text-sm px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
                                             {skill}
                                         </span>
@@ -1024,7 +847,7 @@ export default function ApplicationsPage() {
                             <div className="mb-6">
                                 <h3 className="font-semibold text-slate-800 mb-2">About This Opportunity</h3>
                                 <p className="text-slate-600 leading-relaxed">
-                                    {selectedApplication.description}
+                                    {selectedApplication.description || "No description provided."}
                                 </p>
                             </div>
 
@@ -1254,8 +1077,8 @@ export default function ApplicationsPage() {
                                         <Calendar className="w-5 h-5 text-sky-600" />
                                     </div>
                                     <div>
-                                        <p className="font-medium text-slate-800">{selectedSaved.fullDate.split(',').slice(0, 2).join(',')}</p>
-                                        <p className="text-sm">{selectedSaved.fullDate.split(',').slice(2).join(',').trim()}</p>
+                                        <p className="font-medium text-slate-800">{(selectedSaved.fullDate || selectedSaved.date || "").split(',').slice(0, 2).join(',')}</p>
+                                        <p className="text-sm">{(selectedSaved.fullDate || selectedSaved.date || "").split(',').slice(2).join(',').trim()}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 text-slate-600">
@@ -1270,7 +1093,7 @@ export default function ApplicationsPage() {
                             <div className="mb-6">
                                 <h3 className="font-semibold text-slate-800 mb-2">Helpful Skills</h3>
                                 <div className="flex flex-wrap gap-2">
-                                    {selectedSaved.skills.map((skill) => (
+                                    {(selectedSaved.skills || []).map((skill) => (
                                         <span key={skill} className="text-sm px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
                                             {skill}
                                         </span>
@@ -1282,7 +1105,7 @@ export default function ApplicationsPage() {
                             <div className="mb-6">
                                 <h3 className="font-semibold text-slate-800 mb-2">About This Opportunity</h3>
                                 <p className="text-slate-600 leading-relaxed">
-                                    {selectedSaved.description}
+                                    {selectedSaved.description || "No description provided."}
                                 </p>
                             </div>
 

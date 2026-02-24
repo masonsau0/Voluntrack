@@ -1,8 +1,6 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useAuth } from "@/contexts/AuthContext"
@@ -43,176 +41,19 @@ import {
   Clock3,
   Flag,
 } from "lucide-react"
-import { sampleApplications } from "@/lib/applications-data"
+import {
+  getUserApplications,
+  getUserSaved,
+  updateApplicationStatus,
+  UserApplication,
+  SavedOpportunity
+} from "@/lib/firebase/dashboard"
 import { toast } from "sonner"
 
 const tabs = [
   { id: "progress", label: "Progress Tracking", icon: TrendingUp },
   { id: "applications", label: "Applications", icon: FileText },
   { id: "account", label: "My Account", icon: User },
-]
-
-const favouritedOpportunities = [
-  {
-    id: 1,
-    title: "Trinity Bellwoods Park: Park Clean-Up",
-    organization: "Toronto Parks Foundation",
-    location: "790 Queen St W, Toronto, ON M6J 1G3",
-    date: "July 30",
-    fullDate: "Wednesday, July 30, 2025, 2:00 PM – 4:00 PM",
-    appliedDate: "2025-01-20",
-    hours: "2 Hr",
-    category: "Environment",
-    status: "pending",
-    description: "Join us for a community park clean-up. Help maintain one of Toronto's most beloved green spaces.",
-    skills: ["Outdoor Work", "Teamwork"],
-    spotsLeft: 12,
-    totalSpots: 25,
-    commitment: "One-time",
-    image: "/event-park-cleanup.png",
-    icon: Leaf,
-    iconBg: "bg-green-100",
-    iconColor: "text-green-600",
-  },
-  {
-    id: 2,
-    title: "Library Reading Program",
-    organization: "Toronto Public Library",
-    location: "789 Yonge St, Toronto, ON M4W 2G8",
-    date: "August 4",
-    fullDate: "Monday, August 4, 2025, 3:00 PM – 5:00 PM",
-    appliedDate: "2025-01-18",
-    hours: "2 Hr",
-    category: "Education",
-    status: "pending",
-    description: "Read to children and help foster a love of books. Perfect for those who enjoy working with kids.",
-    skills: ["Reading", "Communication", "Patience"],
-    spotsLeft: 8,
-    totalSpots: 15,
-    commitment: "Weekly",
-    image: "/event-youth-mentorship.png",
-    icon: BookOpen,
-    iconBg: "bg-blue-100",
-    iconColor: "text-blue-600",
-  },
-  {
-    id: 3,
-    title: "Beach Dune Restoration",
-    organization: "Lake Ontario Waterkeeper",
-    location: "Woodbine Beach, Toronto, ON M4L 3V7",
-    date: "August 22",
-    fullDate: "Friday, August 22, 2025, 9:00 AM – 12:00 PM",
-    appliedDate: "2025-01-22",
-    hours: "3 Hr",
-    category: "Environment",
-    status: "pending",
-    description: "Help restore beach dunes and protect native vegetation along Toronto's waterfront.",
-    skills: ["Outdoor Work", "Physical Work"],
-    spotsLeft: 20,
-    totalSpots: 40,
-    commitment: "One-time",
-    image: "/event-park-cleanup.png",
-    icon: Leaf,
-    iconBg: "bg-green-100",
-    iconColor: "text-green-600",
-  },
-  {
-    id: 4,
-    title: "Habitat Restoration Project",
-    organization: "Toronto Wildlife Centre",
-    location: "60 Carl Hall Rd, Toronto, ON M3K 2C1",
-    date: "August 29",
-    fullDate: "Friday, August 29, 2025, 10:00 AM – 1:00 PM",
-    appliedDate: "2025-01-25",
-    hours: "3 Hr",
-    category: "Environment",
-    status: "pending",
-    description: "Assist with wildlife habitat restoration including planting native species and removing invasive plants.",
-    skills: ["Conservation", "Physical Work", "Teamwork"],
-    spotsLeft: 15,
-    totalSpots: 30,
-    commitment: "Monthly",
-    image: "/event-park-cleanup.png",
-    icon: Leaf,
-    iconBg: "bg-green-100",
-    iconColor: "text-green-600",
-  },
-]
-
-const badges = [
-  {
-    id: 1,
-    name: "First Steps",
-    description: "Complete your first hour",
-    icon: Star,
-    color: "bg-yellow-500",
-    earned: true,
-  },
-  {
-    id: 2,
-    name: "Helping Hand",
-    description: "Log 10 volunteer hours",
-    icon: Heart,
-    color: "bg-pink-500",
-    earned: true,
-  },
-  {
-    id: 3,
-    name: "Community Hero",
-    description: "Complete 5 opportunities",
-    icon: Trophy,
-    color: "bg-purple-500",
-    earned: false,
-  },
-  { id: 4, name: "Goal Setter", description: "Reach 40 hours", icon: Target, color: "bg-blue-500", earned: false },
-  {
-    id: 5,
-    name: "Team Player",
-    description: "Join a group event",
-    icon: Award,
-    color: "bg-teal-500",
-    earned: true,
-  },
-  {
-    id: 6,
-    name: "Early Bird",
-    description: "Apply within 24 hours",
-    icon: Zap,
-    color: "bg-orange-500",
-    earned: false,
-  },
-  {
-    id: 7,
-    name: "Dedicated",
-    description: "Volunteer 3 weeks in a row",
-    icon: Calendar,
-    color: "bg-indigo-500",
-    earned: false,
-  },
-  {
-    id: 8,
-    name: "Explorer",
-    description: "Try 3 different categories",
-    icon: Search,
-    color: "bg-green-500",
-    earned: true,
-  },
-  {
-    id: 9,
-    name: "Rising Star",
-    description: "Earn 5 badges",
-    icon: Sparkles,
-    color: "bg-amber-500",
-    earned: false,
-  },
-  {
-    id: 10,
-    name: "Champion",
-    description: "Complete 100 hours",
-    icon: Trophy,
-    color: "bg-red-500",
-    earned: false,
-  },
 ]
 
 // Status colors for application status badges
@@ -234,9 +75,6 @@ const categoryColors: { [key: string]: { bg: string; text: string; border: strin
   "Mental Health": { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-300", cardBg: "bg-pink-50 border-pink-200" },
 }
 
-const recentApplications = sampleApplications.filter((app) => app.status !== "completed")
-const completedOpportunities = sampleApplications.filter((app) => app.status === "completed")
-
 const monthNames = [
   "January",
   "February",
@@ -252,21 +90,126 @@ const monthNames = [
   "December",
 ]
 
+const badges = [
+  {
+    id: "first-steps",
+    name: "First Steps",
+    description: "Complete your first hour",
+    icon: Star,
+    color: "bg-yellow-500",
+  },
+  {
+    id: "helping-hand",
+    name: "Helping Hand",
+    description: "Log 10 volunteer hours",
+    icon: Heart,
+    color: "bg-pink-500",
+  },
+  {
+    id: "community-hero",
+    name: "Community Hero",
+    description: "Complete 5 opportunities",
+    icon: Trophy,
+    color: "bg-purple-500",
+  },
+  { id: "goal-setter", name: "Goal Setter", description: "Reach 40 hours", icon: Target, color: "bg-blue-500" },
+  {
+    id: "team-player",
+    name: "Team Player",
+    description: "Join a group event",
+    icon: Award,
+    color: "bg-teal-500",
+  },
+  {
+    id: "early-bird",
+    name: "Early Bird",
+    description: "Apply within 24 hours",
+    icon: Zap,
+    color: "bg-orange-500",
+  },
+  {
+    id: "dedicated",
+    name: "Dedicated",
+    description: "Volunteer 3 weeks in a row",
+    icon: Calendar,
+    color: "bg-indigo-500",
+  },
+  {
+    id: "explorer",
+    name: "Explorer",
+    description: "Try 3 different categories",
+    icon: Search,
+    color: "bg-green-500",
+  },
+]
+
 export default function DashboardPage() {
-  const { userProfile, loading } = useAuth()
+  const { user, userProfile, loading: authLoading } = useAuth()
   const [activeTab, setActiveTab] = useState("progress")
   const [currentDate, setCurrentDate] = useState(new Date())
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
   const badgesRef = useRef<HTMLDivElement>(null)
-  const [hasApplications] = useState(true)
-  const [selectedApplication, setSelectedApplication] = useState<typeof sampleApplications[0] | null>(null)
-  const [selectedSaved, setSelectedSaved] = useState<typeof favouritedOpportunities[0] | null>(null)
+  const [applications, setApplications] = useState<UserApplication[]>([])
+  const [savedOpps, setSavedOpps] = useState<SavedOpportunity[]>([])
+  const [dataLoading, setDataLoading] = useState(true)
+  const [selectedApplication, setSelectedApplication] = useState<UserApplication | null>(null)
+  const [selectedSaved, setSelectedSaved] = useState<SavedOpportunity | null>(null)
   const [reflectionText, setReflectionText] = useState("")
-  const [reportOpportunity, setReportOpportunity] = useState<typeof sampleApplications[0] | null>(null)
+  const [reportOpportunity, setReportOpportunity] = useState<UserApplication | null>(null)
   const [reportConcern, setReportConcern] = useState("")
   const completedOpportunitiesRef = useRef<HTMLDivElement>(null)
+
+  const fetchData = async () => {
+    if (!user?.uid) return
+    setDataLoading(true)
+    try {
+      const [userApps, userSaved] = await Promise.all([
+        getUserApplications(user.uid),
+        getUserSaved(user.uid)
+      ])
+      setApplications(userApps)
+      setSavedOpps(userSaved)
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error)
+      toast.error("Failed to load dashboard data.")
+    } finally {
+      setDataLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [user?.uid])
+
+  const handleMarkComplete = async (app: UserApplication) => {
+    if (!user?.uid) return
+    try {
+      await updateApplicationStatus(user.uid, app.opportunityId, "completed")
+      toast.success("Opportunity marked as complete! Hours updated.")
+      fetchData() // Refresh data
+    } catch (error) {
+      toast.error("Failed to update status.")
+    }
+  }
+
+  const recentApplications = applications.filter((app) => app.status !== "completed").slice(0, 5)
+  const completedOpportunities = applications.filter((app) => app.status === "completed")
+  const pendingCount = applications.filter((app) => app.status === "pending").length
+
+  const events: { [key: number]: string } = {}
+  applications.filter(app => app.status === "approved").forEach(app => {
+    const appDate = new Date(app.dateISO)
+    if (appDate.getMonth() === currentDate.getMonth() && appDate.getFullYear() === currentDate.getFullYear()) {
+      events[appDate.getDate()] = "blue"
+    }
+  })
+
+  const upcomingShifts = applications
+    .filter(app => app.status === "approved")
+    .sort((a, b) => new Date(a.dateISO).getTime() - new Date(b.dateISO).getTime())
+    .slice(0, 6)
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!badgesRef.current) return
@@ -309,13 +252,6 @@ export default function DashboardPage() {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))
   }
 
-  const events: { [key: number]: string } = {
-    5: "blue",
-    12: "teal",
-    18: "orange",
-    24: "blue",
-  }
-
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Navigation />
@@ -334,12 +270,12 @@ export default function DashboardPage() {
                   <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                       Welcome back,{" "}
-                      {loading ? (
+                      {authLoading ? (
                         "..."
                       ) : (
                         userProfile?.firstName
                           ? userProfile.firstName.charAt(0).toUpperCase() +
-                            userProfile.firstName.slice(1).toLowerCase()
+                          userProfile.firstName.slice(1).toLowerCase()
                           : "User"
                       )}
                       !
@@ -347,7 +283,6 @@ export default function DashboardPage() {
                     <p className="text-muted-foreground mt-1">Ready to make a difference today?</p>
                   </div>
                 </div>
-
               </div>
 
               {/* Stats in Banner */}
@@ -357,10 +292,10 @@ export default function DashboardPage() {
                   <div className="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center">
                     <Award className="w-5 h-5 text-white" />
                   </div>
-                                    <div>
-                                        <p className="text-xs text-teal-600 font-medium">Completed</p>
-                                        <p className="text-xl font-bold text-teal-700">{completedOpportunities.length}</p>
-                                    </div>
+                  <div>
+                    <p className="text-xs text-teal-600 font-medium">Completed</p>
+                    <p className="text-xl font-bold text-teal-700">{completedOpportunities.length}</p>
+                  </div>
                 </div>
 
                 {/* Pending Applications Stat */}
@@ -370,7 +305,7 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <p className="text-xs text-orange-600 font-medium">Pending</p>
-                    <p className="text-xl font-bold text-orange-700">3</p>
+                    <p className="text-xl font-bold text-orange-700">{pendingCount}</p>
                   </div>
                 </div>
               </div>
@@ -424,7 +359,7 @@ export default function DashboardPage() {
                 onClick={() => completedOpportunitiesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
               >
                 <CardContent className="p-4 h-full relative">
-                  <HorizontalProgressTracker completedHours={24} goalHours={40} />
+                  <HorizontalProgressTracker completedHours={userProfile?.totalHours || 0} goalHours={userProfile?.goalHours || 40} />
                 </CardContent>
               </Card>
             </div>
@@ -494,50 +429,25 @@ export default function DashboardPage() {
                 <div className="mt-4 pt-4 border-t">
                   <h3 className="font-semibold text-sm mb-3">Upcoming Shifts</h3>
                   <ul className="space-y-3">
-                    <li className="flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                        Park Clean-Up
-                      </span>
-                      <span className="text-muted-foreground">2:00 PM</span>
-                    </li>
-                    <li className="flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
-                        Library Reading Program
-                      </span>
-                      <span className="text-muted-foreground">4:00 PM</span>
-                    </li>
-                    <li className="flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                        Food Bank Sorting
-                      </span>
-                      <span className="text-muted-foreground">10:00 AM</span>
-                    </li>
-                    <li className="flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                        Garden Planting
-                      </span>
-                      <span className="text-muted-foreground">Tomorrow 9:00 AM</span>
-                    </li>
-                    <li className="flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-                        Fundraising Workshop
-                      </span>
-                      <span className="text-muted-foreground">Wed 5:30 PM</span>
-                    </li>
-                    <li className="flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                        Elderly Home Visit
-                      </span>
-                      <span className="text-muted-foreground">Sat 11:00 AM</span>
-                    </li>
+                    {upcomingShifts.length > 0 ? (
+                      upcomingShifts.map((app) => (
+                        <li key={app.id} className="flex items-center justify-between text-sm">
+                          <span className="flex items-center gap-2 truncate pr-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
+                            <span className="truncate">{app.title}</span>
+                          </span>
+                          <span className="text-muted-foreground whitespace-nowrap text-xs">
+                            {(app.date || "").split(',').pop()?.trim()}
+                          </span>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="text-sm text-muted-foreground text-center py-2 italic">
+                        No upcoming shifts
+                      </li>
+                    )}
                   </ul>
-                  <CalendarModal>
+                  <CalendarModal applications={applications}>
                     <button
                       className="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1 mt-4 w-full justify-center py-2 hover:bg-blue-50 rounded-lg transition-colors"
                     >
@@ -580,21 +490,24 @@ export default function DashboardPage() {
                       className={`flex gap-4 overflow-x-auto pb-2 scrollbar-hide ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
                       style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                     >
-                      {badges.map((badge) => (
-                        <div
-                          key={badge.id}
-                          className={`flex-shrink-0 flex flex-col items-center p-3 rounded-xl border w-28 select-none ${badge.earned ? "bg-white" : "bg-muted/50 opacity-50"
-                            }`}
-                        >
+                      {badges.map((badge) => {
+                        const isEarned = userProfile?.badges?.includes(badge.id)
+                        return (
                           <div
-                            className={`w-12 h-12 rounded-full ${badge.color} flex items-center justify-center mb-2 ${!badge.earned && "grayscale"}`}
+                            key={badge.id}
+                            className={`flex-shrink-0 flex flex-col items-center p-3 rounded-xl border w-28 select-none ${isEarned ? "bg-white" : "bg-muted/50 opacity-50"
+                              }`}
                           >
-                            <badge.icon className="w-6 h-6 text-white" />
+                            <div
+                              className={`w-12 h-12 rounded-full ${badge.color} flex items-center justify-center mb-2 ${!isEarned && "grayscale"}`}
+                            >
+                              <badge.icon className="w-6 h-6 text-white" />
+                            </div>
+                            <p className="text-sm font-medium text-center">{badge.name}</p>
+                            <p className="text-xs text-muted-foreground text-center">{badge.description}</p>
                           </div>
-                          <p className="text-sm font-medium text-center">{badge.name}</p>
-                          <p className="text-xs text-muted-foreground text-center">{badge.description}</p>
-                        </div>
-                      ))}
+                        )
+                      })}
                     </div>
                   </div>
                 </CardContent>
@@ -627,7 +540,7 @@ export default function DashboardPage() {
                     </Link>
                   </div>
 
-                  {hasApplications ? (
+                  {applications.length > 0 ? (
                     <div>
                       <div className="space-y-2">
                         {recentApplications.map((app) => (
@@ -649,15 +562,14 @@ export default function DashboardPage() {
                             </div>
                             <div className="flex items-center gap-2 shrink-0">
                               <span
-                                className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                  app.status === "pending"
-                                    ? "bg-yellow-100 text-yellow-700 border border-yellow-300"
-                                    : app.status === "completed"
-                                      ? "bg-teal-100 text-teal-700 border border-teal-300"
-                                      : app.status === "denied"
-                                        ? "bg-red-100 text-red-700 border border-red-300"
-                                        : "bg-green-100 text-green-700 border border-green-300"
-                                }`}
+                                className={`px-2 py-0.5 rounded-full text-xs font-medium ${app.status === "pending"
+                                  ? "bg-yellow-100 text-yellow-700 border border-yellow-300"
+                                  : app.status === "completed"
+                                    ? "bg-teal-100 text-teal-700 border border-teal-300"
+                                    : app.status === "denied"
+                                      ? "bg-red-100 text-red-700 border border-red-300"
+                                      : "bg-green-100 text-green-700 border border-green-300"
+                                  }`}
                               >
                                 {app.status === "pending"
                                   ? "Pending"
@@ -667,6 +579,16 @@ export default function DashboardPage() {
                                       ? "Not Approved"
                                       : "Approved"}
                               </span>
+                              {app.status === "approved" && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="bg-green-100 text-green-700 border border-green-300 hover:bg-green-200 hover:text-green-800 rounded-full text-xs h-7"
+                                  onClick={(e) => { e.stopPropagation(); handleMarkComplete(app); }}
+                                >
+                                  Complete
+                                </Button>
+                              )}
                               <Button
                                 variant="outline"
                                 size="sm"
@@ -705,88 +627,88 @@ export default function DashboardPage() {
               {/* Completed Opportunities */}
               <div ref={completedOpportunitiesRef}>
                 <Card className="shadow-sm mt-4">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center">
-                        <CheckCircle2 className="w-4 h-4 text-teal-600" />
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center">
+                          <CheckCircle2 className="w-4 h-4 text-teal-600" />
+                        </div>
+                        <div>
+                          <h2 className="text-base font-semibold">Completed Opportunities</h2>
+                          <p className="text-xs text-muted-foreground">Volunteer opportunities you've finished</p>
+                        </div>
                       </div>
-                      <div>
-                        <h2 className="text-base font-semibold">Completed Opportunities</h2>
-                        <p className="text-xs text-muted-foreground">Volunteer opportunities you've finished</p>
-                      </div>
+                      <Link
+                        href="/applications"
+                        className="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1"
+                      >
+                        View All
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
                     </div>
-                    <Link
-                      href="/applications"
-                      className="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1"
-                    >
-                      View All
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  </div>
 
-                  {completedOpportunities.length > 0 ? (
-                    <div>
-                      <div className="space-y-2">
-                        {completedOpportunities.map((app) => (
-                          <div
-                            key={app.id}
-                            onClick={() => setSelectedApplication(app)}
-                            className={`border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm hover:shadow transition-all duration-200 cursor-pointer ${categoryColors[app.category]?.cardBg || "bg-gray-50 border-gray-200"}`}
-                          >
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-medium text-foreground text-sm truncate">{app.title}</h3>
-                              <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5 flex-wrap">
-                                <MapPin className="w-3 h-3 shrink-0 text-red-500" />
-                                <span className="truncate">{app.location.split(",")[0]}</span>
-                                <span>•</span>
-                                <span>{app.hours}</span>
-                                <span>•</span>
-                                <span>{app.category}</span>
-                              </p>
+                    {completedOpportunities.length > 0 ? (
+                      <div>
+                        <div className="space-y-2">
+                          {completedOpportunities.map((app) => (
+                            <div
+                              key={app.id}
+                              onClick={() => setSelectedApplication(app)}
+                              className={`border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm hover:shadow transition-all duration-200 cursor-pointer ${categoryColors[app.category]?.cardBg || "bg-gray-50 border-gray-200"}`}
+                            >
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-medium text-foreground text-sm truncate">{app.title}</h3>
+                                <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5 flex-wrap">
+                                  <MapPin className="w-3 h-3 shrink-0 text-red-500" />
+                                  <span className="truncate">{app.location.split(",")[0]}</span>
+                                  <span>•</span>
+                                  <span>{app.hours}</span>
+                                  <span>•</span>
+                                  <span>{app.category}</span>
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setReportOpportunity(app); setReportConcern(""); }}
+                                  className="p-1.5 rounded-full text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                                  title="Report a concern"
+                                >
+                                  <Flag className="w-4 h-4" />
+                                </button>
+                                <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-700 border border-teal-300">
+                                  Completed
+                                </span>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="bg-orange-100 text-orange-700 border border-orange-300 hover:bg-orange-200 hover:text-orange-800 rounded-full text-xs h-7"
+                                  onClick={(e) => { e.stopPropagation(); setSelectedApplication(app); }}
+                                >
+                                  View
+                                </Button>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2 shrink-0">
-                              <button
-                                onClick={(e) => { e.stopPropagation(); setReportOpportunity(app); setReportConcern(""); }}
-                                className="p-1.5 rounded-full text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors"
-                                title="Report a concern"
-                              >
-                                <Flag className="w-4 h-4" />
-                              </button>
-                              <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-700 border border-teal-300">
-                                Completed
-                              </span>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="bg-orange-100 text-orange-700 border border-orange-300 hover:bg-orange-200 hover:text-orange-800 rounded-full text-xs h-7"
-                                onClick={(e) => { e.stopPropagation(); setSelectedApplication(app); }}
-                              >
-                                View
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
+                        <p className="text-center mt-3 text-sm font-medium text-muted-foreground">
+                          Total: {completedOpportunities.length}
+                        </p>
                       </div>
-                      <p className="text-center mt-3 text-sm font-medium text-muted-foreground">
-                        Total: {completedOpportunities.length}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="text-center py-4">
-                      <p className="text-muted-foreground text-xs">No completed opportunities yet.</p>
-                      <p className="text-muted-foreground text-xs mt-0.5">Complete approved opportunities to see them here.</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                    ) : (
+                      <div className="text-center py-4">
+                        <p className="text-muted-foreground text-xs">No completed opportunities yet.</p>
+                        <p className="text-muted-foreground text-xs mt-0.5">Complete approved opportunities to see them here.</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
             </div>
 
             {/* Resources and Quick Actions Column */}
             <div className="lg:col-span-1 space-y-6">
 
-              {/* Favourited */}
+              {/* Saved */}
               <Card className="shadow-sm">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3 mb-4">
@@ -797,14 +719,14 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="space-y-3">
-                    {favouritedOpportunities.map((opp) => (
+                    {savedOpps.map((opp) => (
                       <div
-                        key={opp.id}
+                        key={opp.opportunityId}
                         onClick={() => setSelectedSaved(opp)}
                         className={`rounded-xl p-3 flex items-center gap-3 border shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-[1.02] ${categoryColors[opp.category]?.cardBg || "bg-gray-50 border-gray-200"}`}
                       >
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${opp.iconBg}`}>
-                          <opp.icon className={`w-5 h-5 ${opp.iconColor}`} />
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${categoryColors[opp.category]?.bg || "bg-blue-100"}`}>
+                          <Star className={`w-5 h-5 ${categoryColors[opp.category]?.text || "text-blue-600"}`} />
                         </div>
                         <div>
                           <p className="font-medium text-sm">{opp.title}</p>
@@ -826,380 +748,386 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-      </main>
+      </main >
 
       {/* Application Detail Modal */}
-      {selectedApplication && (
-        <div
-          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
-          onClick={() => setSelectedApplication(null)}
-        >
+      {
+        selectedApplication && (
           <div
-            className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setSelectedApplication(null)}
           >
-            {/* Modal Header with Image */}
-            <div className="relative h-48">
-              <Image
-                src={selectedApplication.image}
-                alt={selectedApplication.title}
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-transparent" />
-              <button
-                onClick={() => setSelectedApplication(null)}
-                className="absolute top-4 right-4 w-10 h-10 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full flex items-center justify-center transition-colors shadow-lg"
-              >
-                <X className="w-5 h-5 text-slate-600" />
-              </button>
-
-              {/* Status Badge */}
-              <div className="absolute top-4 left-4">
-                <span
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1.5 border backdrop-blur-sm ${statusColors[selectedApplication.status].bg} ${statusColors[selectedApplication.status].text} ${statusColors[selectedApplication.status].border}`}
+            <div
+              className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header with Image */}
+              <div className="relative h-48">
+                <Image
+                  src={selectedApplication.image}
+                  alt={selectedApplication.title}
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-transparent" />
+                <button
+                  onClick={() => setSelectedApplication(null)}
+                  className="absolute top-4 right-4 w-10 h-10 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full flex items-center justify-center transition-colors shadow-lg"
                 >
-                  {(() => { const StatusIcon = statusColors[selectedApplication.status].icon; return <StatusIcon className="w-4 h-4" />; })()}
-                  {selectedApplication.status === "pending" ? "Pending" : selectedApplication.status === "approved" ? "Approved" : selectedApplication.status === "completed" ? "Completed" : "Not Approved"}
-                </span>
-              </div>
+                  <X className="w-5 h-5 text-slate-600" />
+                </button>
 
-              {/* Title overlay */}
-              <div className="absolute bottom-4 left-6 right-6">
-                <h2 className="text-2xl font-bold text-white mb-1 drop-shadow-lg">{selectedApplication.title}</h2>
-                <p className="text-white/90 drop-shadow">{selectedApplication.organization}</p>
-              </div>
-            </div>
-
-            {/* Modal Content */}
-            <div className="p-6">
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2 mb-5">
-                <span className={`text-sm px-3 py-1 rounded-full ${categoryColors[selectedApplication.category]?.bg} ${categoryColors[selectedApplication.category]?.text}`}>
-                  {selectedApplication.category}
-                </span>
-                <span className="text-sm px-3 py-1 rounded-full bg-blue-100 text-blue-700">
-                  {selectedApplication.commitment}
-                </span>
-                <span className="text-sm px-3 py-1 rounded-full bg-sky-100 text-sky-700">
-                  {selectedApplication.hours}
-                </span>
-              </div>
-
-              {/* Quick Stats */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-sky-50 rounded-xl p-4 border border-sky-100">
-                  <p className="text-2xl font-bold text-sky-700">{selectedApplication.spotsLeft}</p>
-                  <p className="text-sm text-slate-600">Spots Remaining</p>
+                {/* Status Badge */}
+                <div className="absolute top-4 left-4">
+                  <span
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1.5 border backdrop-blur-sm ${statusColors[selectedApplication.status].bg} ${statusColors[selectedApplication.status].text} ${statusColors[selectedApplication.status].border}`}
+                  >
+                    {(() => { const StatusIcon = statusColors[selectedApplication.status].icon; return <StatusIcon className="w-4 h-4" />; })()}
+                    {selectedApplication.status === "pending" ? "Pending" : selectedApplication.status === "approved" ? "Approved" : selectedApplication.status === "completed" ? "Completed" : "Not Approved"}
+                  </span>
                 </div>
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                  <p className="text-2xl font-bold text-slate-700">{selectedApplication.totalSpots}</p>
-                  <p className="text-sm text-slate-600">Total Capacity</p>
+
+                {/* Title overlay */}
+                <div className="absolute bottom-4 left-6 right-6">
+                  <h2 className="text-2xl font-bold text-white mb-1 drop-shadow-lg">{selectedApplication.title}</h2>
+                  <p className="text-white/90 drop-shadow">{selectedApplication.organization}</p>
                 </div>
               </div>
 
-              {/* Event Details */}
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center gap-3 text-slate-600">
-                  <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center">
-                    <Calendar className="w-5 h-5 text-sky-600" />
+              {/* Modal Content */}
+              <div className="p-6">
+                {/* Tags */}
+                <div className="flex flex-wrap gap-2 mb-5">
+                  <span className={`text-sm px-3 py-1 rounded-full ${categoryColors[selectedApplication.category]?.bg} ${categoryColors[selectedApplication.category]?.text}`}>
+                    {selectedApplication.category}
+                  </span>
+                  <span className="text-sm px-3 py-1 rounded-full bg-blue-100 text-blue-700">
+                    {selectedApplication.commitment}
+                  </span>
+                  <span className="text-sm px-3 py-1 rounded-full bg-sky-100 text-sky-700">
+                    {selectedApplication.hours}
+                  </span>
+                </div>
+
+                {/* Quick Stats */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="bg-sky-50 rounded-xl p-4 border border-sky-100">
+                    <p className="text-2xl font-bold text-sky-700">{selectedApplication.spotsLeft}</p>
+                    <p className="text-sm text-slate-600">Spots Remaining</p>
                   </div>
-                  <div>
-                    <p className="font-medium text-slate-800">{selectedApplication.date.split(',').slice(0, 2).join(',')}</p>
-                    <p className="text-sm">{selectedApplication.date.split(',').slice(2).join(',').trim()}</p>
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                    <p className="text-2xl font-bold text-slate-700">{selectedApplication.totalSpots}</p>
+                    <p className="text-sm text-slate-600">Total Capacity</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 text-slate-600">
-                  <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-rose-600" />
+
+                {/* Event Details */}
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center gap-3 text-slate-600">
+                    <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center">
+                      <Calendar className="w-5 h-5 text-sky-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-slate-800">{selectedApplication.date.split(',').slice(0, 2).join(',')}</p>
+                      <p className="text-sm">{selectedApplication.date.split(',').slice(2).join(',').trim()}</p>
+                    </div>
                   </div>
-                  <span>{selectedApplication.location}</span>
+                  <div className="flex items-center gap-3 text-slate-600">
+                    <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
+                      <MapPin className="w-5 h-5 text-rose-600" />
+                    </div>
+                    <span>{selectedApplication.location}</span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Skills */}
-              <div className="mb-6">
-                <h3 className="font-semibold text-slate-800 mb-2">Helpful Skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedApplication.skills.map((skill) => (
-                    <span key={skill} className="text-sm px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="mb-6">
-                <h3 className="font-semibold text-slate-800 mb-2">About This Opportunity</h3>
-                <p className="text-slate-600 leading-relaxed">
-                  {selectedApplication.description}
-                </p>
-              </div>
-
-              {/* Application Info */}
-              <div className="bg-blue-50 rounded-xl p-4 mb-6 border border-blue-100">
-                <h3 className="font-semibold text-blue-800 mb-2">Your Application</h3>
-                <p className="text-sm text-blue-600">
-                  Applied on: {new Date(selectedApplication.appliedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-                </p>
-              </div>
-
-              {/* Status-specific message */}
-              {selectedApplication.status === 'pending' && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
-                  <p className="text-yellow-800 text-sm">
-                    <strong>Pending Review:</strong> Your application is currently being reviewed by the organization. You will be notified once a decision is made.
-                  </p>
-                </div>
-              )}
-              {selectedApplication.status === 'approved' && (
-                <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
-                  <p className="text-green-800 text-sm">
-                    <strong>Approved!</strong> Congratulations! Your application has been approved. Make sure to arrive on time at the specified location.
-                  </p>
-                </div>
-              )}
-              {selectedApplication.status === 'completed' && (
-                <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 mb-6">
-                  <p className="text-teal-800 text-sm">
-                    <strong>Completed!</strong> Great work! You've successfully completed this volunteer opportunity.
-                  </p>
-                </div>
-              )}
-
-              {selectedApplication.status === 'completed' && (
+                {/* Skills */}
                 <div className="mb-6">
-                  <label htmlFor="reflection" className="block text-sm font-medium text-foreground mb-2">
-                    Reflection (optional): Reflect on your volunteer experience: What did you do, what impact did you make, and what did you learn?
-                  </label>
-                  <textarea
-                    id="reflection"
-                    value={reflectionText}
-                    onChange={(e) => setReflectionText(e.target.value)}
-                    placeholder="Share your thoughts on this volunteer experience..."
-                    className="w-full min-h-[100px] px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-y"
-                    rows={4}
-                  />
+                  <h3 className="font-semibold text-slate-800 mb-2">Helpful Skills</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {(selectedApplication.skills || []).map((skill) => (
+                      <span key={skill} className="text-sm px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              )}
 
-              {/* Action Buttons */}
-              <div className="flex gap-3">
+                {/* Description */}
+                <div className="mb-6">
+                  <h3 className="font-semibold text-slate-800 mb-2">About This Opportunity</h3>
+                  <p className="text-slate-600 leading-relaxed">
+                    {selectedApplication.description || "No description provided."}
+                  </p>
+                </div>
+
+                {/* Application Info */}
+                <div className="bg-blue-50 rounded-xl p-4 mb-6 border border-blue-100">
+                  <h3 className="font-semibold text-blue-800 mb-2">Your Application</h3>
+                  <p className="text-sm text-blue-600">
+                    Applied on: {new Date(selectedApplication.appliedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                  </p>
+                </div>
+
+                {/* Status-specific message */}
                 {selectedApplication.status === 'pending' && (
-                  <Button variant="outline" className="flex-1 rounded-full py-6 border-red-300 text-red-600 hover:bg-red-50">
-                    Withdraw Application
-                  </Button>
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+                    <p className="text-yellow-800 text-sm">
+                      <strong>Pending Review:</strong> Your application is currently being reviewed by the organization. You will be notified once a decision is made.
+                    </p>
+                  </div>
                 )}
                 {selectedApplication.status === 'approved' && (
-                  <Button className="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-full py-6">
-                    Add to Calendar
-                  </Button>
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+                    <p className="text-green-800 text-sm">
+                      <strong>Approved!</strong> Congratulations! Your application has been approved. Make sure to arrive on time at the specified location.
+                    </p>
+                  </div>
                 )}
                 {selectedApplication.status === 'completed' && (
+                  <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 mb-6">
+                    <p className="text-teal-800 text-sm">
+                      <strong>Completed!</strong> Great work! You've successfully completed this volunteer opportunity.
+                    </p>
+                  </div>
+                )}
+
+                {selectedApplication.status === 'completed' && (
+                  <div className="mb-6">
+                    <label htmlFor="reflection" className="block text-sm font-medium text-foreground mb-2">
+                      Reflection (optional): Reflect on your volunteer experience: What did you do, what impact did you make, and what did you learn?
+                    </label>
+                    <textarea
+                      id="reflection"
+                      value={reflectionText}
+                      onChange={(e) => setReflectionText(e.target.value)}
+                      placeholder="Share your thoughts on this volunteer experience..."
+                      className="w-full min-h-[100px] px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-y"
+                      rows={4}
+                    />
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  {selectedApplication.status === 'pending' && (
+                    <Button variant="outline" className="flex-1 rounded-full py-6 border-red-300 text-red-600 hover:bg-red-50">
+                      Withdraw Application
+                    </Button>
+                  )}
+                  {selectedApplication.status === 'approved' && (
+                    <Button className="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-full py-6">
+                      Add to Calendar
+                    </Button>
+                  )}
+                  {selectedApplication.status === 'completed' && (
+                    <Button
+                      variant="outline"
+                      className="flex-1 rounded-full py-6 border-red-300 text-red-600 hover:bg-red-50 gap-2"
+                      onClick={() => { setReportOpportunity(selectedApplication); setReportConcern(""); }}
+                    >
+                      <Flag className="w-4 h-4" />
+                      Report
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
-                    className="flex-1 rounded-full py-6 border-red-300 text-red-600 hover:bg-red-50 gap-2"
-                    onClick={() => { setReportOpportunity(selectedApplication); setReportConcern(""); }}
+                    className="px-6 rounded-full py-6 border-slate-300 text-slate-700 hover:bg-slate-100"
+                    onClick={() => { setSelectedApplication(null); setReflectionText(""); }}
                   >
-                    <Flag className="w-4 h-4" />
-                    Report
+                    Close
                   </Button>
-                )}
-                <Button
-                  variant="outline"
-                  className="px-6 rounded-full py-6 border-slate-300 text-slate-700 hover:bg-slate-100"
-                  onClick={() => { setSelectedApplication(null); setReflectionText(""); }}
-                >
-                  Close
-                </Button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Report Concern Modal */}
-      {reportOpportunity && (
-        <div
-          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
-          onClick={() => { setReportOpportunity(null); setReportConcern(""); }}
-        >
+      {
+        reportOpportunity && (
           <div
-            className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-6"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => { setReportOpportunity(null); setReportConcern(""); }}
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                <Flag className="w-5 h-5 text-red-600" />
+            <div
+              className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                  <Flag className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold">Report a Concern</h2>
+                  <p className="text-sm text-muted-foreground">{reportOpportunity.title}</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-lg font-semibold">Report a Concern</h2>
-                <p className="text-sm text-muted-foreground">{reportOpportunity.title}</p>
-              </div>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">
-              Please express your concern and we will get back to you within 24 hours.
-            </p>
-            <textarea
-              value={reportConcern}
-              onChange={(e) => setReportConcern(e.target.value)}
-              placeholder="Describe your concern..."
-              className="w-full min-h-[120px] px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-y mb-4"
-              rows={4}
-            />
-            <div className="flex gap-3">
-              <Button
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
-                onClick={() => {
-                  const trimmed = reportConcern.trim()
-                  if (!trimmed) {
-                    toast.error("Please describe your concern before submitting.")
-                    return
-                  }
-                  setReportOpportunity(null)
-                  setReportConcern("")
-                  toast.success("Report has been successfully submitted. We'll get back to you within 24 hours.")
-                }}
-              >
-                Submit Report
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => { setReportOpportunity(null); setReportConcern(""); }}
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Saved Opportunity Detail Modal */}
-      {selectedSaved && (
-        <div
-          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
-          onClick={() => setSelectedSaved(null)}
-        >
-          <div
-            className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Header with Image */}
-            <div className="relative h-48">
-              <Image
-                src={selectedSaved.image}
-                alt={selectedSaved.title}
-                fill
-                className="object-cover"
+              <p className="text-sm text-muted-foreground mb-4">
+                Please express your concern and we will get back to you within 24 hours.
+              </p>
+              <textarea
+                value={reportConcern}
+                onChange={(e) => setReportConcern(e.target.value)}
+                placeholder="Describe your concern..."
+                className="w-full min-h-[120px] px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-y mb-4"
+                rows={4}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-transparent" />
-              <button
-                onClick={() => setSelectedSaved(null)}
-                className="absolute top-4 right-4 w-10 h-10 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full flex items-center justify-center transition-colors shadow-lg"
-              >
-                <X className="w-5 h-5 text-slate-600" />
-              </button>
-
-              {/* Category Badge */}
-              <div className="absolute top-4 left-4">
-                <span
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1.5 border backdrop-blur-sm ${categoryColors[selectedSaved.category]?.bg} ${categoryColors[selectedSaved.category]?.text} ${categoryColors[selectedSaved.category]?.border}`}
-                >
-                  {selectedSaved.category}
-                </span>
-              </div>
-
-              {/* Title overlay */}
-              <div className="absolute bottom-4 left-6 right-6">
-                <h2 className="text-2xl font-bold text-white mb-1 drop-shadow-lg">{selectedSaved.title}</h2>
-                <p className="text-white/90 drop-shadow">{selectedSaved.organization}</p>
-              </div>
-            </div>
-
-            {/* Modal Content */}
-            <div className="p-6">
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2 mb-5">
-                <span className={`text-sm px-3 py-1 rounded-full ${categoryColors[selectedSaved.category]?.bg} ${categoryColors[selectedSaved.category]?.text}`}>
-                  {selectedSaved.category}
-                </span>
-                <span className="text-sm px-3 py-1 rounded-full bg-blue-100 text-blue-700">
-                  {selectedSaved.commitment}
-                </span>
-                <span className="text-sm px-3 py-1 rounded-full bg-sky-100 text-sky-700">
-                  {selectedSaved.hours}
-                </span>
-              </div>
-
-              {/* Quick Stats */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-sky-50 rounded-xl p-4 border border-sky-100">
-                  <p className="text-2xl font-bold text-sky-700">{selectedSaved.spotsLeft}</p>
-                  <p className="text-sm text-slate-600">Spots Remaining</p>
-                </div>
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                  <p className="text-2xl font-bold text-slate-700">{selectedSaved.totalSpots}</p>
-                  <p className="text-sm text-slate-600">Total Capacity</p>
-                </div>
-              </div>
-
-              {/* Event Details */}
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center gap-3 text-slate-600">
-                  <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center">
-                    <Calendar className="w-5 h-5 text-sky-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-slate-800">{selectedSaved.fullDate.split(',').slice(0, 2).join(',')}</p>
-                    <p className="text-sm">{selectedSaved.fullDate.split(',').slice(2).join(',').trim()}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 text-slate-600">
-                  <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-rose-600" />
-                  </div>
-                  <span>{selectedSaved.location}</span>
-                </div>
-              </div>
-
-              {/* Skills */}
-              <div className="mb-6">
-                <h3 className="font-semibold text-slate-800 mb-2">Helpful Skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedSaved.skills.map((skill) => (
-                    <span key={skill} className="text-sm px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="mb-6">
-                <h3 className="font-semibold text-slate-800 mb-2">About This Opportunity</h3>
-                <p className="text-slate-600 leading-relaxed">
-                  {selectedSaved.description}
-                </p>
-              </div>
-
-              {/* Action Buttons */}
               <div className="flex gap-3">
-                <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6">
-                  Apply Now
+                <Button
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                  onClick={() => {
+                    const trimmed = reportConcern.trim()
+                    if (!trimmed) {
+                      toast.error("Please describe your concern before submitting.")
+                      return
+                    }
+                    setReportOpportunity(null)
+                    setReportConcern("")
+                    toast.success("Report has been successfully submitted. We'll get back to you within 24 hours.")
+                  }}
+                >
+                  Submit Report
                 </Button>
                 <Button
                   variant="outline"
-                  className="px-6 rounded-full py-6 border-slate-300 text-slate-700 hover:bg-slate-100"
-                  onClick={() => setSelectedSaved(null)}
+                  onClick={() => { setReportOpportunity(null); setReportConcern(""); }}
                 >
-                  Close
+                  Cancel
                 </Button>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+
+      {/* Saved Opportunity Detail Modal */}
+      {
+        selectedSaved && (
+          <div
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setSelectedSaved(null)}
+          >
+            <div
+              className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header with Image */}
+              <div className="relative h-48">
+                <Image
+                  src={selectedSaved.image}
+                  alt={selectedSaved.title}
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-transparent" />
+                <button
+                  onClick={() => setSelectedSaved(null)}
+                  className="absolute top-4 right-4 w-10 h-10 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full flex items-center justify-center transition-colors shadow-lg"
+                >
+                  <X className="w-5 h-5 text-slate-600" />
+                </button>
+
+                {/* Category Badge */}
+                <div className="absolute top-4 left-4">
+                  <span
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1.5 border backdrop-blur-sm ${categoryColors[selectedSaved.category]?.bg} ${categoryColors[selectedSaved.category]?.text} ${categoryColors[selectedSaved.category]?.border}`}
+                  >
+                    {selectedSaved.category}
+                  </span>
+                </div>
+
+                {/* Title overlay */}
+                <div className="absolute bottom-4 left-6 right-6">
+                  <h2 className="text-2xl font-bold text-white mb-1 drop-shadow-lg">{selectedSaved.title}</h2>
+                  <p className="text-white/90 drop-shadow">{selectedSaved.organization}</p>
+                </div>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6">
+                {/* Tags */}
+                <div className="flex flex-wrap gap-2 mb-5">
+                  <span className={`text-sm px-3 py-1 rounded-full ${categoryColors[selectedSaved.category]?.bg} ${categoryColors[selectedSaved.category]?.text}`}>
+                    {selectedSaved.category}
+                  </span>
+                  <span className="text-sm px-3 py-1 rounded-full bg-blue-100 text-blue-700">
+                    {selectedSaved.commitment}
+                  </span>
+                  <span className="text-sm px-3 py-1 rounded-full bg-sky-100 text-sky-700">
+                    {selectedSaved.hours}
+                  </span>
+                </div>
+
+                {/* Quick Stats */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="bg-sky-50 rounded-xl p-4 border border-sky-100">
+                    <p className="text-2xl font-bold text-sky-700">{selectedSaved.spotsLeft}</p>
+                    <p className="text-sm text-slate-600">Spots Remaining</p>
+                  </div>
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                    <p className="text-2xl font-bold text-slate-700">{selectedSaved.totalSpots}</p>
+                    <p className="text-sm text-slate-600">Total Capacity</p>
+                  </div>
+                </div>
+
+                {/* Event Details */}
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center gap-3 text-slate-600">
+                    <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center">
+                      <Calendar className="w-5 h-5 text-sky-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-slate-800">{(selectedSaved.fullDate || selectedSaved.date).split(',').slice(0, 2).join(',')}</p>
+                      <p className="text-sm">{(selectedSaved.fullDate || selectedSaved.date).split(',').slice(2).join(',').trim() || "Time TBD"}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-600">
+                    <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
+                      <MapPin className="w-5 h-5 text-rose-600" />
+                    </div>
+                    <span>{selectedSaved.location}</span>
+                  </div>
+                </div>
+
+                {/* Skills */}
+                <div className="mb-6">
+                  <h3 className="font-semibold text-slate-800 mb-2">Helpful Skills</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {(selectedSaved.skills || []).map((skill) => (
+                      <span key={skill} className="text-sm px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="mb-6">
+                  <h3 className="font-semibold text-slate-800 mb-2">About This Opportunity</h3>
+                  <p className="text-slate-600 leading-relaxed">
+                    {selectedSaved.description || "No description provided."}
+                  </p>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6">
+                    Apply Now
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="px-6 rounded-full py-6 border-slate-300 text-slate-700 hover:bg-slate-100"
+                    onClick={() => setSelectedSaved(null)}
+                  >
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }
+    </div >
   )
 }
