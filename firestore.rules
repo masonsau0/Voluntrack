@@ -13,13 +13,14 @@ service cloud.firestore {
 
     // 1. Users Collection
     // - Doc ID must match Auth UID
-    // - Users can read/write their own profile
+    // - role must be "student" or "volunteer_org"
     // - Authenticated users can read other profiles (to see names/roles)
     match /users/{userId} {
       allow create: if isAuthenticated() && request.auth.uid == userId
         && request.resource.data.firstName is string
-        && request.resource.data.lastName is string;
-      allow read: if isAuthenticated(); 
+        && request.resource.data.lastName is string
+        && request.resource.data.role in ["student", "volunteer_org"];
+      allow read: if isAuthenticated();
       allow update: if isOwner(userId)
         && request.resource.data.firstName is string
         && request.resource.data.lastName is string;
@@ -37,11 +38,10 @@ service cloud.firestore {
     // 3. Volunteer Orgs Collection
     // - Public read
     // - Authenticated users can create
-    // - Only the creator should technically update, but simplifying for now
+    // - Only the creator can update/delete
     match /volunteer_orgs/{orgId} {
       allow read: if true;
       allow create: if isAuthenticated();
-      // Only allow update if the user listed as 'createdBy' is the one making the request
       allow update, delete: if isAuthenticated() && resource.data.createdBy == request.auth.uid;
     }
 
@@ -68,15 +68,31 @@ service cloud.firestore {
     }
 
     // 6. Student Hours Collection
-    // - Value privacy: Students see their own
+    // - Students see/manage their own hours
     match /student_hours/{hoursId} {
-       allow read: if isAuthenticated() && (
-         resource.data.studentId == request.auth.uid ||
-         // Allow school admins to see (requires role check)
-         true
-       );
-       allow create: if isAuthenticated() && request.resource.data.studentId == request.auth.uid;
-       allow update, delete: if isAuthenticated() && resource.data.studentId == request.auth.uid;
+      allow read: if isAuthenticated() && (
+        resource.data.studentId == request.auth.uid ||
+        // Allow school admins to see (requires role check)
+        true
+      );
+      allow create: if isAuthenticated() && request.resource.data.studentId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && resource.data.studentId == request.auth.uid;
+    }
+
+    // 7. Student Profiles Collection
+    // - Only the owning student can write their own profile
+    // - Authenticated users can read (e.g. admins, org users viewing applicants)
+    match /student_profiles/{userId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isOwner(userId);
+    }
+
+    // 8. Volunteer Org Profiles Collection
+    // - Public read (orgs are discoverable)
+    // - Org users can update their own profile; creation handled by admin/system
+    match /volunteer_org_profiles/{userId} {
+      allow read: if true;
+      allow update, delete: if isOwner(userId);
     }
 
   }

@@ -9,12 +9,14 @@ import {
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from './config';
 
+export type UserRole = "student" | "volunteer_org";
+
 export interface SignUpData {
   email: string;
   password: string;
   firstName: string;
   lastName: string;
-  school: string;
+  role: UserRole;
 }
 
 export interface UserProfile {
@@ -22,7 +24,7 @@ export interface UserProfile {
   email: string;
   firstName: string;
   lastName: string;
-  school: string;
+  role: UserRole;
   createdAt: any;
   updatedAt: any;
 }
@@ -65,7 +67,7 @@ export async function signUp(data: SignUpData): Promise<User> {
       email: data.email,
       firstName: data.firstName,
       lastName: data.lastName,
-      school: data.school,
+      role: data.role,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
