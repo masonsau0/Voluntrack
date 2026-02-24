@@ -9,27 +9,22 @@ import {
 import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from './config';
 
+export type UserRole = "student" | "volunteer_org";
+
 export interface SignUpData {
   email: string;
   password: string;
   firstName: string;
   lastName: string;
-  school: string;
+  role: UserRole;
 }
 
 export interface UserProfile {
   uid: string;
   email: string;
-  firstName?: string;
-  lastName?: string;
-  fullName?: string;
-  school: string;
-  interests?: string[];
-  volunteerPreference?: string;
-  availability?: string;
-  totalHours: number;
-  goalHours: number;
-  badges: string[];
+  firstName: string;
+  lastName: string;
+  role: UserRole;
   createdAt: any;
   updatedAt: any;
 }
@@ -72,10 +67,7 @@ export async function signUp(data: SignUpData): Promise<User> {
       email: data.email,
       firstName: data.firstName,
       lastName: data.lastName,
-      school: data.school,
-      totalHours: 0,
-      goalHours: 40,
-      badges: [],
+      role: data.role,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
@@ -109,15 +101,7 @@ export async function updateUserProfile(
   data: {
     firstName?: string;
     lastName?: string;
-    fullName?: string;
     email?: string;
-    school?: string;
-    interests?: string[];
-    volunteerPreference?: string;
-    availability?: string;
-    totalHours?: number;
-    goalHours?: number;
-    badges?: string[];
   }
 ): Promise<void> {
   try {
@@ -126,15 +110,7 @@ export async function updateUserProfile(
     };
     if (data.firstName !== undefined) updates.firstName = data.firstName;
     if (data.lastName !== undefined) updates.lastName = data.lastName;
-    if (data.fullName !== undefined) updates.fullName = data.fullName;
     if (data.email !== undefined) updates.email = data.email;
-    if (data.school !== undefined) updates.school = data.school;
-    if (data.interests !== undefined) updates.interests = data.interests;
-    if (data.volunteerPreference !== undefined) updates.volunteerPreference = data.volunteerPreference;
-    if (data.availability !== undefined) updates.availability = data.availability;
-    if (data.totalHours !== undefined) updates.totalHours = data.totalHours;
-    if (data.goalHours !== undefined) updates.goalHours = data.goalHours;
-    if (data.badges !== undefined) updates.badges = data.badges;
     await updateDoc(doc(db, 'users', uid), updates);
   } catch (error) {
     console.error('Error updating user profile:', error);

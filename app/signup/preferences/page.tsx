@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Navigation } from "@/components/navigation"
 import { useAuth } from "@/contexts/AuthContext"
-import { updateUserProfile } from "@/lib/firebase/auth"
+import { createStudentProfile, getStudentProfile, updateStudentProfile } from "@/lib/firebase/student-profiles"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils"
 
 export default function PreferencesPage() {
   const router = useRouter()
-  const { user, refreshProfile } = useAuth()
+  const { user, userProfile, refreshProfile } = useAuth()
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
   const [interestLimitMessage, setInterestLimitMessage] = useState<string>("")
   const [submitError, setSubmitError] = useState<string>("")
@@ -73,14 +73,20 @@ export default function PreferencesPage() {
       return
     }
 
-    if (user?.uid) {
+    if (user?.uid && userProfile?.role === "student") {
       setIsSaving(true)
       try {
-        await updateUserProfile(user.uid, {
+        const existing = await getStudentProfile(user.uid)
+        const profileData = {
           interests,
-          volunteerPreference: volunteer,
+          volunteerFormat: volunteer,
           availability: avail,
-        })
+        }
+        if (existing) {
+          await updateStudentProfile(user.uid, profileData)
+        } else {
+          await createStudentProfile(user.uid, profileData)
+        }
         await refreshProfile()
         toast.success("Preferences saved successfully")
       } catch (err) {

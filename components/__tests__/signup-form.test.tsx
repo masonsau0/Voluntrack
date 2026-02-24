@@ -28,7 +28,8 @@ describe('SignupForm', () => {
     expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/last name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/school name/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /student/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /volunteer org/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign up/i })).toBeInTheDocument();
@@ -44,7 +45,7 @@ describe('SignupForm', () => {
       expect(screen.getByText(/first name is required/i)).toBeInTheDocument();
       expect(screen.getByText(/last name is required/i)).toBeInTheDocument();
       expect(screen.getByText(/email is required/i)).toBeInTheDocument();
-      expect(screen.getByText(/school name is required/i)).toBeInTheDocument();
+      expect(screen.getByText(/please select your account type/i)).toBeInTheDocument();
       expect(screen.getByText(/^password is required$/i)).toBeInTheDocument();
       expect(screen.getByText(/^confirm password is required$/i)).toBeInTheDocument();
     });
@@ -63,7 +64,7 @@ describe('SignupForm', () => {
     const firstNameInput = screen.getByLabelText(/first name/i);
     const lastNameInput = screen.getByLabelText(/last name/i);
     const emailInput = screen.getByLabelText(/email/i);
-    const schoolInput = screen.getByLabelText(/school name/i);
+    const studentButton = screen.getByRole('button', { name: /student/i });
     const passwordInput = screen.getByLabelText(/^password$/i);
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
     const submitButton = screen.getByRole('button', { name: /sign up/i });
@@ -71,7 +72,7 @@ describe('SignupForm', () => {
     fireEvent.change(firstNameInput, { target: { value: 'John' } });
     fireEvent.change(lastNameInput, { target: { value: 'Doe' } });
     fireEvent.change(emailInput, { target: { value: 'john@example.com' } });
-    fireEvent.change(schoolInput, { target: { value: 'Test School' } });
+    fireEvent.click(studentButton);
     fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
     fireEvent.change(confirmPasswordInput, { target: { value: 'Password123!' } });
     fireEvent.click(submitButton);
@@ -82,7 +83,7 @@ describe('SignupForm', () => {
         password: 'Password123!',
         firstName: 'John',
         lastName: 'Doe',
-        school: 'Test School',
+        role: 'student',
       });
     });
   });
@@ -95,7 +96,7 @@ describe('SignupForm', () => {
     const firstNameInput = screen.getByLabelText(/first name/i);
     const lastNameInput = screen.getByLabelText(/last name/i);
     const emailInput = screen.getByLabelText(/email/i);
-    const schoolInput = screen.getByLabelText(/school name/i);
+    const studentButton = screen.getByRole('button', { name: /student/i });
     const passwordInput = screen.getByLabelText(/^password$/i);
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
     const submitButton = screen.getByRole('button', { name: /sign up/i });
@@ -103,7 +104,7 @@ describe('SignupForm', () => {
     fireEvent.change(firstNameInput, { target: { value: 'John' } });
     fireEvent.change(lastNameInput, { target: { value: 'Doe' } });
     fireEvent.change(emailInput, { target: { value: 'existing@example.com' } });
-    fireEvent.change(schoolInput, { target: { value: 'Test School' } });
+    fireEvent.click(studentButton);
     fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
     fireEvent.change(confirmPasswordInput, { target: { value: 'Password123!' } });
     fireEvent.click(submitButton);
@@ -123,7 +124,7 @@ describe('SignupForm', () => {
     const firstNameInput = screen.getByLabelText(/first name/i);
     const lastNameInput = screen.getByLabelText(/last name/i);
     const emailInput = screen.getByLabelText(/email/i);
-    const schoolInput = screen.getByLabelText(/school name/i);
+    const studentButton = screen.getByRole('button', { name: /student/i });
     const passwordInput = screen.getByLabelText(/^password$/i);
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
     const submitButton = screen.getByRole('button', { name: /sign up/i });
@@ -131,7 +132,7 @@ describe('SignupForm', () => {
     fireEvent.change(firstNameInput, { target: { value: 'John' } });
     fireEvent.change(lastNameInput, { target: { value: 'Doe' } });
     fireEvent.change(emailInput, { target: { value: 'john@example.com' } });
-    fireEvent.change(schoolInput, { target: { value: 'Test School' } });
+    fireEvent.click(studentButton);
     fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
     fireEvent.change(confirmPasswordInput, { target: { value: 'Password123!' } });
     fireEvent.click(submitButton);

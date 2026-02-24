@@ -97,7 +97,7 @@ describe('Firebase Auth Functions', () => {
         password: 'password123',
         firstName: 'John',
         lastName: 'Doe',
-        school: 'Test School',
+        role: 'student' as const,
       };
 
       const result = await signUp(signUpData);
@@ -113,7 +113,7 @@ describe('Firebase Auth Functions', () => {
           email: 'newuser@example.com',
           firstName: 'John',
           lastName: 'Doe',
-          school: 'Test School',
+          role: 'student',
         })
       );
       // Verify that createdAt and updatedAt are set (they use serverTimestamp)
@@ -133,7 +133,7 @@ describe('Firebase Auth Functions', () => {
         password: 'password123',
         firstName: 'John',
         lastName: 'Doe',
-        school: 'Test School',
+        role: 'student' as const,
       };
 
       await expect(signUp(signUpData)).rejects.toThrow(
@@ -151,7 +151,7 @@ describe('Firebase Auth Functions', () => {
         password: '123',
         firstName: 'John',
         lastName: 'Doe',
-        school: 'Test School',
+        role: 'student' as const,
       };
 
       await expect(signUp(signUpData)).rejects.toThrow('Password is too weak.');
@@ -182,7 +182,7 @@ describe('Firebase Auth Functions', () => {
         email: 'test@example.com',
         firstName: 'John',
         lastName: 'Doe',
-        school: 'Test School',
+        role: 'student',
         createdAt: { seconds: 1234567890 },
         updatedAt: { seconds: 1234567890 },
       };
