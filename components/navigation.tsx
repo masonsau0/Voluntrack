@@ -153,16 +153,13 @@ export function Navigation() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
-              /* Auth Buttons */
+            ) : !isLoginPage ? (
+              /* Auth Buttons - hidden on login page */
               <div className="hidden sm:flex items-center gap-4">
                 <Link href="/login">
                   <Button
-                    variant={pathname?.startsWith("/login") ? "default" : "outline"}
-                    className={`rounded-full px-6 tracking-wide uppercase text-xs ${pathname?.startsWith("/login")
-                      ? "bg-primary text-primary-foreground"
-                      : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                      }`}
+                    variant="outline"
+                    className="rounded-full px-6 tracking-wide uppercase text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     Log in
                   </Button>
@@ -176,7 +173,7 @@ export function Navigation() {
                   </Button>
                 </Link>
               </div>
-            )}
+            ) : null}
 
             <Button
               variant="ghost"
@@ -278,7 +275,7 @@ export function Navigation() {
                     Log out
                   </button>
                 </>
-              ) : (
+              ) : !isLoginPage ? (
                 <>
                   <Link
                     href="/login"
@@ -295,7 +292,7 @@ export function Navigation() {
                     Sign up
                   </Link>
                 </>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
