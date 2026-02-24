@@ -20,6 +20,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { ChevronLeft, ChevronRight, Clock, MapPin, Plus, Trash2, Calendar as CalendarIcon } from "lucide-react"
+import { UserApplication } from "@/lib/firebase/dashboard"
 
 interface Event {
     id: string
@@ -30,35 +31,43 @@ interface Event {
     type: "blue" | "teal" | "orange"
 }
 
-export function CalendarModal({ children }: { children: React.ReactNode }) {
+interface CalendarModalProps {
+    children: React.ReactNode
+    applications?: UserApplication[]
+}
+
+export function CalendarModal({ children, applications = [] }: CalendarModalProps) {
     const [currentDate, setCurrentDate] = useState(new Date())
     const [selectedDate, setSelectedDate] = useState<Date>(new Date())
-    const [events, setEvents] = useState<Event[]>([
-        {
-            id: "1",
-            title: "Park Clean-Up",
-            date: new Date(new Date().getFullYear(), new Date().getMonth(), 15),
-            time: "2:00 PM",
-            location: "Central Park",
-            type: "blue"
-        },
-        {
-            id: "2",
-            title: "Library Reading",
-            date: new Date(new Date().getFullYear(), new Date().getMonth(), 18),
-            time: "4:00 PM",
-            location: "Public Library",
-            type: "teal"
-        },
-        {
-            id: "3",
-            title: "Food Bank Sorting",
-            date: new Date(new Date().getFullYear(), new Date().getMonth(), 22),
-            time: "10:00 AM",
-            location: "Community Center",
-            type: "orange"
-        }
-    ])
+
+    // Transform approved applications into calendar events
+    const initialApprovedEvents: Event[] = applications
+        .filter(app => app.status === "approved")
+        .map(app => ({
+            id: app.id,
+            title: app.title,
+            date: new Date(app.dateISO),
+            time: (app.date || "").split(',').pop()?.trim() || "TBD",
+            location: app.location.split(',')[0],
+            type: "blue" as const
+        }))
+
+    const [events, setEvents] = useState<Event[]>(initialApprovedEvents)
+
+    // Re-sync events if applications change (e.g. after marking complete)
+    React.useEffect(() => {
+        const approvedEvents: Event[] = applications
+            .filter(app => app.status === "approved")
+            .map(app => ({
+                id: app.id,
+                title: app.title,
+                date: new Date(app.dateISO),
+                time: (app.date || "").split(',').pop()?.trim() || "TBD",
+                location: app.location.split(',')[0],
+                type: "blue" as const
+            }))
+        setEvents(approvedEvents)
+    }, [applications])
 
     // New Event Form State
     const [newEventTitle, setNewEventTitle] = useState("")
@@ -164,8 +173,8 @@ export function CalendarModal({ children }: { children: React.ReactNode }) {
                                         <div className="flex-1 space-y-1 w-full overflow-hidden">
                                             {dayEvents.slice(0, 3).map((event, idx) => (
                                                 <div key={idx} className={`text-[10px] px-1.5 py-0.5 rounded truncate w-full ${event.type === "blue" ? "bg-blue-100 text-blue-700" :
-                                                        event.type === "teal" ? "bg-teal-100 text-teal-700" :
-                                                            "bg-orange-100 text-orange-700"
+                                                    event.type === "teal" ? "bg-teal-100 text-teal-700" :
+                                                        "bg-orange-100 text-orange-700"
                                                     }`}>
                                                     {event.time}
                                                 </div>

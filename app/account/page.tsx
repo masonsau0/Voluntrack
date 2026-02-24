@@ -12,7 +12,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { updateUserProfile } from "@/lib/firebase/auth"
 import { toast } from "sonner"
 import { INTERESTS, VOLUNTEER_OPTIONS, AVAILABILITY_OPTIONS } from "@/lib/preferences"
-import { sampleApplications } from "@/lib/applications-data"
+import { getUserApplications, UserApplication } from "@/lib/firebase/dashboard"
 import { cn } from "@/lib/utils"
 import {
     Sparkles,
@@ -46,6 +46,7 @@ export default function AccountPage() {
     const [saveError, setSaveError] = useState<string | null>(null)
     const [isEditingPrefs, setIsEditingPrefs] = useState(false)
     const [prefsSaveError, setPrefsSaveError] = useState<string | null>(null)
+    const [applications, setApplications] = useState<UserApplication[]>([])
 
     useEffect(() => {
         if (userProfile) {
@@ -61,6 +62,19 @@ export default function AccountPage() {
             setAvailability(userProfile.availability || "")
         }
     }, [userProfile, user?.email])
+
+    useEffect(() => {
+        const fetchApps = async () => {
+            if (!user?.uid) return
+            try {
+                const apps = await getUserApplications(user.uid)
+                setApplications(apps)
+            } catch (error) {
+                console.error("Error fetching applications for account stats:", error)
+            }
+        }
+        fetchApps()
+    }, [user?.uid])
 
     const [interestLimitMessage, setInterestLimitMessage] = useState("")
 
@@ -151,7 +165,7 @@ export default function AccountPage() {
                                     <div>
                                         <p className="text-xs text-teal-600 font-medium">Completed</p>
                                         <p className="text-xl font-bold text-teal-700">
-                                            {sampleApplications.filter((a) => a.status === "completed").length}
+                                            {applications.filter((a) => a.status === "completed").length}
                                         </p>
                                     </div>
                                 </div>
@@ -164,7 +178,7 @@ export default function AccountPage() {
                                     <div>
                                         <p className="text-xs text-orange-600 font-medium">Pending</p>
                                         <p className="text-xl font-bold text-orange-700">
-                                            {sampleApplications.filter((a) => a.status === "pending").length}
+                                            {applications.filter((a) => a.status === "pending").length}
                                         </p>
                                     </div>
                                 </div>
@@ -390,38 +404,38 @@ export default function AccountPage() {
                                                     : "—"}
                                             </p>
                                         ) : (
-                                        <>
-                                        {interestLimitMessage && (
-                                            <p className="text-sm text-amber-600 font-medium mb-3">{interestLimitMessage}</p>
-                                        )}
-                                        <div className="space-y-3">
-                                            {INTERESTS.map((interest) => {
-                                                const Icon = interest.icon
-                                                const isSelected = selectedInterests.includes(interest.id)
-                                                return (
-                                                    <button
-                                                        key={interest.id}
-                                                        type="button"
-                                                        onClick={() => isEditingPrefs && handleInterestToggle(interest.id)}
-                                                        disabled={!isEditingPrefs}
-                                                        className={cn(
-                                                            "w-full p-4 rounded-lg border-2 transition-all text-left",
-                                                            isEditingPrefs && "hover:shadow-md cursor-pointer",
-                                                            !isEditingPrefs && "cursor-default",
-                                                            isSelected
-                                                                ? `${interest.bgColor} ${interest.borderColor} border-2 shadow-sm`
-                                                                : "bg-slate-50 border-slate-200"
-                                                        )}
-                                                    >
-                                                        <div className="flex items-center gap-3">
-                                                            <Icon className={cn("h-6 w-6", isSelected ? interest.color : "text-slate-600")} />
-                                                            <span className="font-medium">{interest.label}</span>
-                                                        </div>
-                                                    </button>
-                                                )
-                                            })}
-                                        </div>
-                                        </>
+                                            <>
+                                                {interestLimitMessage && (
+                                                    <p className="text-sm text-amber-600 font-medium mb-3">{interestLimitMessage}</p>
+                                                )}
+                                                <div className="space-y-3">
+                                                    {INTERESTS.map((interest) => {
+                                                        const Icon = interest.icon
+                                                        const isSelected = selectedInterests.includes(interest.id)
+                                                        return (
+                                                            <button
+                                                                key={interest.id}
+                                                                type="button"
+                                                                onClick={() => isEditingPrefs && handleInterestToggle(interest.id)}
+                                                                disabled={!isEditingPrefs}
+                                                                className={cn(
+                                                                    "w-full p-4 rounded-lg border-2 transition-all text-left",
+                                                                    isEditingPrefs && "hover:shadow-md cursor-pointer",
+                                                                    !isEditingPrefs && "cursor-default",
+                                                                    isSelected
+                                                                        ? `${interest.bgColor} ${interest.borderColor} border-2 shadow-sm`
+                                                                        : "bg-slate-50 border-slate-200"
+                                                                )}
+                                                            >
+                                                                <div className="flex items-center gap-3">
+                                                                    <Icon className={cn("h-6 w-6", isSelected ? interest.color : "text-slate-600")} />
+                                                                    <span className="font-medium">{interest.label}</span>
+                                                                </div>
+                                                            </button>
+                                                        )
+                                                    })}
+                                                </div>
+                                            </>
                                         )}
                                     </div>
 

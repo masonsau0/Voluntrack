@@ -4,6 +4,7 @@ import React, { useState, useMemo, useRef, useEffect, useCallback } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Navigation } from "@/components/navigation"
+import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -46,10 +47,17 @@ import {
   Info,
   Plus,
   SlidersHorizontal,
+  CheckCircle2,
 } from "lucide-react"
-import { CATEGORIES } from "@/lib/preferences"
-import { getOpportunities, type Opportunity, ITEMS_PER_PAGE } from "@/lib/firebase/opportunities"
-import { DocumentData, QueryDocumentSnapshot } from "firebase/firestore"
+import { CATEGORIES, INTERESTS } from "@/lib/preferences"
+import { getAllOpportunities, type Opportunity } from "@/lib/firebase/opportunities"
+import {
+  applyToOpportunity,
+  toggleSaveOpportunity,
+  getUserApplications,
+  getUserSaved
+} from "@/lib/firebase/dashboard"
+import { toast } from "sonner"
 
 // Category colors matching preferences (lib/preferences.ts)
 const categoryColors: { [key: string]: { bg: string; text: string; border: string; gradient: string; icon: typeof Leaf; heroGradient: string } } = {
@@ -80,14 +88,16 @@ const sortOptions = [
 
 // export default function OpportunitiesPage() {
 export default function OpportunitiesPage() {
+  const { userProfile } = useAuth()
   const [opportunities, setOpportunities] = useState<Opportunity[]>([])
   const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null)
-  
-  // Pagination state
-  const [lastVisible, setLastVisible] = useState<QueryDocumentSnapshot<DocumentData> | null>(null)
+
   const [loading, setLoading] = useState(false)
-  const [hasMore, setHasMore] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
+
+  const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set())
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
 
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0)
   const [searchQuery, setSearchQuery] = useState("")
@@ -101,38 +111,86 @@ export default function OpportunitiesPage() {
   const [sortBy, setSortBy] = useState("featured")
   const [showFilters, setShowFilters] = useState(false)
 
-  // Fetch opportunities
-  const loadMoreOpportunities = useCallback(async () => {
-    if (loading || !hasMore) return
+  // Fetch all opportunities
+  const fetchAllOpportunities = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      const { opportunities: newOpp, lastVisible: newLast } = await getOpportunities(lastVisible)
-      
-      setOpportunities(prev => {
-        // Dedup logic just in case
-        const existingIds = new Set(prev.map(o => o.id))
-        const uniqueNew = newOpp.filter(o => !existingIds.has(o.id))
-        return [...prev, ...uniqueNew]
-      })
-      
-      setLastVisible(newLast)
-      if (newOpp.length < ITEMS_PER_PAGE) {
-        setHasMore(false)
-      }
+      const allOpp = await getAllOpportunities()
+      setOpportunities(allOpp)
     } catch (err) {
       console.error(err)
       setError("Failed to load opportunities. Please try again.")
     } finally {
       setLoading(false)
     }
-  }, [loading, hasMore, lastVisible])
+  }, [])
 
   // Initial load
   useEffect(() => {
-    loadMoreOpportunities()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // Run once on mount
+    fetchAllOpportunities()
+  }, [fetchAllOpportunities])
+
+  const { user } = useAuth()
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!user?.uid) return
+      try {
+        const [apps, saved] = await Promise.all([
+          getUserApplications(user.uid),
+          getUserSaved(user.uid)
+        ])
+        setAppliedIds(new Set(apps.map(a => a.opportunityId)))
+        setSavedIds(new Set(saved.map(s => s.opportunityId)))
+      } catch (err) {
+        console.error("Error fetching user data:", err)
+      }
+    }
+    fetchUserData()
+  }, [user?.uid])
+
+  const handleApply = async (opportunity: Opportunity) => {
+    if (!user?.uid) {
+      toast.error("Please sign in to apply.")
+      return
+    }
+    if (appliedIds.has(opportunity.id)) return
+
+    setActionLoading(opportunity.id)
+    try {
+      await applyToOpportunity(user.uid, opportunity)
+      setAppliedIds(prev => new Set([...Array.from(prev), opportunity.id]))
+      toast.success("Application submitted successfully!")
+    } catch (err: any) {
+      toast.error(err.message || "Failed to apply.")
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleSave = async (opportunity: Opportunity) => {
+    if (!user?.uid) {
+      toast.error("Please sign in to save opportunities.")
+      return
+    }
+
+    setActionLoading(`save-${opportunity.id}`)
+    try {
+      const isSaved = await toggleSaveOpportunity(user.uid, opportunity)
+      setSavedIds(prev => {
+        const next = new Set(prev)
+        if (isSaved) next.add(opportunity.id)
+        else next.delete(opportunity.id)
+        return next
+      })
+      toast.success(isSaved ? "Saved to your list" : "Removed from your list")
+    } catch (err) {
+      toast.error("Failed to update saved list.")
+    } finally {
+      setActionLoading(null)
+    }
+  }
 
   // Timer ref for resetting on manual navigation
   const timerRef = useRef<NodeJS.Timeout | null>(null)
@@ -249,7 +307,20 @@ export default function OpportunitiesPage() {
     }
 
     return filtered
-  }, [searchQuery, selectedCategories, selectedCommitments, selectedHours, selectedDateRange, sortBy])
+  }, [opportunities, searchQuery, selectedCategories, selectedCommitments, selectedHours, selectedDateRange, sortBy])
+
+  // Personalized "Experiences for You" based on profile interests
+  const personalizedOpportunities = useMemo(() => {
+    if (!userProfile?.interests || userProfile.interests.length === 0) return []
+
+    // Map interest IDs to labels used in categories
+    const interestLabels = userProfile.interests.map(id => {
+      const match = INTERESTS.find(i => (i as any).id === id)
+      return match ? match.label : ""
+    }).filter(label => label !== "")
+
+    return opportunities.filter(opp => (interestLabels as string[]).includes(opp.category))
+  }, [opportunities, userProfile])
 
   // Group by category
   const groupedByCategory = useMemo(() => {
@@ -404,19 +475,38 @@ export default function OpportunitiesPage() {
               <div className="flex gap-2">
                 <Button
                   size="sm"
-                  className="flex-1 h-8 bg-white text-slate-800 hover:bg-slate-100 rounded-full text-xs font-bold gap-1"
-                  onClick={(e) => { e.stopPropagation(); setSelectedOpportunity(opportunity); }}
+                  className={appliedIds.has(opportunity.id)
+                    ? "flex-1 h-8 bg-green-500 hover:bg-green-600 text-white rounded-full text-xs font-bold gap-1 cursor-default"
+                    : "flex-1 h-8 bg-white text-slate-800 hover:bg-slate-100 rounded-full text-xs font-bold gap-1"
+                  }
+                  onClick={(e) => { e.stopPropagation(); handleApply(opportunity); }}
+                  disabled={actionLoading === opportunity.id || appliedIds.has(opportunity.id)}
                 >
-                  <Zap className="w-3 h-3" />
-                  Apply Now
+                  {actionLoading === opportunity.id ? (
+                    "Applying..."
+                  ) : appliedIds.has(opportunity.id) ? (
+                    <>
+                      <CheckCircle2 className="w-3 h-3" />
+                      Applied
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-3 h-3" />
+                      Apply Now
+                    </>
+                  )}
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  className="h-8 w-8 p-0 rounded-full border-2 border-white/50 bg-transparent hover:bg-white/20"
-                  onClick={(e) => e.stopPropagation()}
+                  className={`h-8 w-8 p-0 rounded-full border-2 transition-all ${savedIds.has(opportunity.id)
+                    ? "bg-amber-400 border-amber-400 text-white"
+                    : "border-white/50 bg-transparent hover:bg-white/20 text-white"
+                    }`}
+                  onClick={(e) => { e.stopPropagation(); handleSave(opportunity); }}
+                  disabled={actionLoading === `save-${opportunity.id}`}
                 >
-                  <Plus className="w-4 h-4 text-white" />
+                  <Plus className={`w-4 h-4 transition-transform ${savedIds.has(opportunity.id) ? "rotate-45" : ""}`} />
                 </Button>
               </div>
             </div>
@@ -843,7 +933,71 @@ export default function OpportunitiesPage() {
                   {error}
                 </div>
               )}
-        
+
+              {/* Experiences for You - Only if there are personalized matches */}
+              {personalizedOpportunities.length > 0 && !hasActiveFilters && (
+                <div className="mb-12">
+                  <h2 className="text-xl font-bold text-sky-900 mb-6">Experiences for You</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {personalizedOpportunities.slice(0, 6).map((opp) => (
+                      <div
+                        key={opp.id}
+                        className="relative cursor-pointer group"
+                        onClick={() => setSelectedOpportunity(opp)}
+                      >
+                        <div
+                          className="relative h-72 bg-white rounded-xl overflow-hidden border border-slate-200 transition-all duration-300 group-hover:shadow-xl group-hover:scale-[1.02] group-hover:-translate-y-1"
+                        >
+                          <div className="absolute inset-0">
+                            <Image
+                              src={opp.image}
+                              alt={opp.title}
+                              fill
+                              className="object-cover"
+                            />
+                            <div className={`absolute inset-0 bg-gradient-to-br ${categoryColors[opp.category]?.gradient || ''}`} />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                          </div>
+                          {opp.featured && (
+                            <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full text-white text-xs font-bold shadow-lg">
+                              <Star className="w-3 h-3 fill-current" />
+                              Featured
+                            </div>
+                          )}
+                          <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full text-slate-700 text-xs font-medium shadow-sm">
+                            {opp.spotsLeft} spots left
+                          </div>
+                          <div className="absolute inset-0 p-4 flex flex-col justify-end">
+                            <h3 className="font-bold text-white text-lg leading-tight mb-1 drop-shadow-lg">
+                              {opp.title}
+                            </h3>
+                            <p className="text-white/90 text-sm mb-2 drop-shadow">{opp.organization}</p>
+                            <div className="flex items-center gap-3 text-xs text-white/90 mb-2">
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3.5 h-3.5" />
+                                {opp.hours}h
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <MapPin className="w-3.5 h-3.5" />
+                                {opp.location.split(',')[0]}
+                              </span>
+                            </div>
+                            <div className="flex gap-2">
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${categoryColors[opp.category]?.bg || 'bg-slate-100'} ${categoryColors[opp.category]?.text || 'text-slate-700'}`}>
+                                {opp.category}
+                              </span>
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-sm">
+                                {opp.commitment}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* All Opportunities - 3 columns grid */}
               <div className="mb-12">
                 <h2 className="text-xl font-bold text-slate-800 mb-6">All Opportunities</h2>
@@ -862,74 +1016,55 @@ export default function OpportunitiesPage() {
                         className="relative cursor-pointer group"
                         onClick={() => setSelectedOpportunity(opp)}
                       >
-                         <div
-                        className="relative h-72 bg-white rounded-xl overflow-hidden border border-slate-200 transition-all duration-300 group-hover:shadow-xl group-hover:scale-[1.02] group-hover:-translate-y-1"
-                      >
-                        <div className="absolute inset-0">
-                          <Image
-                            src={opp.image}
-                            alt={opp.title}
-                            fill
-                            className="object-cover"
-                          />
-                          <div className={`absolute inset-0 bg-gradient-to-br ${categoryColors[opp.category]?.gradient || ''}`} />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                        </div>
-                        {opp.featured && (
-                          <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full text-white text-xs font-bold shadow-lg">
-                            <Star className="w-3 h-3 fill-current" />
-                            Featured
+                        <div
+                          className="relative h-72 bg-white rounded-xl overflow-hidden border border-slate-200 transition-all duration-300 group-hover:shadow-xl group-hover:scale-[1.02] group-hover:-translate-y-1"
+                        >
+                          <div className="absolute inset-0">
+                            <Image
+                              src={opp.image}
+                              alt={opp.title}
+                              fill
+                              className="object-cover"
+                            />
+                            <div className={`absolute inset-0 bg-gradient-to-br ${categoryColors[opp.category]?.gradient || ''}`} />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                           </div>
-                        )}
-                        <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full text-slate-700 text-xs font-medium shadow-sm">
-                          {opp.spotsLeft} spots left
-                        </div>
-                        <div className="absolute inset-0 p-4 flex flex-col justify-end">
-                          <h3 className="font-bold text-white text-lg leading-tight mb-1 drop-shadow-lg">
-                            {opp.title}
-                          </h3>
-                          <p className="text-white/90 text-sm mb-2 drop-shadow">{opp.organization}</p>
-                          <div className="flex items-center gap-3 text-xs text-white/90 mb-2">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3.5 h-3.5" />
-                              {opp.hours}h
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <MapPin className="w-3.5 h-3.5" />
-                              {opp.location.split(',')[0]}
-                            </span>
+                          {opp.featured && (
+                            <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full text-white text-xs font-bold shadow-lg">
+                              <Star className="w-3 h-3 fill-current" />
+                              Featured
+                            </div>
+                          )}
+                          <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full text-slate-700 text-xs font-medium shadow-sm">
+                            {opp.spotsLeft} spots left
                           </div>
-                          <div className="flex gap-2">
-                            <span className={`text-xs px-2 py-0.5 rounded-full ${categoryColors[opp.category]?.bg || 'bg-slate-100'} ${categoryColors[opp.category]?.text || 'text-slate-700'}`}>
-                              {opp.category}
-                            </span>
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-sm">
-                              {opp.commitment}
-                            </span>
+                          <div className="absolute inset-0 p-4 flex flex-col justify-end">
+                            <h3 className="font-bold text-white text-lg leading-tight mb-1 drop-shadow-lg">
+                              {opp.title}
+                            </h3>
+                            <p className="text-white/90 text-sm mb-2 drop-shadow">{opp.organization}</p>
+                            <div className="flex items-center gap-3 text-xs text-white/90 mb-2">
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3.5 h-3.5" />
+                                {opp.hours}h
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <MapPin className="w-3.5 h-3.5" />
+                                {opp.location.split(',')[0]}
+                              </span>
+                            </div>
+                            <div className="flex gap-2">
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${categoryColors[opp.category]?.bg || 'bg-slate-100'} ${categoryColors[opp.category]?.text || 'text-slate-700'}`}>
+                                {opp.category}
+                              </span>
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-sm">
+                                {opp.commitment}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
                       </div>
                     ))}
-                  </div>
-                )}
-                
-                {hasMore && (
-                  <div className="mt-8 flex justify-center">
-                     <Button
-                      onClick={loadMoreOpportunities}
-                      disabled={loading}
-                      className="bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 min-w-[200px]"
-                    >
-                      {loading ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-slate-600 border-t-transparent rounded-full animate-spin mr-2" />
-                          Loading...
-                        </>
-                      ) : (
-                        "Load More Opportunities"
-                      )}
-                    </Button>
                   </div>
                 )}
               </div>
@@ -1047,12 +1182,38 @@ export default function OpportunitiesPage() {
 
               {/* Action Buttons */}
               <div className="flex gap-3">
-                <Button className="flex-1 bg-sky-600 hover:bg-sky-500 text-white rounded-full py-6 text-base font-medium shadow-lg shadow-sky-200 transition-all hover:scale-[1.02] hover:shadow-xl">
-                  <Zap className="w-5 h-5 mr-2" />
-                  Apply Now
+                <Button
+                  className={`flex-1 rounded-full py-6 text-base font-medium transition-all hover:scale-[1.02] hover:shadow-xl ${appliedIds.has(selectedOpportunity.id)
+                    ? "bg-green-500 hover:bg-green-600 text-white cursor-default"
+                    : "bg-sky-600 hover:bg-sky-500 text-white shadow-lg shadow-sky-200"
+                    }`}
+                  onClick={() => handleApply(selectedOpportunity)}
+                  disabled={actionLoading === selectedOpportunity.id || appliedIds.has(selectedOpportunity.id)}
+                >
+                  {actionLoading === selectedOpportunity.id ? (
+                    "Applying..."
+                  ) : appliedIds.has(selectedOpportunity.id) ? (
+                    <>
+                      <CheckCircle2 className="w-5 h-5 mr-2" />
+                      Applied
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-5 h-5 mr-2" />
+                      Apply Now
+                    </>
+                  )}
                 </Button>
-                <Button variant="outline" className="flex-1 rounded-full py-6 text-base font-medium border-slate-300 text-slate-700 hover:bg-slate-400 hover:text-slate-900 hover:border-slate-400 transition-all hover:scale-[1.02]">
-                  Save for later
+                <Button
+                  variant="outline"
+                  className={`flex-1 rounded-full py-6 text-base font-medium transition-all hover:scale-[1.02] ${savedIds.has(selectedOpportunity.id)
+                    ? "bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100"
+                    : "border-slate-300 text-slate-700 hover:bg-slate-100"
+                    }`}
+                  onClick={() => handleSave(selectedOpportunity)}
+                  disabled={actionLoading === `save-${selectedOpportunity.id}`}
+                >
+                  {savedIds.has(selectedOpportunity.id) ? "Saved to List" : "Save for later"}
                 </Button>
               </div>
             </div>
