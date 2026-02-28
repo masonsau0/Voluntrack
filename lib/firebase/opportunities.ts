@@ -84,7 +84,7 @@ export async function getOpportunities(
         commitment: data.commitment || "One-time",
         skills: data.skills || [],
         featured: data.featured || false,
-        image: data.image || "/placeholder.jpg",
+        image: data.image || "/icon.svg",
       } as Opportunity);
     });
 
@@ -135,7 +135,7 @@ export async function getAllOpportunities(): Promise<Opportunity[]> {
         commitment: data.commitment || "One-time",
         skills: data.skills || [],
         featured: data.featured || false,
-        image: data.image || "/placeholder.jpg",
+        image: data.image || "/icon.svg",
       } as Opportunity);
     });
 
