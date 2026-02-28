@@ -1007,132 +1007,8 @@ export default function OrgOpportunitiesPage() {
       ) : (
 
         <main className="flex-1">
-          {/* Hero Section - Featured Opportunity with fading image */}
-          <div className="relative bg-gradient-to-r from-sky-100 via-sky-50 to-transparent overflow-hidden min-h-[430px]">
-            {/* Full-width background image with left fade */}
-            <div className="absolute inset-0">
-              {featuredOpportunities.map((opp, idx) => (
-                <div
-                  key={opp.id}
-                  className="absolute inset-0 transition-opacity duration-700"
-                  style={{ opacity: idx === currentHeroIndex ? 1 : 0 }}
-                >
-                  <Image
-                    src={opp.image}
-                    alt={opp.title}
-                    fill
-                    className="object-cover object-right"
-                    priority={idx === 0}
-                  />
-                </div>
-              ))}
-              {/* Gradient fade from left - matching reference image style */}
-              <div className="absolute inset-0 bg-gradient-to-r from-sky-100 via-sky-100/95 via-40% to-transparent" />
-            </div>
-
-            {/* Left Arrow - Absolutely positioned on left edge */}
-            <button
-              onClick={goToPrev}
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5 text-slate-600" />
-            </button>
-
-            {/* Right Arrow - Absolutely positioned on right edge */}
-            <button
-              onClick={goToNext}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-colors"
-            >
-              <ChevronRight className="w-5 h-5 text-slate-600" />
-            </button>
-
-            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-              <div className="max-w-xl">
-                {/* Spotlight label */}
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-sky-600 text-sm font-medium bg-sky-100/80 backdrop-blur-sm px-3 py-1 rounded-full">
-                    #{currentHeroIndex + 1} Spotlight
-                  </span>
-                  <span className={`text-sm px-3 py-1 rounded-full ${categoryColors[currentHero?.category]?.bg} ${categoryColors[currentHero?.category]?.text}`}>
-                    {currentHero?.category}
-                  </span>
-                </div>
-
-                {/* Title with animation */}
-                <h1
-                  key={currentHero?.id}
-                  className="text-3xl md:text-4xl font-bold text-slate-800 mb-4 leading-tight animate-fade-in"
-                >
-                  {currentHero?.title}
-                </h1>
-
-                {/* Organization */}
-                <p className="text-lg text-slate-600 mb-5">
-                  by <span className="font-semibold text-sky-700">{currentHero?.organization}</span>
-                </p>
-
-                {/* Meta info */}
-                <div className="flex flex-wrap items-center gap-3 mb-5 text-slate-600 text-sm">
-                  <span className="flex items-center gap-1.5 bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-sm">
-                    <Clock className="w-4 h-4 text-sky-600" />
-                    {currentHero?.hours} hours
-                  </span>
-                  <span className="flex items-center gap-1.5 bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-sm">
-                    <Calendar className="w-4 h-4 text-sky-600" />
-                    {currentHero?.date}
-                  </span>
-                  <span className="flex items-center gap-1.5 bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-sm">
-                    <MapPin className="w-4 h-4 text-sky-600" />
-                    {currentHero?.location}
-                  </span>
-                </div>
-
-                {/* Description - hidden on smaller screens */}
-                <p className="text-slate-600 mb-6 line-clamp-2 text-base leading-relaxed">
-                  {currentHero?.description}
-                </p>
-
-                {/* Action buttons and spots remaining */}
-                <div className="flex items-center gap-4 mb-2">
-                  <Button
-                    className="bg-slate-300 text-slate-500 px-6 py-5 rounded-full text-sm font-semibold gap-2 shadow-none cursor-not-allowed hover:bg-slate-300"
-                    disabled
-                  >
-                    <Zap className="w-4 h-4" />
-                    Apply Now
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="border-2 border-slate-300 text-slate-700 hover:bg-white/80 px-5 py-5 rounded-full text-sm gap-2 bg-white/50 backdrop-blur-sm"
-                    onClick={() => setSelectedOpportunity(currentHero)}
-                  >
-                    <Info className="w-4 h-4" />
-                    Details
-                  </Button>
-                  <span className="text-sm font-semibold text-slate-700 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
-                    {currentHero?.spotsLeft} spots remaining
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Carousel dots - Centered at bottom of entire hero card */}
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-              {featuredOpportunities.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => goToSlide(idx)}
-                  className={`h-2 rounded-full transition-all duration-300 ${idx === currentHeroIndex
-                    ? 'w-8 bg-sky-600'
-                    : 'w-2 bg-slate-400 hover:bg-slate-500'
-                    }`}
-                />
-              ))}
-            </div>
-          </div>
-
           {/* Filter/Sort Bar */}
-          <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm">
+          <div className="sticky top-16 md:top-20 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
               <div className="flex flex-wrap items-center gap-3">
                 {/* Search */}
@@ -1287,200 +1163,69 @@ export default function OrgOpportunitiesPage() {
             </div>
           </div>
 
-          {/* Content sections */}
+          {/* Simplified List View */}
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Show filtered results or regular layout */}
-            {hasActiveFilters ? (
-              // Filtered results view - grid layout
-              <div>
-                <h2 className="text-xl font-bold text-slate-800 mb-6">
-                  Search Results ({filteredOpportunities.length})
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredOpportunities.map((opp) => (
+            <h2 className="text-xl font-bold text-slate-800 mb-6">
+              All Opportunities {hasActiveFilters && `(${filteredOpportunities.length})`}
+            </h2>
+            <div className="space-y-3">
+              {filteredOpportunities.length === 0 ? (
+                <div className="text-center py-16">
+                  <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                    <Search className="w-8 h-8 text-slate-300" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-slate-700">No opportunities found</h3>
+                  <p className="text-slate-500 mt-1">Try adjusting your filters or search.</p>
+                </div>
+              ) : (
+                filteredOpportunities.map((opp) => {
+                  const catColor = categoryColors[opp.category] || categoryColors["Environment"]
+                  const commitColor = commitmentColors[opp.commitment]
+                  const CatIcon = catColor.icon
+                  return (
                     <div
                       key={opp.id}
-                      className="relative cursor-pointer group"
+                      className="bg-white border border-slate-200 rounded-xl p-5 hover:shadow-md hover:border-sky-200 transition-all duration-200 cursor-pointer"
                       onClick={() => setSelectedOpportunity(opp)}
                     >
-                      <div
-                        className="relative h-72 bg-white rounded-xl overflow-hidden border border-slate-200 transition-all duration-300 group-hover:shadow-xl group-hover:scale-[1.02] group-hover:-translate-y-1"
-                      >
-                        <div className="absolute inset-0">
-                          <Image
-                            src={opp.image}
-                            alt={opp.title}
-                            fill
-                            className="object-cover"
-                          />
-                          <div className={`absolute inset-0 bg-gradient-to-br ${categoryColors[opp.category]?.gradient}`} />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                        {/* Title & Org */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-base font-semibold text-slate-900 truncate">{opp.title}</h3>
+                          <p className="text-sm text-slate-500 mt-0.5">{opp.organization}</p>
                         </div>
-                        {opp.featured && (
-                          <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full text-white text-xs font-bold shadow-lg">
-                            <Star className="w-3 h-3 fill-current" />
-                            Featured
-                          </div>
-                        )}
-                        <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full text-slate-700 text-xs font-medium shadow-sm">
-                          {opp.spotsLeft} spots left
-                        </div>
-                        <div className="absolute inset-0 p-4 flex flex-col justify-end">
-                          <h3 className="font-bold text-white text-lg leading-tight mb-1 drop-shadow-lg">
-                            {opp.title}
-                          </h3>
-                          <p className="text-white/90 text-sm mb-2 drop-shadow">{opp.organization}</p>
-                          <div className="flex items-center gap-3 text-xs text-white/90 mb-2">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3.5 h-3.5" />
-                              {opp.hours}h
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <MapPin className="w-3.5 h-3.5" />
-                              {opp.location.split(',')[0]}
-                            </span>
-                          </div>
-                          <div className="flex gap-2">
-                            <span className={`text-xs px-2 py-0.5 rounded-full ${categoryColors[opp.category]?.bg} ${categoryColors[opp.category]?.text}`}>
-                              {opp.category}
-                            </span>
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-sm">
-                              {opp.commitment}
-                            </span>
-                          </div>
+
+                        {/* Meta info pills */}
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                          <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${catColor.bg} ${catColor.text}`}>
+                            <CatIcon className="w-3 h-3" />
+                            {opp.category}
+                          </span>
+                          <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${commitColor?.bg} ${commitColor?.text}`}>
+                            {opp.commitment}
+                          </span>
+                          <span className="flex items-center gap-1 text-xs text-slate-500">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {opp.date}
+                          </span>
+                          <span className="flex items-center gap-1 text-xs text-slate-500">
+                            <MapPin className="w-3.5 h-3.5" />
+                            {opp.location.split(',')[0]}
+                          </span>
+                          <span className="flex items-center gap-1 text-xs text-slate-500">
+                            <Clock className="w-3.5 h-3.5" />
+                            {opp.hours}h
+                          </span>
+                          <span className="text-xs font-medium text-sky-700 bg-sky-50 px-2.5 py-1 rounded-full">
+                            {opp.spotsLeft}/{opp.totalSpots} spots
+                          </span>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <>
-                {/* Experiences for You - 2 rows x 3 columns = 6 cards */}
-                <div className="mb-12">
-                  <h2 className="text-xl font-bold text-slate-800 mb-6">Experiences for You</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {sampleOpportunities.slice(0, 6).map((opp) => (
-                      <div
-                        key={opp.id}
-                        className="relative cursor-pointer group"
-                        onClick={() => setSelectedOpportunity(opp)}
-                      >
-                        <div
-                          className="relative h-72 bg-white rounded-xl overflow-hidden border border-slate-200 transition-all duration-300 group-hover:shadow-xl group-hover:scale-[1.02] group-hover:-translate-y-1"
-                        >
-                          <div className="absolute inset-0">
-                            <Image
-                              src={opp.image}
-                              alt={opp.title}
-                              fill
-                              className="object-cover"
-                            />
-                            <div className={`absolute inset-0 bg-gradient-to-br ${categoryColors[opp.category]?.gradient}`} />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                          </div>
-                          {opp.featured && (
-                            <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full text-white text-xs font-bold shadow-lg">
-                              <Star className="w-3 h-3 fill-current" />
-                              Featured
-                            </div>
-                          )}
-                          <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full text-slate-700 text-xs font-medium shadow-sm">
-                            {opp.spotsLeft} spots left
-                          </div>
-                          <div className="absolute inset-0 p-4 flex flex-col justify-end">
-                            <h3 className="font-bold text-white text-lg leading-tight mb-1 drop-shadow-lg">
-                              {opp.title}
-                            </h3>
-                            <p className="text-white/90 text-sm mb-2 drop-shadow">{opp.organization}</p>
-                            <div className="flex items-center gap-3 text-xs text-white/90 mb-2">
-                              <span className="flex items-center gap-1">
-                                <Clock className="w-3.5 h-3.5" />
-                                {opp.hours}h
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <MapPin className="w-3.5 h-3.5" />
-                                {opp.location.split(',')[0]}
-                              </span>
-                            </div>
-                            <div className="flex gap-2">
-                              <span className={`text-xs px-2 py-0.5 rounded-full ${categoryColors[opp.category]?.bg} ${categoryColors[opp.category]?.text}`}>
-                                {opp.category}
-                              </span>
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-sm">
-                                {opp.commitment}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* All Opportunities - 3 columns grid */}
-                <div>
-                  <h2 className="text-xl font-bold text-slate-800 mb-6">All Opportunities</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {sampleOpportunities.map((opp) => (
-                      <div
-                        key={opp.id}
-                        className="relative cursor-pointer group"
-                        onClick={() => setSelectedOpportunity(opp)}
-                      >
-                        <div
-                          className="relative h-72 bg-white rounded-xl overflow-hidden border border-slate-200 transition-all duration-300 group-hover:shadow-xl group-hover:scale-[1.02] group-hover:-translate-y-1"
-                        >
-                          <div className="absolute inset-0">
-                            <Image
-                              src={opp.image}
-                              alt={opp.title}
-                              fill
-                              className="object-cover"
-                            />
-                            <div className={`absolute inset-0 bg-gradient-to-br ${categoryColors[opp.category]?.gradient}`} />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                          </div>
-                          {opp.featured && (
-                            <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full text-white text-xs font-bold shadow-lg">
-                              <Star className="w-3 h-3 fill-current" />
-                              Featured
-                            </div>
-                          )}
-                          <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full text-slate-700 text-xs font-medium shadow-sm">
-                            {opp.spotsLeft} spots left
-                          </div>
-                          <div className="absolute inset-0 p-4 flex flex-col justify-end">
-                            <h3 className="font-bold text-white text-lg leading-tight mb-1 drop-shadow-lg">
-                              {opp.title}
-                            </h3>
-                            <p className="text-white/90 text-sm mb-2 drop-shadow">{opp.organization}</p>
-                            <div className="flex items-center gap-3 text-xs text-white/90 mb-2">
-                              <span className="flex items-center gap-1">
-                                <Clock className="w-3.5 h-3.5" />
-                                {opp.hours}h
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <MapPin className="w-3.5 h-3.5" />
-                                {opp.location.split(',')[0]}
-                              </span>
-                            </div>
-                            <div className="flex gap-2">
-                              <span className={`text-xs px-2 py-0.5 rounded-full ${categoryColors[opp.category]?.bg} ${categoryColors[opp.category]?.text}`}>
-                                {opp.category}
-                              </span>
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-sm">
-                                {opp.commitment}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
+                  )
+                })
+              )}
+            </div>
           </div>
         </main>
       )}

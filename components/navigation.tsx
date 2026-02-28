@@ -40,7 +40,7 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link href={isOrgView ? "/org" : "/"} className="flex items-center">
+          <Link href={isOrgView ? "/org/dashboard" : "/"} className="flex items-center">
             <span className="font-serif text-2xl md:text-3xl font-light tracking-wide">
               <span className="font-serif font-normal text-primary">Volun</span>
               <span className="font-serif font-normal text-orange-500">Track</span>
@@ -87,18 +87,11 @@ export function Navigation() {
                 >
                   Opportunities
                 </Link>
-                <Link
-                  href="/org/about"
-                  className={`text-sm tracking-wider uppercase transition-colors ${pathname?.startsWith("/org/about") ? "text-foreground font-semibold" : "text-foreground/70 hover:text-foreground"
-                    }`}
-                >
-                  About
-                </Link>
               </>
             )}
           </div>
 
-            <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4">
             {isLoggedIn && (
               <Button variant="ghost" size="icon" className="relative hidden sm:flex">
                 <Bell className="h-5 w-5" />
@@ -136,7 +129,7 @@ export function Navigation() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/about" className="flex items-center gap-2 cursor-pointer">
+                    <Link href={isOrgView ? "/org/about" : "/about"} className="flex items-center gap-2 cursor-pointer">
                       <Info className="h-4 w-4" />
                       About
                     </Link>
@@ -186,7 +179,7 @@ export function Navigation() {
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
-            </div>
+          </div>
         </div>
       </div>
 
@@ -216,13 +209,6 @@ export function Navigation() {
                 >
                   Feed
                 </Link>
-                <Link
-                  href="/about"
-                  className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  About
-                </Link>
               </>
             )}
             {isLoggedIn && isOrgView && (
@@ -241,13 +227,6 @@ export function Navigation() {
                 >
                   Opportunities
                 </Link>
-                <Link
-                  href="/org/about"
-                  className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  About
-                </Link>
               </>
             )}
             <div className="pt-4 border-t border-border flex flex-col gap-4">
@@ -260,13 +239,7 @@ export function Navigation() {
                   >
                     My account
                   </Link>
-                  <Link
-                    href="/about"
-                    className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    About
-                  </Link>
+
                   <button
                     className="block text-base tracking-wider uppercase text-destructive font-medium transition-colors text-left w-full"
                     onClick={async () => {
