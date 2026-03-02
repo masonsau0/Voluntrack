@@ -18,7 +18,7 @@ export function SignupForm({
     const [firstName, setFirstName] = useState("")
     const [lastName, setLastName] = useState("")
     const [email, setEmail] = useState("")
-    const [school, setSchool] = useState("")
+    const [role, setRole] = useState<"student" | "volunteer_org" | "">("")
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
@@ -45,7 +45,7 @@ export function SignupForm({
         if (!firstName) newErrors.firstName = "First Name is required"
         if (!lastName) newErrors.lastName = "Last Name is required"
         if (!email) newErrors.email = "Email is required"
-        if (!school) newErrors.school = "School name is required"
+        if (!role) newErrors.role = "Please select your account type"
         if (!password) newErrors.password = "Password is required"
         if (!confirmPassword) newErrors.confirmPassword = "Confirm Password is required"
 
@@ -60,13 +60,14 @@ export function SignupForm({
 
         setIsLoading(true)
         setErrors({})
+
         try {
             await signUp({
                 email,
                 password,
                 firstName,
                 lastName,
-                school
+                role: role as "student" | "volunteer_org"
             })
             router.push("/signup/preferences")
         } catch (err) {
@@ -142,18 +143,36 @@ export function SignupForm({
                                 {errors.email && <p className="text-sm text-red-500 font-medium">{errors.email}</p>}
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="school">School name</Label>
-                                <Input
-                                    id="school"
-                                    placeholder=""
-                                    required
-                                    value={school}
-                                    onChange={(e) => {
-                                        setSchool(e.target.value)
-                                        if (errors.school) setErrors({ ...errors, school: undefined })
-                                    }}
-                                />
-                                {errors.school && <p className="text-sm text-red-500 font-medium">{errors.school}</p>}
+                                <Label>Account type</Label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setRole("student")
+                                            if (errors.role) setErrors({ ...errors, role: undefined })
+                                        }}
+                                        className={`rounded-md border px-3 py-2 text-sm font-medium transition-colors ${role === "student"
+                                            ? "border-primary bg-primary text-primary-foreground"
+                                            : "border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                                            }`}
+                                    >
+                                        🎓 Student
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setRole("volunteer_org")
+                                            if (errors.role) setErrors({ ...errors, role: undefined })
+                                        }}
+                                        className={`rounded-md border px-3 py-2 text-sm font-medium transition-colors ${role === "volunteer_org"
+                                            ? "border-primary bg-primary text-primary-foreground"
+                                            : "border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                                            }`}
+                                    >
+                                        🤝 Volunteer Org
+                                    </button>
+                                </div>
+                                {errors.role && <p className="text-sm text-red-500 font-medium">{errors.role}</p>}
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="password">Password</Label>
