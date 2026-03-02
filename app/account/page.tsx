@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useAuth } from "@/contexts/AuthContext"
 import { updateUserProfile } from "@/lib/firebase/auth"
+import { updateStudentProfile } from "@/lib/firebase/student-profiles"
 import { toast } from "sonner"
 import { INTERESTS, VOLUNTEER_OPTIONS, AVAILABILITY_OPTIONS } from "@/lib/preferences"
 import { getUserApplications, UserApplication } from "@/lib/firebase/dashboard"
@@ -116,9 +117,9 @@ export default function AccountPage() {
         setIsSaving(true)
         setPrefsSaveError(null)
         try {
-            await updateUserProfile(user.uid, {
+            await updateStudentProfile(user.uid, {
                 interests: selectedInterests,
-                volunteerPreference: volunteerPreference || undefined,
+                volunteerFormat: volunteerPreference || undefined,
                 availability: availability || undefined,
             })
             await refreshProfile()
