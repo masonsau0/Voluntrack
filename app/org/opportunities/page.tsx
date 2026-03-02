@@ -5,6 +5,10 @@ import Link from "next/link"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 import { Navigation } from "@/components/navigation"
+import { getOrgOpportunities, deleteOpportunity, updateOpportunity } from "@/lib/firebase/org"
+import { Opportunity } from "@/lib/firebase/opportunities"
+import { useAuth } from "@/contexts/AuthContext"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -73,341 +77,6 @@ const commitmentColors: { [key: string]: { bg: string; text: string } } = {
   "Monthly": { bg: "bg-purple-100", text: "text-purple-700" },
 }
 
-// Sample opportunities data
-const sampleOpportunities = [
-  // ENVIRONMENT - 8 opportunities
-  {
-    id: 1,
-    title: "Trinity Bellwoods Park Clean-Up",
-    organization: "Toronto Parks Foundation",
-    description: "Join us for a community park clean-up event. Help maintain our beautiful urban green spaces by picking up litter, removing invasive plants, and beautifying the park grounds.",
-    date: "Saturday, Jan 25, 2026",
-    dateISO: "2026-01-25",
-    time: "9:00 AM - 12:00 PM",
-    location: "790 Queen St W",
-    hours: 3,
-    spotsLeft: 12,
-    totalSpots: 30,
-    category: "Environment",
-    commitment: "One-time",
-    skills: ["Outdoor Work", "Teamwork"],
-    featured: true,
-    image: "/event-park-cleanup.png",
-  },
-  {
-    id: 8,
-    title: "Community Garden Volunteer",
-    organization: "FoodShare Toronto",
-    description: "Help grow fresh vegetables for community food programs. Tasks include planting, weeding, watering, and harvesting. Learn urban farming techniques.",
-    date: "Spring-Fall Season",
-    dateISO: "2025-04-01",
-    time: "9:00 AM - 1:00 PM",
-    location: "90 Croatia St",
-    hours: 4,
-    spotsLeft: 10,
-    totalSpots: 20,
-    category: "Environment",
-    commitment: "Monthly",
-    skills: ["Gardening", "Physical Work"],
-    featured: false,
-    image: "/event-volunteer-fair.png",
-  },
-  {
-    id: 13,
-    title: "Ravine Restoration Project",
-    organization: "Toronto Nature Conservancy",
-    description: "Help restore Toronto's ravine ecosystems by planting native species and removing invasive plants. Training provided.",
-    date: "Saturday, Jan 31, 2026",
-    dateISO: "2026-01-31",
-    time: "8:00 AM - 12:00 PM",
-    location: "Don Valley",
-    hours: 4,
-    spotsLeft: 15,
-    totalSpots: 25,
-    category: "Environment",
-    commitment: "Weekly",
-    skills: ["Physical Work", "Nature Knowledge"],
-    featured: true,
-    image: "/event-park-cleanup.png",
-  },
-  {
-    id: 14,
-    title: "Beach Cleanup Initiative",
-    organization: "Great Lakes Conservation",
-    description: "Weekly beach cleanup at Toronto's waterfront. Help protect marine life and keep our beaches beautiful.",
-    date: "Sunday, Feb 1, 2026",
-    dateISO: "2026-02-01",
-    time: "10:00 AM - 1:00 PM",
-    location: "Woodbine Beach",
-    hours: 3,
-    spotsLeft: 20,
-    totalSpots: 40,
-    category: "Environment",
-    commitment: "Weekly",
-    skills: ["Outdoor Work"],
-    featured: false,
-    image: "/event-volunteer-fair.png",
-  },
-  {
-    id: 15,
-    title: "Tree Planting Campaign",
-    organization: "LEAF Toronto",
-    description: "Plant trees across the city to increase urban canopy coverage. No experience needed.",
-    date: "Feb 14, 2026",
-    dateISO: "2026-02-14",
-    time: "9:00 AM - 3:00 PM",
-    location: "Various Parks",
-    hours: 6,
-    spotsLeft: 50,
-    totalSpots: 100,
-    category: "Environment",
-    commitment: "One-time",
-    skills: ["Physical Work", "Teamwork"],
-    featured: false,
-    image: "/event-park-cleanup.png",
-  },
-  {
-    id: 16,
-    title: "Urban Wildlife Monitoring",
-    organization: "Toronto Zoo Conservation",
-    description: "Help track and document urban wildlife populations. Contribute to citizen science.",
-    date: "Flexible",
-    dateISO: "2025-03-01",
-    time: "Various times",
-    location: "GTA Region",
-    hours: 2,
-    spotsLeft: 8,
-    totalSpots: 15,
-    category: "Environment",
-    commitment: "Monthly",
-    skills: ["Observation", "Data Entry"],
-    featured: false,
-    image: "/event-volunteer-fair.png",
-  },
-  {
-    id: 17,
-    title: "Pollinator Garden Workshop",
-    organization: "David Suzuki Foundation",
-    description: "Create pollinator-friendly gardens in public spaces. Learn about native plants.",
-    date: "Mar 8, 2025",
-    dateISO: "2025-03-08",
-    time: "10:00 AM - 2:00 PM",
-    location: "High Park",
-    hours: 4,
-    spotsLeft: 6,
-    totalSpots: 20,
-    category: "Environment",
-    commitment: "One-time",
-    skills: ["Gardening", "Nature Knowledge"],
-    featured: false,
-    image: "/event-park-cleanup.png",
-  },
-  {
-    id: 18,
-    title: "River Cleanup & Kayak Tour",
-    organization: "Paddle Toronto",
-    description: "Combine environmental stewardship with adventure! Clean up the Humber River while kayaking.",
-    date: "May 10, 2025",
-    dateISO: "2025-05-10",
-    time: "8:00 AM - 12:00 PM",
-    location: "Humber River",
-    hours: 4,
-    spotsLeft: 10,
-    totalSpots: 20,
-    category: "Environment",
-    commitment: "One-time",
-    skills: ["Swimming", "Physical Fitness"],
-    featured: true,
-    image: "/event-volunteer-fair.png",
-  },
-  // COMMUNITY OUTREACH
-  {
-    id: 2,
-    title: "Food Bank Sorting & Distribution",
-    organization: "Daily Bread Food Bank",
-    description: "Help sort and distribute food donations to families in need. Tasks include organizing donations and packing food hampers.",
-    date: "Saturday, Jan 24, 2026",
-    dateISO: "2026-01-24",
-    time: "10:00 AM - 2:00 PM",
-    location: "191 New Toronto St",
-    hours: 4,
-    spotsLeft: 8,
-    totalSpots: 20,
-    category: "Education",
-    commitment: "Weekly",
-    skills: ["Organization", "Physical Work"],
-    featured: true,
-    image: "/event-volunteer-fair.png",
-  },
-  {
-    id: 10,
-    title: "Habitat for Humanity Build Day",
-    organization: "Habitat for Humanity GTA",
-    description: "Help build affordable housing for families in need. No construction experience necessary.",
-    date: "Feb 7, 2026",
-    dateISO: "2026-02-07",
-    time: "8:30 AM - 3:30 PM",
-    location: "Various GTA",
-    hours: 7,
-    spotsLeft: 25,
-    totalSpots: 40,
-    category: "Education",
-    commitment: "One-time",
-    skills: ["Physical Work", "Teamwork"],
-    featured: true,
-    image: "/event-volunteer-fair.png",
-  },
-  // HEALTHCARE
-  {
-    id: 3,
-    title: "Hospital Patient Companion",
-    organization: "Toronto General Hospital",
-    description: "Provide friendly companionship to hospital patients. Duties include chatting, reading, and offering emotional support.",
-    date: "Flexible Schedule",
-    dateISO: "2025-02-15",
-    time: "Various shifts",
-    location: "200 Elizabeth St",
-    hours: 4,
-    spotsLeft: 5,
-    totalSpots: 15,
-    category: "Healthcare",
-    commitment: "Weekly",
-    skills: ["Communication", "Empathy", "Patience"],
-    featured: false,
-    image: "/event-hospital-volunteer.png",
-  },
-  // ANIMAL WELFARE
-  {
-    id: 4,
-    title: "Animal Shelter Dog Walker",
-    organization: "Toronto Humane Society",
-    description: "Walk and socialize shelter dogs to help keep them healthy and happy while they wait for their forever homes.",
-    date: "Daily Opportunities",
-    dateISO: "2025-02-10",
-    time: "8:00 AM - 6:00 PM",
-    location: "11 River St",
-    hours: 2,
-    spotsLeft: 20,
-    totalSpots: 50,
-    category: "Animal Welfare",
-    commitment: "Weekly",
-    skills: ["Animal Handling", "Physical Fitness"],
-    featured: true,
-    image: "/event-animal-shelter.png",
-  },
-  // EDUCATION
-  {
-    id: 5,
-    title: "Youth Tutoring Program",
-    organization: "Big Brothers Big Sisters",
-    description: "Tutor elementary and high school students in various subjects including math, science, and English.",
-    date: "Weekday Evenings",
-    dateISO: "2025-02-05",
-    time: "4:00 PM - 7:00 PM",
-    location: "3005 Danforth Ave",
-    hours: 3,
-    spotsLeft: 6,
-    totalSpots: 12,
-    category: "Education",
-    commitment: "Weekly",
-    skills: ["Teaching", "Patience", "Subject Knowledge"],
-    featured: false,
-    image: "/event-youth-mentorship.png",
-  },
-  {
-    id: 11,
-    title: "ESL Conversation Partner",
-    organization: "Toronto Public Library",
-    description: "Practice English conversation with newcomers to Canada. Help them build confidence and language skills.",
-    date: "Twice Weekly",
-    dateISO: "2025-02-03",
-    time: "6:00 PM - 7:30 PM",
-    location: "789 Yonge St",
-    hours: 1.5,
-    spotsLeft: 8,
-    totalSpots: 15,
-    category: "Education",
-    commitment: "Weekly",
-    skills: ["Communication", "Patience"],
-    featured: false,
-    image: "/event-youth-mentorship.png",
-  },
-  // ARTS & CULTURE
-  {
-    id: 6,
-    title: "Community Mural Project",
-    organization: "Arts for All Toronto",
-    description: "Help create a vibrant community mural. No art experience necessary - just enthusiasm!",
-    date: "Mar 15-16, 2025",
-    dateISO: "2025-03-15",
-    time: "10:00 AM - 4:00 PM",
-    location: "1550 St Clair Ave W",
-    hours: 6,
-    spotsLeft: 15,
-    totalSpots: 25,
-    category: "Arts & Culture",
-    commitment: "One-time",
-    skills: ["Creativity", "Teamwork"],
-    featured: false,
-    image: "/event-art-workshop.png",
-  },
-  {
-    id: 12,
-    title: "Theatre Production Assistant",
-    organization: "Young People's Theatre",
-    description: "Support live theatre productions. Roles include ushering, concessions, and backstage support.",
-    date: "Show Season",
-    dateISO: "2025-03-01",
-    time: "Various times",
-    location: "165 Front St E",
-    hours: 4,
-    spotsLeft: 12,
-    totalSpots: 20,
-    category: "Arts & Culture",
-    commitment: "Monthly",
-    skills: ["Customer Service", "Flexibility"],
-    featured: false,
-    image: "/event-art-workshop.png",
-  },
-  // SENIOR CARE
-  {
-    id: 7,
-    title: "Senior Tech Support",
-    organization: "Reena Foundation",
-    description: "Help seniors learn to use smartphones, tablets, and computers. Teach them to video call and use social media.",
-    date: "Every Wednesday",
-    dateISO: "2025-02-12",
-    time: "2:00 PM - 4:00 PM",
-    location: "927 Clark Ave W",
-    hours: 2,
-    spotsLeft: 4,
-    totalSpots: 8,
-    category: "Senior Care",
-    commitment: "Weekly",
-    skills: ["Technology", "Patience"],
-    featured: false,
-    image: "/event-youth-mentorship.png",
-  },
-  // YOUTH PROGRAMS
-  {
-    id: 9,
-    title: "Youth Coding Workshop Mentor",
-    organization: "Ladies Learning Code",
-    description: "Mentor young people learning to code at weekend workshops. Technical background required.",
-    date: "Monthly Workshops",
-    dateISO: "2025-02-22",
-    time: "10:00 AM - 3:00 PM",
-    location: "483 Queen St W",
-    hours: 5,
-    spotsLeft: 3,
-    totalSpots: 10,
-    category: "Education",
-    commitment: "Monthly",
-    skills: ["Programming", "Teaching"],
-    featured: true,
-    image: "/event-youth-mentorship.png",
-  },
-]
 
 const allCategories = [...CATEGORIES]
 const commitmentTypes = ["One-time", "Weekly", "Monthly"]
@@ -419,16 +88,40 @@ const sortOptions = [
 ]
 
 export default function OrgOpportunitiesPage() {
+  const { userProfile, loading: authLoading } = useAuth()
   const searchParams = useSearchParams()
-  const [selectedOpportunity, setSelectedOpportunity] = useState<typeof sampleOpportunities[0] | null>(null)
+  const [opportunities, setOpportunities] = useState<Opportunity[]>([])
+  const [loadingData, setLoadingData] = useState(true)
+  const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null)
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0)
   const [searchQuery, setSearchQuery] = useState("")
   const [viewMode, setViewMode] = useState<"browse" | "manage">(searchParams.get("view") === "manage" ? "manage" : "browse")
-  const [managePostings, setManagePostings] = useState(sampleOpportunities)
-  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [manageSearch, setManageSearch] = useState("")
-  const [editingPosting, setEditingPosting] = useState<typeof sampleOpportunities[0] | null>(null)
+  const [editingPosting, setEditingPosting] = useState<Opportunity | null>(null)
   const [editForm, setEditForm] = useState({ title: "", description: "", location: "", date: "", time: "", hours: 0, category: "" })
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchData = async () => {
+      if (userProfile?.uid) {
+        try {
+          const opps = await getOrgOpportunities(userProfile.uid);
+          if (mounted) {
+            setOpportunities(opps);
+            setLoadingData(false);
+          }
+        } catch (error) {
+          console.error("Error fetching opportunities:", error);
+          if (mounted) setLoadingData(false);
+        }
+      } else if (!authLoading) {
+        if (mounted) setLoadingData(false);
+      }
+    };
+    fetchData();
+    return () => { mounted = false; };
+  }, [userProfile?.uid, authLoading]);
 
   // Filter states
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
@@ -443,8 +136,8 @@ export default function OrgOpportunitiesPage() {
 
   // Featured opportunities for hero carousel
   const featuredOpportunities = useMemo(() =>
-    sampleOpportunities.filter(o => o.featured),
-    [])
+    opportunities.filter(o => o.featured),
+    [opportunities])
 
   // Reset and start timer function
   const resetTimer = useCallback(() => {
@@ -488,7 +181,7 @@ export default function OrgOpportunitiesPage() {
 
   // Filter and sort opportunities
   const filteredOpportunities = useMemo(() => {
-    let filtered = [...sampleOpportunities]
+    let filtered = [...opportunities]
 
     // Search filter
     if (searchQuery) {
@@ -549,11 +242,11 @@ export default function OrgOpportunitiesPage() {
     }
 
     return filtered
-  }, [searchQuery, selectedCategories, selectedCommitments, selectedHours, selectedDateRange, sortBy])
+  }, [opportunities, searchQuery, selectedCategories, selectedCommitments, selectedHours, selectedDateRange, sortBy])
 
   // Group by category
   const groupedByCategory = useMemo(() => {
-    const groups: { [key: string]: typeof sampleOpportunities } = {}
+    const groups: { [key: string]: Opportunity[] } = {}
     filteredOpportunities.forEach((opp) => {
       if (!groups[opp.category]) {
         groups[opp.category] = []
@@ -609,16 +302,23 @@ export default function OrgOpportunitiesPage() {
   const hasActiveFilters = selectedCategories.length > 0 || selectedCommitments.length > 0 || selectedHours.length > 0 || !!selectedDateRange?.from || searchQuery
 
   // Manage view helpers
-  const filteredManagePostings = managePostings.filter(
+  const filteredManagePostings = opportunities.filter(
     (p) =>
       p.title.toLowerCase().includes(manageSearch.toLowerCase()) ||
       p.organization.toLowerCase().includes(manageSearch.toLowerCase()) ||
       p.category.toLowerCase().includes(manageSearch.toLowerCase())
   )
 
-  const handleDelete = (id: number) => {
-    setManagePostings(managePostings.filter((p) => p.id !== id))
-    setDeleteConfirm(null)
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteOpportunity(id);
+      setOpportunities(opportunities.filter((p) => p.id !== id));
+      setDeleteConfirm(null);
+      toast.success("Opportunity deleted");
+    } catch (error) {
+      console.error("Error deleting opportunity:", error);
+      toast.error("Failed to delete opportunity");
+    }
   }
 
   const manageCategoryColors: { [key: string]: { bg: string; text: string; border: string; leftColor: string } } = {
@@ -632,7 +332,7 @@ export default function OrgOpportunitiesPage() {
   }
 
   // Opportunity Card - memoized to prevent re-renders from parent state changes
-  const OpportunityCard = React.memo(({ opportunity }: { opportunity: typeof sampleOpportunities[0] }) => {
+  const OpportunityCard = React.memo(({ opportunity }: { opportunity: Opportunity }) => {
     const [isHovered, setIsHovered] = useState(false)
     const categoryColor = categoryColors[opportunity.category] || categoryColors["Environment"]
     const commitmentColor = commitmentColors[opportunity.commitment]
@@ -752,7 +452,7 @@ export default function OrgOpportunitiesPage() {
   OpportunityCard.displayName = 'OpportunityCard'
 
   // Scrollable row component
-  const OpportunityRow = ({ title, opportunities, titleColor = "text-slate-800" }: { title: string, opportunities: typeof sampleOpportunities, titleColor?: string }) => {
+  const OpportunityRow = ({ title, opportunities, titleColor = "text-slate-800" }: { title: string, opportunities: Opportunity[], titleColor?: string }) => {
     const scrollRef = useRef<HTMLDivElement>(null)
 
     const scroll = (direction: 'left' | 'right') => {
@@ -1453,13 +1153,30 @@ export default function OrgOpportunitiesPage() {
               </Button>
               <Button
                 className="bg-sky-600 hover:bg-sky-700 text-white rounded-xl px-6"
-                onClick={() => {
-                  setManagePostings(prev => prev.map(p =>
-                    p.id === editingPosting.id
-                      ? { ...p, title: editForm.title, description: editForm.description, location: editForm.location, date: editForm.date, time: editForm.time, hours: editForm.hours, category: editForm.category }
-                      : p
-                  ))
-                  setEditingPosting(null)
+                onClick={async () => {
+                  if (!editingPosting) return;
+                  try {
+                    const dataToUpdate = {
+                        title: editForm.title,
+                        description: editForm.description,
+                        location: editForm.location,
+                        date: editForm.date,
+                        time: editForm.time,
+                        hours: editForm.hours,
+                        category: editForm.category
+                    };
+                    await updateOpportunity(editingPosting.id, dataToUpdate);
+                    setOpportunities(prev => prev.map(p =>
+                      p.id === editingPosting.id
+                        ? { ...p, ...dataToUpdate }
+                        : p
+                    ));
+                    setEditingPosting(null);
+                    toast.success("Opportunity updated successfully");
+                  } catch (error) {
+                      console.error("Failed to update opportunity", error);
+                      toast.error("Failed to update opportunity");
+                  }
                 }}
               >
                 Save Changes

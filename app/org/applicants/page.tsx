@@ -3,6 +3,10 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Navigation } from "@/components/navigation"
+import { getOrgApplicants, OrgApplicant } from "@/lib/firebase/org"
+import { updateApplicationStatus } from "@/lib/firebase/dashboard"
+import { toast } from "sonner"
+import { useEffect } from "react"
 import { useAuth } from "@/contexts/AuthContext"
 import {
     ArrowLeft,
@@ -25,114 +29,70 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 
-// Sample applicant data
-const sampleApplicants = [
-    {
-        id: 1,
-        name: "Sarah Chen",
-        email: "sarah.chen@email.com",
-        phone: "(416) 555-0101",
-        appliedDate: "2025-07-15",
-        status: "pending" as const,
-        opportunity: "Trinity Bellwoods Park Clean-Up",
-        category: "Environment",
-        message: "I'm passionate about environmental conservation and have participated in several clean-up events before. I'd love to contribute to maintaining Trinity Bellwoods Park!",
-        skills: ["Outdoor Work", "Teamwork"],
-    },
-    {
-        id: 2,
-        name: "Marcus Johnson",
-        email: "marcus.j@email.com",
-        phone: "(647) 555-0202",
-        appliedDate: "2025-07-14",
-        status: "approved" as const,
-        opportunity: "Trinity Bellwoods Park Clean-Up",
-        category: "Environment",
-        message: "Looking to gain volunteer experience and contribute to the community.",
-        skills: ["Physical Fitness", "Teamwork"],
-    },
-    {
-        id: 3,
-        name: "Priya Patel",
-        email: "priya.p@email.com",
-        phone: "(416) 555-0303",
-        appliedDate: "2025-07-13",
-        status: "pending" as const,
-        opportunity: "Food Bank Sorting",
-        category: "Community Outreach",
-        message: "I have experience volunteering at food banks and sorting events. I'm available every Saturday morning!",
-        skills: ["Organization", "Communication"],
-    },
-    {
-        id: 4,
-        name: "David Kim",
-        email: "david.kim@email.com",
-        phone: "(905) 555-0404",
-        appliedDate: "2025-07-12",
-        status: "rejected" as const,
-        opportunity: "Community Garden Planting",
-        category: "Environment",
-        message: "Interested in gardening and sustainability. Would love to learn more about community gardens.",
-        skills: ["Gardening", "Outdoor Work"],
-    },
-    {
-        id: 5,
-        name: "Emily Rodriguez",
-        email: "emily.r@email.com",
-        phone: "(416) 555-0505",
-        appliedDate: "2025-07-11",
-        status: "approved" as const,
-        opportunity: "Beach Cleanup Drive",
-        category: "Environment",
-        message: "Environmental science student eager to make a real impact. I bring my own reusable gloves and bags!",
-        skills: ["Teamwork", "Environmental Science"],
-    },
-    {
-        id: 6,
-        name: "Jordan Lee",
-        email: "jordan.lee@email.com",
-        phone: "(647) 555-0606",
-        appliedDate: "2025-07-10",
-        status: "pending" as const,
-        opportunity: "Food Bank Sorting",
-        category: "Community Outreach",
-        message: "I want to help address food insecurity in our community. I can lift heavy boxes and have my own transportation.",
-        skills: ["Physical Fitness", "Organization"],
-    },
-]
 
 const statusConfig = {
     pending: { label: "Pending", bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", icon: Clock },
     approved: { label: "Approved", bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", icon: CheckCircle },
-    rejected: { label: "Declined", bg: "bg-red-50", text: "text-red-700", border: "border-red-200", icon: XCircle },
+    denied: { label: "Declined", bg: "bg-red-50", text: "text-red-700", border: "border-red-200", icon: XCircle },
+    completed: { label: "Completed", bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", icon: CheckCircle },
 }
 
 export default function ApplicantsPage() {
-    const { userProfile, loading } = useAuth()
+    const { userProfile, loading: authLoading } = useAuth()
     const [searchQuery, setSearchQuery] = useState("")
     const [statusFilter, setStatusFilter] = useState<string>("all")
-    const [applicants, setApplicants] = useState(sampleApplicants)
-    const [selectedApplicant, setSelectedApplicant] = useState<typeof sampleApplicants[0] | null>(null)
+    const [applicants, setApplicants] = useState<OrgApplicant[]>([])
+    const [loadingData, setLoadingData] = useState(true)
+    const [selectedApplicant, setSelectedApplicant] = useState<OrgApplicant | null>(null)
+
+    useEffect(() => {
+        let mounted = true;
+        const fetchData = async () => {
+            if (userProfile?.uid) {
+                try {
+                    const apps = await getOrgApplicants(userProfile.uid);
+                    if (mounted) {
+                        setApplicants(apps);
+                        setLoadingData(false);
+                    }
+                } catch (error) {
+                    console.error("Error fetching applicants:", error);
+                    if (mounted) setLoadingData(false);
+                }
+            } else if (!authLoading) {
+                if (mounted) setLoadingData(false);
+            }
+        };
+        fetchData();
+        return () => { mounted = false; };
+    }, [userProfile?.uid, authLoading]);
 
     // Stats
     const totalApplicants = applicants.length
     const pendingCount = applicants.filter(a => a.status === "pending").length
     const approvedCount = applicants.filter(a => a.status === "approved").length
-    const declinedCount = applicants.filter(a => a.status === "rejected").length
+    const declinedCount = applicants.filter(a => a.status === "denied").length
 
     // Filtered applicants
     const filteredApplicants = applicants.filter(a => {
-        const matchesSearch = a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            a.opportunity.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            a.email.toLowerCase().includes(searchQuery.toLowerCase())
+        const matchesSearch = a.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            a.userEmail.toLowerCase().includes(searchQuery.toLowerCase())
         const matchesStatus = statusFilter === "all" || a.status === statusFilter
         return matchesSearch && matchesStatus
     })
 
-    const updateStatus = (id: number, newStatus: "approved" | "rejected") => {
-        setApplicants(prev => prev.map(a => a.id === id ? { ...a, status: newStatus } : a))
-        if (selectedApplicant?.id === id) {
-            setSelectedApplicant(prev => prev ? { ...prev, status: newStatus } : null)
+    const updateStatus = async (userId: string, oppId: string, id: string, newStatus: "approved" | "denied") => {
+        try {
+            await updateApplicationStatus(userId, oppId, newStatus);
+            setApplicants(prev => prev.map(a => a.id === id ? { ...a, status: newStatus } : a));
+            if (selectedApplicant?.id === id) {
+                setSelectedApplicant(prev => prev ? { ...prev, status: newStatus } : null);
+            }
+            toast.success("Application status updated!");
+        } catch (error) {
+            console.error("Failed to update status", error);
+            toast.error("Failed to update status");
         }
     }
 
@@ -242,7 +202,7 @@ export default function ApplicantsPage() {
                             ) : (
                                 <div className="divide-y divide-slate-200">
                                     {filteredApplicants.map((applicant) => {
-                                        const status = statusConfig[applicant.status]
+                                        const status = statusConfig[applicant.status as keyof typeof statusConfig]
                                         const StatusIcon = status.icon
 
                                         return (
@@ -255,21 +215,21 @@ export default function ApplicantsPage() {
                                                     <div className="flex items-start gap-4 flex-1 min-w-0">
                                                         {/* Avatar */}
                                                         <div className="w-11 h-11 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
-                                                            {applicant.name.split(" ").map(n => n[0]).join("")}
+                                                            {applicant.userName.split(" ").map((n: string) => n[0]).join("")}
                                                         </div>
                                                         <div className="flex-1 min-w-0">
                                                             <div className="flex items-center gap-2 mb-0.5">
-                                                                <h3 className="font-semibold text-slate-900">{applicant.name}</h3>
+                                                                <h3 className="font-semibold text-slate-900">{applicant.userName}</h3>
                                                                 <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${status.bg} ${status.text} border ${status.border}`}>
                                                                     <StatusIcon className="w-3 h-3" />
                                                                     {status.label}
                                                                 </span>
                                                             </div>
-                                                            <p className="text-sm text-slate-600">{applicant.opportunity}</p>
+                                                            <p className="text-sm text-slate-600">{applicant.title}</p>
                                                             <div className="flex items-center gap-3 mt-1.5 text-xs text-slate-500">
                                                                 <span className="flex items-center gap-1">
                                                                     <Mail className="w-3 h-3" />
-                                                                    {applicant.email}
+                                                                    {applicant.userEmail}
                                                                 </span>
                                                                 <span className="flex items-center gap-1">
                                                                     <Calendar className="w-3 h-3" />
@@ -284,7 +244,7 @@ export default function ApplicantsPage() {
                                                                 <Button
                                                                     size="sm"
                                                                     className="rounded-lg h-8 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
-                                                                    onClick={(e) => { e.stopPropagation(); updateStatus(applicant.id, "approved") }}
+                                                                    onClick={(e) => { e.stopPropagation(); updateStatus(applicant.userId, applicant.opportunityId, applicant.id, "approved") }}
                                                                 >
                                                                     <CheckCircle className="w-3.5 h-3.5 mr-1" />
                                                                     Approve
@@ -293,7 +253,7 @@ export default function ApplicantsPage() {
                                                                     size="sm"
                                                                     variant="outline"
                                                                     className="rounded-lg h-8 px-3 border-red-300 text-red-700 hover:bg-red-50 text-xs"
-                                                                    onClick={(e) => { e.stopPropagation(); updateStatus(applicant.id, "rejected") }}
+                                                                    onClick={(e) => { e.stopPropagation(); updateStatus(applicant.userId, applicant.opportunityId, applicant.id, "denied") }}
                                                                 >
                                                                     <XCircle className="w-3.5 h-3.5 mr-1" />
                                                                     Decline
@@ -323,7 +283,7 @@ export default function ApplicantsPage() {
 
             {/* Applicant Detail Modal */}
             {selectedApplicant && (() => {
-                const status = statusConfig[selectedApplicant.status]
+                const status = statusConfig[selectedApplicant.status as keyof typeof statusConfig]
                 const StatusIcon = status.icon
                 return (
                     <div
@@ -338,10 +298,10 @@ export default function ApplicantsPage() {
                             <div className="flex items-center justify-between p-6 border-b border-slate-100">
                                 <div className="flex items-center gap-3">
                                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center text-white font-bold">
-                                        {selectedApplicant.name.split(" ").map(n => n[0]).join("")}
+                                        {selectedApplicant.userName.split(" ").map((n: string) => n[0]).join("")}
                                     </div>
                                     <div>
-                                        <h2 className="text-lg font-bold text-slate-900">{selectedApplicant.name}</h2>
+                                        <h2 className="text-lg font-bold text-slate-900">{selectedApplicant.userName}</h2>
                                         <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${status.bg} ${status.text} border ${status.border}`}>
                                             <StatusIcon className="w-3 h-3" />
                                             {status.label}
@@ -361,7 +321,7 @@ export default function ApplicantsPage() {
                                 {/* Applied For */}
                                 <div>
                                     <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Applied For</label>
-                                    <p className="text-sm font-semibold text-slate-900 mt-0.5">{selectedApplicant.opportunity}</p>
+                                    <p className="text-sm font-semibold text-slate-900 mt-0.5">{selectedApplicant.title}</p>
                                     <span className="text-xs text-slate-500">{selectedApplicant.category}</span>
                                 </div>
 
@@ -371,12 +331,12 @@ export default function ApplicantsPage() {
                                         <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Email</label>
                                         <p className="text-sm text-slate-900 mt-0.5 flex items-center gap-1.5">
                                             <Mail className="w-3.5 h-3.5 text-slate-400" />
-                                            {selectedApplicant.email}
+                                            {selectedApplicant.userEmail}
                                         </p>
                                     </div>
                                     <div>
                                         <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Phone</label>
-                                        <p className="text-sm text-slate-900 mt-0.5">{selectedApplicant.phone}</p>
+                                        <p className="text-sm text-slate-900 mt-0.5">{selectedApplicant.userPhone || "Not provided"}</p>
                                     </div>
                                 </div>
 
@@ -393,7 +353,7 @@ export default function ApplicantsPage() {
                                 <div>
                                     <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Skills</label>
                                     <div className="flex flex-wrap gap-2 mt-1.5">
-                                        {selectedApplicant.skills.map(skill => (
+                                        {(selectedApplicant.skills || []).map(skill => (
                                             <span key={skill} className="text-xs px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200 font-medium">
                                                 {skill}
                                             </span>
@@ -415,7 +375,7 @@ export default function ApplicantsPage() {
                                 <div className="flex items-center gap-3 p-6 border-t border-slate-100">
                                     <Button
                                         className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl"
-                                        onClick={() => updateStatus(selectedApplicant.id, "approved")}
+                                        onClick={() => updateStatus(selectedApplicant.userId, selectedApplicant.opportunityId, selectedApplicant.id, "approved")}
                                     >
                                         <CheckCircle className="w-4 h-4 mr-2" />
                                         Approve Applicant
@@ -423,7 +383,7 @@ export default function ApplicantsPage() {
                                     <Button
                                         variant="outline"
                                         className="flex-1 rounded-xl border-red-300 text-red-700 hover:bg-red-50"
-                                        onClick={() => updateStatus(selectedApplicant.id, "rejected")}
+                                        onClick={() => updateStatus(selectedApplicant.userId, selectedApplicant.opportunityId, selectedApplicant.id, "denied")}
                                     >
                                         <XCircle className="w-4 h-4 mr-2" />
                                         Decline Applicant
