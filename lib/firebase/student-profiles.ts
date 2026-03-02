@@ -14,6 +14,7 @@ export interface StudentProfile {
     volunteerFormat: string; // "hybrid" | "in-person" | "remote" | "no-preference"
     availability: string;    // "weekends" | "weekdays" | "any-time"
     hoursCompleted: number;  // Hours logged so far
+    badges: string[];        // Earned badge IDs, e.g. ["first-steps", "helping-hand"]
     updatedAt: any;
 }
 
@@ -31,6 +32,7 @@ export async function createStudentProfile(
         volunteerFormat: data.volunteerFormat,
         availability: data.availability,
         hoursCompleted: 0,
+        badges: [],
         updatedAt: serverTimestamp(),
     };
     await setDoc(doc(db, "student_profiles", uid), profile);

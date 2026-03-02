@@ -196,12 +196,12 @@ export async function updateApplicationStatus(
         const oldStatus = appDoc.data().status;
         await updateDoc(appRef, { status, updatedAt: serverTimestamp() });
 
-        // If completed, increment user hours and check for badges
+        // If completed, increment student hours and check for badges in student_profiles
         if (status === "completed" && oldStatus !== "completed") {
-            const userRef = doc(db, "users", userId);
-            const userDoc = await getDoc(userRef);
-            const currentHours = userDoc.data()?.totalHours || 0;
-            const currentBadges = userDoc.data()?.badges || [];
+            const profileRef = doc(db, "student_profiles", userId);
+            const profileDoc = await getDoc(profileRef);
+            const currentHours = profileDoc.data()?.hoursCompleted || 0;
+            const currentBadges = profileDoc.data()?.badges || [];
             const hoursToAdd = appDoc.data().hours || 0;
             const newTotalHours = currentHours + hoursToAdd;
 
@@ -212,8 +212,8 @@ export async function updateApplicationStatus(
                 }
             });
 
-            await updateDoc(userRef, {
-                totalHours: newTotalHours,
+            await updateDoc(profileRef, {
+                hoursCompleted: newTotalHours,
                 badges: newBadges,
                 updatedAt: serverTimestamp()
             });
