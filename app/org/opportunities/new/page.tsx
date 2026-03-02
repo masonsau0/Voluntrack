@@ -444,7 +444,7 @@ export default function PostOpportunityPage() {
                                         <Button
                                             type="button"
                                             variant="outline"
-                                            className="rounded-xl h-12 px-6 border-slate-300 hover:bg-slate-50"
+                                            className="rounded-xl h-12 px-6 border-slate-300 text-slate-700 hover:bg-slate-200 hover:text-slate-900 hover:border-slate-400"
                                         >
                                             Cancel
                                         </Button>

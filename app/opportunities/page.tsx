@@ -674,8 +674,7 @@ export default function OpportunitiesPage() {
                   Apply Now
                 </Button>
                 <Button
-                  variant="outline"
-                  className="border-2 border-slate-300 text-slate-700 hover:bg-white/80 px-5 py-5 rounded-full text-sm gap-2 bg-white/50 backdrop-blur-sm"
+                  className="bg-sky-600 hover:bg-sky-700 text-white px-6 py-5 rounded-full text-sm font-semibold gap-2 shadow-lg shadow-sky-200"
                   onClick={() => setSelectedOpportunity(currentHero)}
                 >
                   <Info className="w-4 h-4" />
@@ -1080,16 +1079,19 @@ export default function OpportunitiesPage() {
           onClick={() => setSelectedOpportunity(null)}
         >
           <div
-            className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+            className="bg-slate-100 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header with Image */}
-            <div className="relative h-64">
-              <Image
-                src={selectedOpportunity.image}
+            <div className="relative h-64 bg-slate-200">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={selectedOpportunity.image || "/icon.svg"}
                 alt={selectedOpportunity.title}
-                fill
-                className="object-cover"
+                className="absolute inset-0 w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = "/icon.svg"
+                }}
               />
               <div className={`absolute inset-0 bg-gradient-to-t ${categoryColors[selectedOpportunity.category]?.heroGradient || 'from-slate-900/80 to-transparent'}`} />
               <button
@@ -1121,7 +1123,7 @@ export default function OpportunitiesPage() {
                 <span className={`text-sm px-3 py-1 rounded-full ${categoryColors[selectedOpportunity.category]?.bg} ${categoryColors[selectedOpportunity.category]?.text}`}>
                   {selectedOpportunity.category}
                 </span>
-                <span className={`text-sm px-3 py-1 rounded-full ${commitmentColors[selectedOpportunity.commitment]?.bg} ${commitmentColors[selectedOpportunity.commitment]?.text}`}>
+                <span className={`text-sm px-3 py-1 rounded-full ${commitmentColors[selectedOpportunity.commitment]?.bg || "bg-slate-100"} ${commitmentColors[selectedOpportunity.commitment]?.text || "text-slate-700"}`}>
                   {selectedOpportunity.commitment}
                 </span>
                 <span className="text-sm px-3 py-1 rounded-full bg-sky-100 text-sky-700">
@@ -1164,7 +1166,7 @@ export default function OpportunitiesPage() {
               <div className="mb-6">
                 <h3 className="font-semibold text-slate-800 mb-2">Helpful Skills</h3>
                 <div className="flex flex-wrap gap-2">
-                  {selectedOpportunity.skills.map((skill) => (
+                  {(selectedOpportunity.skills || []).map((skill) => (
                     <span key={skill} className="text-sm px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
                       {skill}
                     </span>
