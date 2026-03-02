@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Navigation } from "@/components/navigation"
 import { useAuth } from "@/contexts/AuthContext"
+import { createOpportunity } from "@/lib/firebase/org"
+import { toast } from "sonner"
 import {
     ArrowLeft,
     Building2,
@@ -52,6 +54,7 @@ export default function PostOpportunityPage() {
     const searchParams = useSearchParams()
     const { userProfile } = useAuth()
     const [showSuccess, setShowSuccess] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const [form, setForm] = useState({
         organizationName: "",
@@ -105,15 +108,43 @@ export default function PostOpportunityPage() {
         return Object.keys(newErrors).length === 0
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!validate()) return
+        if (!validate() || !userProfile?.uid) return
 
-        // For now just show success (no backend)
-        setShowSuccess(true)
-        setTimeout(() => {
-            router.push("/org/opportunities")
-        }, 2000)
+        setIsSubmitting(true)
+        try {
+            const dateObj = new Date(form.startDate);
+            const displayDate = dateObj.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", year: "numeric" });
+            
+            await createOpportunity(userProfile.uid, {
+                title: form.title,
+                organization: form.organizationName,
+                description: form.description,
+                location: form.location,
+                date: displayDate,
+                dateISO: form.startDate,
+                time: `${form.startTime} - ${form.endTime}`,
+                hours: Number(form.volunteerHours) || 0,
+                spotsLeft: 20,
+                totalSpots: 20,
+                category: form.category,
+                commitment: "One-time",
+                skills: form.requirements,
+                featured: false,
+                image: "/event-park-cleanup.png"
+            })
+            
+            toast.success("Opportunity posted successfully!")
+            setShowSuccess(true)
+            setTimeout(() => {
+                router.push("/org/opportunities")
+            }, 2000)
+        } catch (error) {
+            console.error("Failed to create opportunity:", error)
+            toast.error("Failed to post opportunity")
+            setIsSubmitting(false)
+        }
     }
 
     if (showSuccess) {
@@ -433,13 +464,14 @@ export default function PostOpportunityPage() {
 
                                 {/* Submit */}
                                 <div className="flex items-center gap-4 pt-4">
-                                    <Button
-                                        type="submit"
-                                        className="flex-1 bg-sky-600 hover:bg-sky-700 text-white rounded-xl h-12 text-base font-semibold shadow-lg shadow-sky-200 hover:shadow-sky-300 transition-all duration-300"
-                                    >
-                                        <CheckCircle className="w-5 h-5 mr-2" />
-                                        Post Opportunity
-                                    </Button>
+                                        <Button
+                                            type="submit"
+                                            disabled={isSubmitting}
+                                            className="flex-1 bg-sky-600 hover:bg-sky-700 text-white rounded-xl h-12 text-base font-semibold shadow-lg shadow-sky-200 hover:shadow-sky-300 transition-all duration-300 disabled:opacity-50"
+                                        >
+                                            <CheckCircle className="w-5 h-5 mr-2" />
+                                            {isSubmitting ? "Posting..." : "Post Opportunity"}
+                                        </Button>
                                     <Link href="/org/opportunities">
                                         <Button
                                             type="button"

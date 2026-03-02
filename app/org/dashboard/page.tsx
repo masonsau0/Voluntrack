@@ -1,9 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Navigation } from "@/components/navigation"
 import { useAuth } from "@/contexts/AuthContext"
+import { getOrgOpportunities, getOrgApplicants } from "@/lib/firebase/org"
+import { Opportunity } from "@/lib/firebase/opportunities"
+import { UserApplication } from "@/lib/firebase/dashboard"
 import {
     BarChart3,
     Users,
@@ -26,62 +29,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 
-// Sample org postings data
-const orgPostings = [
-    {
-        id: 1,
-        title: "Park Clean-Up",
-        organization: "Sunshine Action",
-        location: "790 Queen St W, Toronto, ON M6J 1G3",
-        date: "Saturday, July 30, 2025",
-        time: "10:00 AM – 12:00 PM",
-        hours: 2,
-        category: "Environment",
-        applicants: 7,
-        status: "active",
-        postedDate: "2025-06-15",
-    },
-    {
-        id: 2,
-        title: "Food Bank Sorting",
-        organization: "Daily Bread Food Bank",
-        location: "125 Main St, Toronto, ON M4C 1A1",
-        date: "Saturday, June 14, 2025",
-        time: "7:00 AM – 9:00 AM",
-        hours: 2,
-        category: "Community Outreach",
-        applicants: 15,
-        status: "active",
-        postedDate: "2025-05-20",
-    },
-    {
-        id: 3,
-        title: "Community Garden Planting",
-        organization: "High Park Community Garden",
-        location: "456 Oak St, Toronto, ON M5H 2N2",
-        date: "Sunday, July 13, 2025",
-        time: "12:00 PM – 2:00 PM",
-        hours: 2,
-        category: "Environment",
-        applicants: 10,
-        status: "active",
-        postedDate: "2025-06-01",
-    },
-    {
-        id: 4,
-        title: "Beach Cleanup Drive",
-        organization: "Sunshine Action",
-        location: "102 Lakeshore Blvd, Toronto, ON M8V 2A8",
-        date: "Saturday, August 10, 2025",
-        time: "9:00 AM – 12:00 PM",
-        hours: 3,
-        category: "Environment",
-        applicants: 2,
-        status: "active",
-        postedDate: "2025-07-01",
-    },
-]
-
 const categoryIcons: { [key: string]: typeof Leaf } = {
     Environment: Leaf,
     "Community Outreach": Heart,
@@ -103,17 +50,50 @@ const categoryColors: { [key: string]: { bg: string; text: string; accent: strin
 }
 
 export default function OrgDashboardPage() {
-    const { userProfile, loading } = useAuth()
+    const { userProfile, loading: authLoading } = useAuth()
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+    const [opportunities, setOpportunities] = useState<Opportunity[]>([])
+    const [applicants, setApplicants] = useState<UserApplication[]>([])
+    const [loadingData, setLoadingData] = useState(true)
+
+    useEffect(() => {
+        let mounted = true;
+        const fetchData = async () => {
+            if (userProfile?.uid) {
+                try {
+                    const [oppsData, appsData] = await Promise.all([
+                        getOrgOpportunities(userProfile.uid),
+                        getOrgApplicants(userProfile.uid)
+                    ]);
+                    if (mounted) {
+                        setOpportunities(oppsData);
+                        setApplicants(appsData);
+                        setLoadingData(false);
+                    }
+                } catch (error) {
+                    console.error("Error fetching dashboard data:", error);
+                    if (mounted) setLoadingData(false);
+                }
+            } else if (!authLoading) {
+                if (mounted) setLoadingData(false);
+            }
+        };
+        fetchData();
+        return () => { mounted = false; }
+    }, [userProfile?.uid, authLoading]);
+
+    const getApplicantCount = (opportunityId: string) => {
+        return applicants.filter(a => a.opportunityId === opportunityId).length;
+    };
 
     // Analytics calculations
-    const totalPostings = orgPostings.length
-    const totalApplicants = orgPostings.reduce((sum, p) => sum + p.applicants, 0)
-    const totalHours = orgPostings.reduce((sum, p) => sum + p.hours, 0)
-    const activePostings = orgPostings.filter((p) => p.status === "active").length
+    const totalPostings = opportunities.length
+    const totalApplicants = applicants.length
+    const totalHours = opportunities.reduce((sum, p) => sum + (p.hours || 0), 0)
+    const activePostings = opportunities.length
 
     // Category breakdown
-    const categoryBreakdown = orgPostings.reduce(
+    const categoryBreakdown = opportunities.reduce(
         (acc, p) => {
             acc[p.category] = (acc[p.category] || 0) + 1
             return acc
@@ -122,13 +102,13 @@ export default function OrgDashboardPage() {
     )
 
     // Recent activity
-    const recentPostings = [...orgPostings]
-        .sort((a, b) => new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime())
+    const recentPostings = [...opportunities]
+        .sort((a, b) => new Date(b.dateISO).getTime() - new Date(a.dateISO).getTime())
         .slice(0, 3)
 
     // Postings for selected category
     const categoryPostings = selectedCategory
-        ? orgPostings.filter((p) => p.category === selectedCategory)
+        ? opportunities.filter((p) => p.category === selectedCategory)
         : []
 
     return (
@@ -143,7 +123,7 @@ export default function OrgDashboardPage() {
                             Organization Dashboard
                         </h1>
                         <p className="text-slate-500 mt-1">
-                            {loading ? "Loading..." : `Welcome back, ${userProfile?.fullName || "Organization"}`}
+                            {authLoading || loadingData ? "Loading..." : `Welcome back, ${userProfile?.fullName || "Organization"}`}
                         </p>
                     </div>
 
@@ -328,7 +308,7 @@ export default function OrgDashboardPage() {
                                                         </div>
                                                         <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-full border border-slate-200 flex-shrink-0">
                                                             <Users className="w-3.5 h-3.5 text-slate-400" />
-                                                            <span className="text-xs font-semibold text-slate-700">{posting.applicants}</span>
+                                                            <span className="text-xs font-semibold text-slate-700">{getApplicantCount(posting.id)}</span>
                                                         </div>
                                                     </div>
                                                     <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-slate-500">
@@ -419,7 +399,7 @@ export default function OrgDashboardPage() {
                                             </span>
                                             <span className="flex items-center gap-1">
                                                 <Users className="w-3 h-3" />
-                                                {posting.applicants} applicants
+                                                {getApplicantCount(posting.id)} applicants
                                             </span>
                                         </div>
                                     </Link>
