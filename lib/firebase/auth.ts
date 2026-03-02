@@ -2,6 +2,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
+  sendEmailVerification,
   User,
   UserCredential,
   AuthError,
@@ -37,7 +38,7 @@ export async function signIn(email: string, password: string): Promise<User> {
     const userCredential: UserCredential = await signInWithEmailAndPassword(
       auth,
       email,
-      password
+      password,
     );
     return userCredential.user;
   } catch (error) {
@@ -56,14 +57,14 @@ export async function signUp(data: SignUpData): Promise<User> {
     const userCredential: UserCredential = await createUserWithEmailAndPassword(
       auth,
       data.email,
-      data.password
+      data.password,
     );
 
     const user = userCredential.user;
 
     // Create user document in Firestore
     // The document ID must match the Auth UID per Firestore rules
-    const userProfile: Omit<UserProfile, 'uid'> = {
+    const userProfile: Omit<UserProfile, "uid"> = {
       email: data.email,
       firstName: data.firstName,
       lastName: data.lastName,
@@ -72,7 +73,10 @@ export async function signUp(data: SignUpData): Promise<User> {
       updatedAt: serverTimestamp(),
     };
 
-    await setDoc(doc(db, 'users', user.uid), userProfile);
+    await setDoc(doc(db, "users", user.uid), userProfile);
+
+    // Send email verification
+    await sendEmailVerification(user);
 
     return user;
   } catch (error) {
@@ -102,7 +106,14 @@ export async function updateUserProfile(
     firstName?: string;
     lastName?: string;
     email?: string;
-  }
+    school?: string;
+    interests?: string[];
+    volunteerPreference?: string;
+    availability?: string;
+    totalHours?: number;
+    goalHours?: number;
+    badges?: string[];
+  },
 ): Promise<void> {
   try {
     const updates: Record<string, unknown> = {
@@ -111,9 +122,18 @@ export async function updateUserProfile(
     if (data.firstName !== undefined) updates.firstName = data.firstName;
     if (data.lastName !== undefined) updates.lastName = data.lastName;
     if (data.email !== undefined) updates.email = data.email;
-    await updateDoc(doc(db, 'users', uid), updates);
+    if (data.school !== undefined) updates.school = data.school;
+    if (data.interests !== undefined) updates.interests = data.interests;
+    if (data.volunteerPreference !== undefined)
+      updates.volunteerPreference = data.volunteerPreference;
+    if (data.availability !== undefined)
+      updates.availability = data.availability;
+    if (data.totalHours !== undefined) updates.totalHours = data.totalHours;
+    if (data.goalHours !== undefined) updates.goalHours = data.goalHours;
+    if (data.badges !== undefined) updates.badges = data.badges;
+    await updateDoc(doc(db, "users", uid), updates);
   } catch (error) {
-    console.error('Error updating user profile:', error);
+    console.error("Error updating user profile:", error);
     throw error;
   }
 }
@@ -123,7 +143,7 @@ export async function updateUserProfile(
  */
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
   try {
-    const userDoc = await getDoc(doc(db, 'users', uid));
+    const userDoc = await getDoc(doc(db, "users", uid));
     if (userDoc.exists()) {
       return {
         uid: userDoc.id,
@@ -132,7 +152,7 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
     }
     return null;
   } catch (error) {
-    console.error('Error getting user profile:', error);
+    console.error("Error getting user profile:", error);
     throw error;
   }
 }
@@ -142,25 +162,25 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
  */
 function getAuthErrorMessage(errorCode: string): string {
   switch (errorCode) {
-    case 'auth/invalid-email':
-      return 'Invalid email address.';
-    case 'auth/user-disabled':
-      return 'This account has been disabled.';
-    case 'auth/user-not-found':
-      return 'No account found with this email address.';
-    case 'auth/wrong-password':
-      return 'Incorrect password.';
-    case 'auth/email-already-in-use':
-      return 'An account with this email already exists.';
-    case 'auth/operation-not-allowed':
-      return 'Email/password accounts are not enabled.';
-    case 'auth/weak-password':
-      return 'Password is too weak.';
-    case 'auth/network-request-failed':
-      return 'Network error. Please check your connection.';
-    case 'auth/too-many-requests':
-      return 'Too many failed attempts. Please try again later.';
+    case "auth/invalid-email":
+      return "Invalid email address.";
+    case "auth/user-disabled":
+      return "This account has been disabled.";
+    case "auth/user-not-found":
+      return "No account found with this email address.";
+    case "auth/wrong-password":
+      return "Incorrect password.";
+    case "auth/email-already-in-use":
+      return "An account with this email already exists.";
+    case "auth/operation-not-allowed":
+      return "Email/password accounts are not enabled.";
+    case "auth/weak-password":
+      return "Password is too weak.";
+    case "auth/network-request-failed":
+      return "Network error. Please check your connection.";
+    case "auth/too-many-requests":
+      return "Too many failed attempts. Please try again later.";
     default:
-      return 'An error occurred. Please try again.';
+      return "An error occurred. Please try again.";
   }
 }
