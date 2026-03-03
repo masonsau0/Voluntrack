@@ -123,7 +123,7 @@ export default function OrgDashboardPage() {
                             Organization Dashboard
                         </h1>
                         <p className="text-slate-500 mt-1">
-                            {authLoading || loadingData ? "Loading..." : `Welcome back, ${userProfile?.fullName || "Organization"}`}
+                            {authLoading || loadingData ? "Loading..." : `Welcome back, ${userProfile?.firstName ? `${userProfile.firstName} ${userProfile.lastName}` : "Organization"}`}
                         </p>
                     </div>
 
