@@ -1096,9 +1096,10 @@ export default function OpportunitiesPage() {
               <div className={`absolute inset-0 bg-gradient-to-t ${categoryColors[selectedOpportunity.category]?.heroGradient || 'from-slate-900/80 to-transparent'}`} />
               <button
                 onClick={() => setSelectedOpportunity(null)}
-                className="absolute top-4 right-4 w-10 h-10 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full flex items-center justify-center transition-colors shadow-lg"
+                className="absolute top-4 right-4 w-10 h-10 bg-white/90 hover:bg-slate-700 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:scale-110 hover:shadow-xl group"
+                aria-label="Close"
               >
-                <X className="w-5 h-5 text-slate-600" />
+                <X className="w-5 h-5 text-slate-600 group-hover:text-white" />
               </button>
 
               {/* Featured badge */}
@@ -1210,7 +1211,7 @@ export default function OpportunitiesPage() {
                   variant="outline"
                   className={`flex-1 rounded-full py-6 text-base font-medium transition-all hover:scale-[1.02] ${savedIds.has(selectedOpportunity.id)
                     ? "bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100"
-                    : "border-slate-300 text-slate-700 hover:bg-slate-100"
+                    : "border-slate-300 text-slate-700 hover:bg-slate-300 hover:border-slate-400 hover:text-slate-900"
                     }`}
                   onClick={() => handleSave(selectedOpportunity)}
                   disabled={actionLoading === `save-${selectedOpportunity.id}`}
