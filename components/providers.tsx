@@ -2,12 +2,15 @@
 
 import { AuthProvider } from "@/contexts/AuthContext"
 import { Toaster } from "@/components/ui/sonner"
+import { RoleGuard } from "@/components/auth/role-guard"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
-      {children}
-      <Toaster />
+      <RoleGuard>
+        {children}
+        <Toaster />
+      </RoleGuard>
     </AuthProvider>
   )
 }
