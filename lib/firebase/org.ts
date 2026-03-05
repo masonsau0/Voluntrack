@@ -108,7 +108,7 @@ export async function getOrgApplicants(orgId: string): Promise<OrgApplicant[]> {
                 try {
                     const profile = await getUserProfile(data.userId);
                     if (profile) {
-                         userName = profile.fullName || `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || 'Unknown User';
+                         userName = `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || 'Unknown User';
                          userEmail = profile.email;
                     }
                 } catch (e) {

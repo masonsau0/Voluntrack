@@ -69,7 +69,11 @@ export function SignupForm({
                 lastName,
                 role: role as "student" | "volunteer_org"
             })
-            router.push("/signup/preferences")
+            if (role === "volunteer_org") {
+                router.push("/org/dashboard")
+            } else {
+                router.push("/signup/preferences")
+            }
         } catch (err) {
             setErrors({ general: err instanceof Error ? err.message : "Sign up failed" })
         } finally {

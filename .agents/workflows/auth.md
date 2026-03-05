@@ -25,6 +25,13 @@ If protecting an App Router page (e.g., `app/dashboard`), you should:
 2. Use Next.js loading components (`loading.tsx`) or React Suspense to show skeletons or spinners while Firebase Auth initializes. This prevents flashing unauthenticated content to the user.
 3. Once auth is resolved, if `!user`, immediately redirect to `/login` using Next.js `useRouter()` or `redirect()`.
 
+### Global Role Routing Restrictions (`RoleGuard`)
+
+Voluntrack uses a global `RoleGuard` wrapper inside `components/providers.tsx` to ensure users cannot access pages meant for other user types.
+
+- **Volunteer Organizations:** If `userProfile.role === "volunteer_org"`, they can ONLY access URLs that start with `/org/` (e.g., `/org/dashboard`) or authentication routes (e.g., `/login`). Any attempt to access student pages (like `/opportunities`) will automatically redirect them to `/org/dashboard`.
+- **Students:** If `userProfile.role === "student"`, they cannot access any `/org/` URLs. If they try, they will be redirected back to `/opportunities`.
+
 ## 3. Data Flow
 
 1. Auth state changes trigger the user profile fetch (`getUserProfile`).

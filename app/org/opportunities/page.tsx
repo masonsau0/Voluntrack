@@ -75,7 +75,7 @@ export default function OrgOpportunitiesPage() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([])
   const [loadingData, setLoadingData] = useState(true)
   const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null)
-  const [currentHeroIndex, setCurrentHeroIndex] = useState(0)
+
   const [searchQuery, setSearchQuery] = useState("")
   const [viewMode, setViewMode] = useState<"browse" | "manage">(searchParams.get("view") === "manage" ? "manage" : "browse")
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
@@ -113,53 +113,7 @@ export default function OrgOpportunitiesPage() {
   const [sortBy, setSortBy] = useState("featured")
   const [showFilters, setShowFilters] = useState(false)
 
-  // Timer ref for resetting on manual navigation
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Featured opportunities for hero carousel
-  const featuredOpportunities = useMemo(() =>
-    opportunities.filter(o => o.featured),
-    [opportunities])
-
-  // Reset and start timer function
-  const resetTimer = useCallback(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current)
-    }
-    timerRef.current = setInterval(() => {
-      setCurrentHeroIndex(prev => (prev + 1) % featuredOpportunities.length)
-    }, 5000)
-  }, [featuredOpportunities.length])
-
-  // Auto-scroll hero every 5 seconds
-  useEffect(() => {
-    resetTimer()
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current)
-      }
-    }
-  }, [resetTimer])
-
-  // Navigate to specific slide and reset timer
-  const goToSlide = (index: number) => {
-    setCurrentHeroIndex(index)
-    resetTimer()
-  }
-
-  // Navigate prev/next and reset timer
-  const goToPrev = () => {
-    setCurrentHeroIndex(prev => prev === 0 ? featuredOpportunities.length - 1 : prev - 1)
-    resetTimer()
-  }
-
-  const goToNext = () => {
-    setCurrentHeroIndex(prev => (prev + 1) % featuredOpportunities.length)
-    resetTimer()
-  }
-
-  const currentHero = featuredOpportunities[currentHeroIndex]
-  const heroColor = categoryColors[currentHero?.category] || defaultCategoryColor
 
   // Filter and sort opportunities
   const filteredOpportunities = useMemo(() => {
@@ -308,7 +262,7 @@ export default function OrgOpportunitiesPage() {
   const OpportunityCard = React.memo(({ opportunity }: { opportunity: Opportunity }) => {
     const [isHovered, setIsHovered] = useState(false)
     const categoryColor = categoryColors[opportunity.category] || defaultCategoryColor
-    const commitmentColor = commitmentColors[opportunity.commitment]
+
 
     return (
       <div
@@ -951,7 +905,7 @@ export default function OrgOpportunitiesPage() {
                 <span className={`text-sm px-3 py-1 rounded-full ${categoryColors[selectedOpportunity.category]?.bg} ${categoryColors[selectedOpportunity.category]?.text}`}>
                   {selectedOpportunity.category}
                 </span>
-                <span className={`text-sm px-3 py-1 rounded-full ${commitmentColors[selectedOpportunity.commitment]?.bg} ${commitmentColors[selectedOpportunity.commitment]?.text}`}>
+                <span className={`text-sm px-3 py-1 rounded-full ${commitmentColors[selectedOpportunity.commitment]?.bg || "bg-slate-100"} ${commitmentColors[selectedOpportunity.commitment]?.text || "text-slate-700"}`}>
                   {selectedOpportunity.commitment}
                 </span>
                 <span className="text-sm px-3 py-1 rounded-full bg-sky-100 text-sky-700">

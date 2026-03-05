@@ -227,7 +227,7 @@ export default function OpportunitiesPage() {
   }
 
   const currentHero = featuredOpportunities[currentHeroIndex]
-  const heroColor = categoryColors[currentHero?.category] || defaultCategoryColor
+
 
   // Filter and sort opportunities
   const filteredOpportunities = useMemo(() => {
@@ -300,10 +300,10 @@ export default function OpportunitiesPage() {
     if (studentInterests.length === 0) return []
 
     // Map interest IDs to labels used in categories
-    const interestLabels = studentInterests.map(id => {
+    const interestLabels = studentInterests.map((id: string) => {
       const match = INTERESTS.find(i => (i as any).id === id)
       return match ? match.label : ""
-    }).filter(label => label !== "")
+    }).filter((label: string) => label !== "")
 
     return opportunities.filter(opp => (interestLabels as string[]).includes(opp.category))
   }, [opportunities, studentInterests])
@@ -371,7 +371,7 @@ export default function OpportunitiesPage() {
 
     const [isHovered, setIsHovered] = useState(false)
     const categoryColor = categoryColors[opportunity.category] || defaultCategoryColor
-    const commitmentColor = commitmentColors[opportunity.commitment]
+
 
     return (
       <div
@@ -611,7 +611,7 @@ export default function OpportunitiesPage() {
                 <span className="text-sky-600 text-sm font-medium bg-sky-100/80 backdrop-blur-sm px-3 py-1 rounded-full">
                   #{currentHeroIndex + 1} Spotlight
                 </span>
-                <span className={`text-sm px-3 py-1 rounded-full ${categoryColors[currentHero?.category]?.bg} ${categoryColors[currentHero?.category]?.text}`}>
+                <span className={`text-sm px-3 py-1 rounded-full ${categoryColors[currentHero?.category || ""]?.bg || defaultCategoryColor.bg} ${categoryColors[currentHero?.category || ""]?.text || defaultCategoryColor.text}`}>
                   {currentHero?.category}
                 </span>
               </div>

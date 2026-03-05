@@ -333,7 +333,7 @@ export default function OrgDashboardPage() {
                         <div className="flex items-center justify-between p-6 border-b border-slate-100">
                             <div className="flex items-center gap-3">
                                 {(() => {
-                                    const colors = categoryColors[selectedCategory] || defaultCategoryColor
+                                    const colors = categoryColors[selectedCategory as string] || defaultCategoryColor
                                     const Icon = colors.icon
                                     return (
                                         <div className={`w-10 h-10 rounded-xl ${colors.bg} flex items-center justify-center`}>
