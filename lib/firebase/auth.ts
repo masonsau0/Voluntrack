@@ -28,6 +28,15 @@ export interface UserProfile {
   role: UserRole;
   createdAt: any;
   updatedAt: any;
+  school?: string;
+  volunteerPreference?: string;
+  availability?: string;
+  totalHours?: number;
+  
+  // TODO: implement badges, goalHours, and interests
+  interests?: string[];
+  goalHours?: number;
+  badges?: string[];
 }
 
 /**
