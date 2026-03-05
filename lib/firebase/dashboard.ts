@@ -118,7 +118,13 @@ export async function toggleSaveOpportunity(userId: string, opportunity: Opportu
                 date: opportunity.date,
                 hours: opportunity.hours,
                 category: opportunity.category,
-                image: opportunity.image
+                image: opportunity.image,
+                description: opportunity.description,
+                skills: opportunity.skills,
+                commitment: opportunity.commitment,
+                spotsLeft: opportunity.spotsLeft,
+                totalSpots: opportunity.totalSpots,
+                fullDate: opportunity.date
             };
             await setDoc(savedDocRef, savedData);
             return true; // Added
@@ -168,6 +174,11 @@ export async function applyToOpportunity(userId: string, opportunity: Opportunit
             hours: opportunity.hours,
             category: opportunity.category,
             image: opportunity.image,
+            description: opportunity.description,
+            skills: opportunity.skills,
+            commitment: opportunity.commitment,
+            spotsLeft: opportunity.spotsLeft,
+            totalSpots: opportunity.totalSpots,
             updatedAt: serverTimestamp()
         };
 
