@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { getOrgOpportunities, getOrgApplicants } from "@/lib/firebase/org"
 import { Opportunity } from "@/lib/firebase/opportunities"
 import { UserApplication } from "@/lib/firebase/dashboard"
+import { categoryColors, defaultCategoryColor } from "@/lib/ui-config"
 import {
     BarChart3,
     Users,
@@ -29,25 +30,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 
-const categoryIcons: { [key: string]: typeof Leaf } = {
-    Environment: Leaf,
-    "Community Outreach": Heart,
-    Education: GraduationCap,
-    Healthcare: Stethoscope,
-    "Animal Welfare": Dog,
-    "Arts & Culture": Palette,
-    "Senior Care": Heart,
-}
 
-const categoryColors: { [key: string]: { bg: string; text: string; accent: string; leftColor: string } } = {
-    Environment: { bg: "bg-emerald-50", text: "text-emerald-700", accent: "bg-emerald-500", leftColor: "#10b981" },
-    "Community Outreach": { bg: "bg-orange-50", text: "text-orange-700", accent: "bg-orange-500", leftColor: "#f97316" },
-    Education: { bg: "bg-blue-50", text: "text-blue-700", accent: "bg-blue-500", leftColor: "#3b82f6" },
-    Healthcare: { bg: "bg-pink-50", text: "text-pink-700", accent: "bg-pink-500", leftColor: "#ec4899" },
-    "Animal Welfare": { bg: "bg-amber-50", text: "text-amber-700", accent: "bg-amber-500", leftColor: "#f59e0b" },
-    "Arts & Culture": { bg: "bg-purple-50", text: "text-purple-700", accent: "bg-purple-500", leftColor: "#a855f7" },
-    "Senior Care": { bg: "bg-rose-50", text: "text-rose-700", accent: "bg-rose-500", leftColor: "#f43f5e" },
-}
 
 export default function OrgDashboardPage() {
     const { userProfile, loading: authLoading } = useAuth()
@@ -241,8 +224,8 @@ export default function OrgDashboardPage() {
                                 <h2 className="text-lg font-bold text-slate-900 mb-5">Postings by Category</h2>
                                 <div className="space-y-4">
                                     {Object.entries(categoryBreakdown).map(([category, count]) => {
-                                        const colors = categoryColors[category] || categoryColors["Environment"]
-                                        const Icon = categoryIcons[category] || Leaf
+                                        const colors = categoryColors[category] || defaultCategoryColor
+                                        const Icon = colors.icon
                                         const percentage = Math.round((count / totalPostings) * 100)
 
                                         return (
@@ -261,8 +244,8 @@ export default function OrgDashboardPage() {
                                                     </div>
                                                     <div className="w-full bg-slate-100 rounded-full h-2">
                                                         <div
-                                                            className={`h-2 rounded-full ${colors.accent} transition-all duration-500`}
-                                                            style={{ width: `${percentage}%` }}
+                                                            className={`h-2 rounded-full bg-sky-500 transition-all duration-500`}
+                                                            style={{ width: `${percentage}%`, backgroundColor: colors.leftColor }}
                                                         />
                                                     </div>
                                                 </div>
@@ -288,8 +271,8 @@ export default function OrgDashboardPage() {
                                 </div>
                                 <div className="space-y-4">
                                     {recentPostings.map((posting) => {
-                                        const colors = categoryColors[posting.category] || categoryColors["Environment"]
-                                        const Icon = categoryIcons[posting.category] || Leaf
+                                        const colors = categoryColors[posting.category] || defaultCategoryColor
+                                        const Icon = colors.icon
 
                                         return (
                                             <div
@@ -350,8 +333,8 @@ export default function OrgDashboardPage() {
                         <div className="flex items-center justify-between p-6 border-b border-slate-100">
                             <div className="flex items-center gap-3">
                                 {(() => {
-                                    const colors = categoryColors[selectedCategory] || categoryColors["Environment"]
-                                    const Icon = categoryIcons[selectedCategory] || Leaf
+                                    const colors = categoryColors[selectedCategory] || defaultCategoryColor
+                                    const Icon = colors.icon
                                     return (
                                         <div className={`w-10 h-10 rounded-xl ${colors.bg} flex items-center justify-center`}>
                                             <Icon className={`w-5 h-5 ${colors.text}`} />
@@ -374,7 +357,7 @@ export default function OrgDashboardPage() {
                         {/* Postings List */}
                         <div className="p-4 space-y-3">
                             {categoryPostings.map((posting) => {
-                                const colors = categoryColors[posting.category] || categoryColors["Environment"]
+                                const colors = categoryColors[posting.category] || defaultCategoryColor
                                 return (
                                     <Link
                                         key={posting.id}

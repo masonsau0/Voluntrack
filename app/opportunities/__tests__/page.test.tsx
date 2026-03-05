@@ -5,8 +5,27 @@ import { getOpportunities } from '@/lib/firebase/opportunities';
 
 // Mock the service
 jest.mock('@/lib/firebase/opportunities', () => ({
-  getOpportunities: jest.fn(),
-  ITEMS_PER_PAGE: 1,
+  getAllOpportunities: jest.fn(),
+}));
+
+// Mock Firebase config to prevent initialization errors
+jest.mock('@/lib/firebase/config', () => ({
+  auth: {},
+  db: {},
+  default: {},
+}));
+
+// Mock Firebase dashboard functions
+jest.mock('@/lib/firebase/dashboard', () => ({
+  applyToOpportunity: jest.fn(),
+  toggleSaveOpportunity: jest.fn(),
+  getUserApplications: jest.fn().mockResolvedValue([]),
+  getUserSaved: jest.fn().mockResolvedValue([]),
+}));
+
+// Mock Auth Context
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({ userProfile: { uid: 'test-uid' }, loading: false }),
 }));
 
 // Mock Navigation component
@@ -37,7 +56,8 @@ describe('OpportunitiesPage', () => {
   });
 
   it('renders loading state initially', async () => {
-    (getOpportunities as jest.Mock).mockReturnValue(new Promise(() => {})); // Never resolves
+    const { getAllOpportunities } = require('@/lib/firebase/opportunities');
+    (getAllOpportunities as jest.Mock).mockReturnValue(new Promise(() => {})); // Never resolves
 
     render(<OpportunitiesPage />);
 
@@ -57,19 +77,8 @@ describe('OpportunitiesPage', () => {
     }];
 
     // Setup intelligent mock implementation
-    (getOpportunities as jest.Mock).mockImplementation(async (lastVisible) => {
-      if (!lastVisible) {
-        return {
-          opportunities: mockPage1,
-          lastVisible: { id: 'doc-1' },
-        };
-      } else {
-        return {
-          opportunities: mockPage2,
-          lastVisible: { id: 'doc-2' },
-        };
-      }
-    });
+    const { getAllOpportunities } = require('@/lib/firebase/opportunities');
+    (getAllOpportunities as jest.Mock).mockResolvedValue(mockPage1);
 
     render(<OpportunitiesPage />);
 
@@ -77,21 +86,11 @@ describe('OpportunitiesPage', () => {
     await waitFor(() => {
       expect(screen.getAllByText(/Opp 1/)[0]).toBeInTheDocument();
     });
-
-    // Click load more
-    const loadMoreButton = screen.getByText('Load More Opportunities');
-    fireEvent.click(loadMoreButton);
-
-    // Wait for second load
-    await waitFor(() => {
-      expect(screen.getByText('Opp 2')).toBeInTheDocument();
-    });
-    // Opp 1 should still be there
-    expect(screen.getAllByText(/Opp 1/).length).toBeGreaterThan(0);
   });
 
   it('displays error message on failure', async () => {
-    (getOpportunities as jest.Mock).mockRejectedValue(new Error('Fetch failed'));
+    const { getAllOpportunities } = require('@/lib/firebase/opportunities');
+    (getAllOpportunities as jest.Mock).mockRejectedValue(new Error('Fetch failed'));
 
     render(<OpportunitiesPage />);
 

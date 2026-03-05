@@ -58,25 +58,7 @@ import {
   getUserSaved
 } from "@/lib/firebase/dashboard"
 import { toast } from "sonner"
-
-// Category colors matching preferences (lib/preferences.ts)
-const categoryColors: { [key: string]: { bg: string; text: string; border: string; gradient: string; icon: typeof Leaf; heroGradient: string } } = {
-  "Environment": { bg: "bg-green-100", text: "text-green-700", border: "border-green-300", gradient: "from-green-500/15 to-emerald-600/15", heroGradient: "from-green-900/90 via-green-800/60 to-transparent", icon: Leaf },
-  "Education": { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-300", gradient: "from-blue-500/15 to-indigo-600/15", heroGradient: "from-blue-900/90 via-blue-800/60 to-transparent", icon: GraduationCap },
-  "Healthcare": { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-300", gradient: "from-pink-500/15 to-rose-600/15", heroGradient: "from-pink-900/90 via-pink-800/60 to-transparent", icon: Stethoscope },
-  "Animal Welfare": { bg: "bg-amber-100", text: "text-amber-700", border: "border-amber-300", gradient: "from-amber-500/15 to-yellow-600/15", heroGradient: "from-amber-900/90 via-amber-800/60 to-transparent", icon: Dog },
-  "Arts & Culture": { bg: "bg-purple-100", text: "text-purple-700", border: "border-purple-300", gradient: "from-purple-500/15 to-violet-600/15", heroGradient: "from-purple-900/90 via-purple-800/60 to-transparent", icon: Palette },
-  "Senior Care": { bg: "bg-rose-100", text: "text-rose-700", border: "border-rose-300", gradient: "from-rose-500/15 to-pink-600/15", heroGradient: "from-rose-900/90 via-rose-800/60 to-transparent", icon: Heart },
-  "Mental Health": { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-300", gradient: "from-pink-500/15 to-rose-600/15", heroGradient: "from-pink-900/90 via-pink-800/60 to-transparent", icon: Heart },
-}
-
-// Commitment level colors for light theme
-const commitmentColors: { [key: string]: { bg: string; text: string } } = {
-  "One-time": { bg: "bg-green-100", text: "text-green-700" },
-  "Weekly": { bg: "bg-blue-100", text: "text-blue-700" },
-  "Monthly": { bg: "bg-purple-100", text: "text-purple-700" },
-}
-
+import { categoryColors, commitmentColors, defaultCategoryColor } from "@/lib/ui-config"
 const allCategories = [...CATEGORIES]
 const commitmentTypes = ["One-time", "Weekly", "Monthly"]
 const sortOptions = [
@@ -241,7 +223,7 @@ export default function OpportunitiesPage() {
   }
 
   const currentHero = featuredOpportunities[currentHeroIndex]
-  const heroColor = categoryColors[currentHero?.category] || categoryColors["Environment"]
+  const heroColor = categoryColors[currentHero?.category] || defaultCategoryColor
 
   // Filter and sort opportunities
   const filteredOpportunities = useMemo(() => {
@@ -384,7 +366,7 @@ export default function OpportunitiesPage() {
   const OpportunityCard = React.memo(({ opportunity }: { opportunity: Opportunity }) => {
 
     const [isHovered, setIsHovered] = useState(false)
-    const categoryColor = categoryColors[opportunity.category] || categoryColors["Environment"]
+    const categoryColor = categoryColors[opportunity.category] || defaultCategoryColor
     const commitmentColor = commitmentColors[opportunity.commitment]
 
     return (
@@ -813,7 +795,7 @@ export default function OpportunitiesPage() {
                           : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                           }`}
                       >
-                        {hours} {hours === 1 ? 'hr' : 'hrs'}
+                        {hours} {hours === 1 ? 'hour' : 'hours'}
                       </button>
                     ))}
                   </div>

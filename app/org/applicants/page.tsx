@@ -29,14 +29,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 
-
-const statusConfig = {
-    pending: { label: "Pending", bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", icon: Clock },
-    approved: { label: "Approved", bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", icon: CheckCircle },
-    denied: { label: "Declined", bg: "bg-red-50", text: "text-red-700", border: "border-red-200", icon: XCircle },
-    completed: { label: "Completed", bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", icon: CheckCircle },
-}
-
+import { statusColors } from "@/lib/ui-config"
 export default function ApplicantsPage() {
     const { userProfile, loading: authLoading } = useAuth()
     const [searchQuery, setSearchQuery] = useState("")
@@ -202,7 +195,7 @@ export default function ApplicantsPage() {
                             ) : (
                                 <div className="divide-y divide-slate-200">
                                     {filteredApplicants.map((applicant) => {
-                                        const status = statusConfig[applicant.status as keyof typeof statusConfig]
+                                        const status = statusColors[applicant.status as keyof typeof statusColors] || statusColors.pending
                                         const StatusIcon = status.icon
 
                                         return (
@@ -283,7 +276,7 @@ export default function ApplicantsPage() {
 
             {/* Applicant Detail Modal */}
             {selectedApplicant && (() => {
-                const status = statusConfig[selectedApplicant.status as keyof typeof statusConfig]
+                const status = statusColors[selectedApplicant.status as keyof typeof statusColors] || statusColors.pending
                 const StatusIcon = status.icon
                 return (
                     <div

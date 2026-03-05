@@ -49,32 +49,13 @@ import {
   SavedOpportunity
 } from "@/lib/firebase/dashboard"
 import { toast } from "sonner"
+import { categoryColors, statusColors, defaultCategoryColor } from "@/lib/ui-config"
 
 const tabs = [
   { id: "progress", label: "Progress Tracking", icon: TrendingUp },
   { id: "applications", label: "Applications", icon: FileText },
   { id: "account", label: "My Account", icon: User },
 ]
-
-// Status colors for application status badges
-const statusColors: { [key: string]: { bg: string; text: string; border: string; icon: typeof CheckCircle } } = {
-  approved: { bg: "bg-green-100", text: "text-green-700", border: "border-green-300", icon: CheckCircle },
-  pending: { bg: "bg-yellow-100", text: "text-yellow-700", border: "border-yellow-300", icon: Clock3 },
-  completed: { bg: "bg-teal-100", text: "text-teal-700", border: "border-teal-300", icon: CheckCircle2 },
-  denied: { bg: "bg-red-100", text: "text-red-700", border: "border-red-300", icon: XCircle },
-}
-
-// Category color mapping (expanded for popup modal)
-const categoryColors: { [key: string]: { bg: string; text: string; border: string; cardBg: string } } = {
-  Environment: { bg: "bg-green-100", text: "text-green-700", border: "border-green-300", cardBg: "bg-green-50 border-green-200" },
-  Education: { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-300", cardBg: "bg-blue-50 border-blue-200" },
-  Healthcare: { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-300", cardBg: "bg-pink-50 border-pink-200" },
-  "Animal Welfare": { bg: "bg-amber-100", text: "text-amber-700", border: "border-amber-300", cardBg: "bg-amber-50 border-amber-200" },
-  "Arts & Culture": { bg: "bg-purple-100", text: "text-purple-700", border: "border-purple-300", cardBg: "bg-purple-50 border-purple-200" },
-  "Senior Care": { bg: "bg-rose-100", text: "text-rose-700", border: "border-rose-300", cardBg: "bg-rose-50 border-rose-200" },
-  "Mental Health": { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-300", cardBg: "bg-pink-50 border-pink-200" },
-}
-
 const monthNames = [
   "January",
   "February",
@@ -547,7 +528,7 @@ export default function DashboardPage() {
                           <div
                             key={app.id}
                             onClick={() => setSelectedApplication(app)}
-                            className={`border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm hover:shadow transition-all duration-200 cursor-pointer ${categoryColors[app.category]?.cardBg || "bg-gray-50 border-gray-200"}`}
+                            className={`border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm hover:shadow transition-all duration-200 cursor-pointer ${categoryColors[app.category]?.cardBg || defaultCategoryColor.cardBg}`}
                           >
                             <div className="flex-1 min-w-0">
                               <h3 className="font-medium text-foreground text-sm truncate">{app.title}</h3>
@@ -654,7 +635,7 @@ export default function DashboardPage() {
                             <div
                               key={app.id}
                               onClick={() => setSelectedApplication(app)}
-                              className={`border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm hover:shadow transition-all duration-200 cursor-pointer ${categoryColors[app.category]?.cardBg || "bg-gray-50 border-gray-200"}`}
+                              className={`border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm hover:shadow transition-all duration-200 cursor-pointer ${categoryColors[app.category]?.cardBg || defaultCategoryColor.cardBg}`}
                             >
                               <div className="flex-1 min-w-0">
                                 <h3 className="font-medium text-foreground text-sm truncate">{app.title}</h3>
@@ -723,10 +704,10 @@ export default function DashboardPage() {
                       <div
                         key={opp.opportunityId}
                         onClick={() => setSelectedSaved(opp)}
-                        className={`rounded-xl p-3 flex items-center gap-3 border shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-[1.02] ${categoryColors[opp.category]?.cardBg || "bg-gray-50 border-gray-200"}`}
+                        className={`rounded-xl p-3 flex items-center gap-3 border shadow-sm cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-[1.02] ${categoryColors[opp.category]?.cardBg || defaultCategoryColor.cardBg}`}
                       >
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${categoryColors[opp.category]?.bg || "bg-blue-100"}`}>
-                          <Star className={`w-5 h-5 ${categoryColors[opp.category]?.text || "text-blue-600"}`} />
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${categoryColors[opp.category]?.bg || defaultCategoryColor.bg}`}>
+                          <Star className={`w-5 h-5 ${categoryColors[opp.category]?.text || defaultCategoryColor.text}`} />
                         </div>
                         <div>
                           <p className="font-medium text-sm">{opp.title}</p>
@@ -782,8 +763,8 @@ export default function DashboardPage() {
                   <span
                     className={`px-3 py-1.5 rounded-full text-sm font-medium inline-flex items-center gap-1.5 border backdrop-blur-sm ${statusColors[selectedApplication.status].bg} ${statusColors[selectedApplication.status].text} ${statusColors[selectedApplication.status].border}`}
                   >
-                    {(() => { const StatusIcon = statusColors[selectedApplication.status].icon; return <StatusIcon className="w-4 h-4" />; })()}
-                    {selectedApplication.status === "pending" ? "Pending" : selectedApplication.status === "approved" ? "Approved" : selectedApplication.status === "completed" ? "Completed" : "Not Approved"}
+                    {(() => { const StatusIcon = statusColors[selectedApplication.status]?.icon || CheckCircle; return <StatusIcon className="w-4 h-4" />; })()}
+                    {statusColors[selectedApplication.status]?.label || "Unknown"}
                   </span>
                 </div>
 

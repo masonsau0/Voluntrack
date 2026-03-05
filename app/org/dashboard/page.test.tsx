@@ -106,7 +106,8 @@ describe("OrgDashboardPage", () => {
             userProfile: {
                 uid: "test-org-uid",
                 role: "organization",
-                fullName: "Test Organization Name"
+                firstName: "Test",
+                lastName: "Organization"
             },
             loading: false
         });
@@ -129,7 +130,7 @@ describe("OrgDashboardPage", () => {
         });
 
         // Use findByText for welcome to give it time
-        expect(await screen.findByText(/Welcome back, Test Organization Name/i)).toBeInTheDocument();
+        expect(await screen.findByText(/Welcome back, Test Organization/i)).toBeInTheDocument();
         
         // Let's simply test that the component renders without crashing for the overview
     });

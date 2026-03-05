@@ -26,17 +26,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { CATEGORIES } from "@/lib/preferences"
 
-const categories = [
-    "Environment",
-    "Community Outreach",
-    "Education",
-    "Healthcare",
-    "Animal Welfare",
-    "Arts & Culture",
-    "Senior Care",
-    "Mental Health",
-]
 
 const requirementOptions = [
     "Training",
@@ -371,7 +362,7 @@ export default function PostOpportunityPage() {
                                             <option value="" disabled>
                                                 Select a category
                                             </option>
-                                            {categories.map((cat) => (
+                                            {CATEGORIES.map((cat) => (
                                                 <option key={cat} value={cat}>
                                                     {cat}
                                                 </option>
