@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useAuth } from "@/contexts/AuthContext"
 import { updateUserProfile } from "@/lib/firebase/auth"
-import { updateStudentProfile } from "@/lib/firebase/student-profiles"
+import { updateStudentProfile, getStudentProfile } from "@/lib/firebase/student-profiles"
+import { SchoolSelector } from "@/components/school-selector"
 import { toast } from "sonner"
 import { INTERESTS, VOLUNTEER_OPTIONS, AVAILABILITY_OPTIONS } from "@/lib/preferences"
 import { getUserApplications, UserApplication } from "@/lib/firebase/dashboard"
@@ -51,18 +52,33 @@ export default function AccountPage() {
 
     useEffect(() => {
         if (userProfile) {
-            const parts = (userProfile.fullName || "").trim().split(" ")
+            const parts = ((userProfile as any).fullName || "").trim().split(" ")
             setFirstName(userProfile.firstName || parts[0] || "")
             setLastName(userProfile.lastName || (parts.length > 1 ? parts.slice(1).join(" ") : "") || "")
             setEmail(userProfile.email || user?.email || "")
-            setSchool(userProfile.school || "")
-            setSelectedInterests(
-                (userProfile.interests || []).map((id) => (id === "senior-security" ? "senior-care" : id))
-            )
-            setVolunteerPreference(userProfile.volunteerPreference || "")
-            setAvailability(userProfile.availability || "")
         }
     }, [userProfile, user?.email])
+
+    // Fetch student profile for preferences + school
+    useEffect(() => {
+        const fetchStudentProfile = async () => {
+            if (!user?.uid) return
+            try {
+                const profile = await getStudentProfile(user.uid)
+                if (profile) {
+                    setSchool(profile.school || "")
+                    setSelectedInterests(
+                        (profile.interests || []).map((id: string) => (id === "senior-security" ? "senior-care" : id))
+                    )
+                    setVolunteerPreference(profile.volunteerFormat || "")
+                    setAvailability(profile.availability || "")
+                }
+            } catch (err) {
+                console.error("Error fetching student profile:", err)
+            }
+        }
+        fetchStudentProfile()
+    }, [user?.uid])
 
     useEffect(() => {
         const fetchApps = async () => {
@@ -100,7 +116,9 @@ export default function AccountPage() {
         setIsSaving(true)
         setSaveError(null)
         try {
-            await updateUserProfile(user.uid, { firstName, lastName, email, school })
+            await updateUserProfile(user.uid, { firstName, lastName, email })
+            // Save school to student_profiles
+            await updateStudentProfile(user.uid, { school })
             await refreshProfile()
             setIsEditing(false)
             toast.success("Changes saved successfully")
@@ -149,7 +167,7 @@ export default function AccountPage() {
                                     </div>
                                     <div>
                                         <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-                                            Welcome back, {loading ? "..." : (userProfile?.firstName || userProfile?.fullName?.split(" ")[0] || "User")}!
+                                            Welcome back, {loading ? "..." : (userProfile?.firstName || "User")}!
                                         </h1>
                                         <p className="text-muted-foreground mt-1">Ready to make a difference today?</p>
                                     </div>
@@ -237,7 +255,6 @@ export default function AccountPage() {
                                                         setFirstName(userProfile.firstName || "")
                                                         setLastName(userProfile.lastName || "")
                                                         setEmail(userProfile.email || user?.email || "")
-                                                        setSchool(userProfile.school || "")
                                                     }
                                                 }}
                                             >
@@ -318,17 +335,12 @@ export default function AccountPage() {
                                     </div>
                                     <div className="grid gap-2 md:col-span-2">
                                         <Label htmlFor="school">School name</Label>
-                                        {isEditing ? (
-                                            <Input
-                                                id="school"
-                                                value={school}
-                                                onChange={(e) => setSchool(e.target.value)}
-                                                placeholder="Your school name"
-                                                required
-                                            />
-                                        ) : (
-                                            <p className="font-medium text-foreground py-2">{school || "—"}</p>
-                                        )}
+                                        <SchoolSelector
+                                            value={school}
+                                            onChange={setSchool}
+                                            disabled={!isEditing}
+                                            placeholder="Search for your school..."
+                                        />
                                     </div>
                                 </div>
                             </form>
@@ -352,12 +364,20 @@ export default function AccountPage() {
                                                 type="button"
                                                 variant="ghost"
                                                 size="sm"
-                                                onClick={() => {
+                                                onClick={async () => {
                                                     setIsEditingPrefs(false)
-                                                    if (userProfile) {
-                                                        setSelectedInterests(userProfile.interests || [])
-                                                        setVolunteerPreference(userProfile.volunteerPreference || "")
-                                                        setAvailability(userProfile.availability || "")
+                                                    // Restore from student profile
+                                                    if (user?.uid) {
+                                                        try {
+                                                            const profile = await getStudentProfile(user.uid)
+                                                            if (profile) {
+                                                                setSelectedInterests(profile.interests || [])
+                                                                setVolunteerPreference(profile.volunteerFormat || "")
+                                                                setAvailability(profile.availability || "")
+                                                            }
+                                                        } catch (err) {
+                                                            console.error("Error restoring preferences:", err)
+                                                        }
                                                     }
                                                 }}
                                             >

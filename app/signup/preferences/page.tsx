@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { INTERESTS } from "@/lib/preferences"
 import { cn } from "@/lib/utils"
+import { SchoolSelector } from "@/components/school-selector"
 
 export default function PreferencesPage() {
   const router = useRouter()
@@ -21,15 +22,18 @@ export default function PreferencesPage() {
   const [submitError, setSubmitError] = useState<string>("")
   const [volunteerPreference, setVolunteerPreference] = useState("")
   const [availability, setAvailability] = useState("")
+  const [school, setSchool] = useState("")
 
   const selectedInterestsRef = useRef<string[]>([])
   const volunteerPreferenceRef = useRef("")
   const availabilityRef = useRef("")
+  const schoolRef = useRef("")
   useEffect(() => {
     selectedInterestsRef.current = selectedInterests
     volunteerPreferenceRef.current = volunteerPreference
     availabilityRef.current = availability
-  }, [selectedInterests, volunteerPreference, availability])
+    schoolRef.current = school
+  }, [selectedInterests, volunteerPreference, availability, school])
 
   const handleInterestToggle = (interestId: string) => {
     setSubmitError("")
@@ -56,6 +60,7 @@ export default function PreferencesPage() {
     const interests = selectedInterestsRef.current
     const volunteer = volunteerPreferenceRef.current
     const avail = availabilityRef.current
+    const schoolName = schoolRef.current
 
     const missing: string[] = []
     if (interests.length === 0) {
@@ -81,6 +86,7 @@ export default function PreferencesPage() {
           interests,
           volunteerFormat: volunteer,
           availability: avail,
+          ...(schoolName ? { school: schoolName } : {}),
         }
         if (existing) {
           await updateStudentProfile(user.uid, profileData)
@@ -120,6 +126,19 @@ export default function PreferencesPage() {
                 {submitError}
               </div>
             )}
+
+            {/* School Selector */}
+            <div className="mb-6">
+              <Label className="text-base font-semibold mb-3 block text-sky-900">
+                What school do you attend?
+              </Label>
+              <SchoolSelector
+                value={school}
+                onChange={setSchool}
+                placeholder="Search for your school..."
+              />
+            </div>
+
             <div className="grid md:grid-cols-2 gap-8">
               {/* LEFT COLUMN - Interests */}
               <div>
