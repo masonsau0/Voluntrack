@@ -29,13 +29,8 @@ import {
     BarChart3,
     RotateCcw,
     Bookmark,
-    Leaf,
     BookOpen,
     ArrowUpDown,
-    CheckCircle,
-    CheckCircle2,
-    XCircle,
-    Clock3,
     Flag,
 } from "lucide-react"
 import {
@@ -48,33 +43,15 @@ import {
 import { submitReport } from "@/lib/firebase/reports"
 import { toast } from "sonner"
 import { CATEGORIES } from "@/lib/preferences"
-
-// Color-coded category colors - matches signup preferences (lib/preferences.ts CATEGORY_OPTIONS)
-const categoryColors: { [key: string]: { bg: string; text: string; border: string; cardBg: string } } = {
-    "Environment": { bg: "bg-green-100", text: "text-green-700", border: "border-green-200", cardBg: "bg-green-50 border-green-200" },
-    "Education": { bg: "bg-amber-100", text: "text-amber-700", border: "border-amber-200", cardBg: "bg-amber-50 border-amber-200" },
-    "Healthcare": { bg: "bg-red-100", text: "text-red-700", border: "border-red-200", cardBg: "bg-red-50 border-red-200" },
-    "Animal Welfare": { bg: "bg-teal-100", text: "text-teal-700", border: "border-teal-200", cardBg: "bg-teal-50 border-teal-200" },
-    "Arts & Culture": { bg: "bg-purple-100", text: "text-purple-700", border: "border-purple-200", cardBg: "bg-purple-50 border-purple-200" },
-    "Senior Care": { bg: "bg-amber-100", text: "text-amber-700", border: "border-amber-200", cardBg: "bg-amber-50 border-amber-200" },
-    "Mental Health": { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-200", cardBg: "bg-pink-50 border-pink-200" },
-}
-
-// Status colors
-const statusColors: { [key: string]: { bg: string; text: string; border: string; icon: typeof CheckCircle } } = {
-    "approved": { bg: "bg-green-100", text: "text-green-700", border: "border-green-300", icon: CheckCircle },
-    "pending": { bg: "bg-yellow-100", text: "text-yellow-700", border: "border-yellow-300", icon: Clock3 },
-    "denied": { bg: "bg-red-100", text: "text-red-700", border: "border-red-300", icon: XCircle },
-    "completed": { bg: "bg-teal-100", text: "text-teal-700", border: "border-teal-300", icon: CheckCircle2 },
-}
+import { categoryColors, statusColors, defaultCategoryColor } from "@/lib/ui-config"
 
 const eventCategories = [...CATEGORIES]
 
 const statusOptions = [
-    { id: "approved", label: "Approved", color: statusColors.approved },
-    { id: "pending", label: "Pending", color: statusColors.pending },
-    { id: "denied", label: "Not Approved", color: statusColors.denied },
-    { id: "completed", label: "Completed", color: statusColors.completed },
+    { id: "approved", label: statusColors.approved.label, color: statusColors.approved },
+    { id: "pending", label: statusColors.pending.label, color: statusColors.pending },
+    { id: "denied", label: statusColors.denied.label, color: statusColors.denied },
+    { id: "completed", label: statusColors.completed.label, color: statusColors.completed },
 ]
 
 const sortOptions = [
