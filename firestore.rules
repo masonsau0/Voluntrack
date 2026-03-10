@@ -105,5 +105,21 @@ service cloud.firestore {
       allow delete: if isAuthenticated()
         && resource.data.userId == request.auth.uid;
     }
+
+    // 11. Reports Collection — immutable audit trail
+    // Only authenticated users can create; no reads/updates/deletes.
+    // reporterId must match the caller's UID to prevent spoofing.
+    // Text is capped at 1-1000 chars to prevent abuse.
+    match /reports/{reportId} {
+      allow create: if isAuthenticated()
+        && request.resource.data.reporterId == request.auth.uid
+        && request.resource.data.reporterId is string
+        && request.resource.data.opportunityId is string
+        && request.resource.data.orgId is string
+        && request.resource.data.text is string
+        && request.resource.data.text.size() >= 1
+        && request.resource.data.text.size() <= 1000;
+      allow read, update, delete: if false;
+    }
   }
 }

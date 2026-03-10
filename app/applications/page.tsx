@@ -45,6 +45,7 @@ import {
     UserApplication,
     SavedOpportunity
 } from "@/lib/firebase/dashboard"
+import { submitReport } from "@/lib/firebase/reports"
 import { toast } from "sonner"
 import { CATEGORIES } from "@/lib/preferences"
 
@@ -109,6 +110,7 @@ export default function ApplicationsPage() {
     const [reflectionText, setReflectionText] = useState("")
     const [reportOpportunity, setReportOpportunity] = useState<UserApplication | null>(null)
     const [reportConcern, setReportConcern] = useState("")
+    const [reportSubmitting, setReportSubmitting] = useState(false)
 
     const { user } = useAuth()
 
@@ -977,18 +979,28 @@ export default function ApplicationsPage() {
                         <div className="flex gap-3">
                             <Button
                                 className="flex-1 bg-red-600 hover:bg-red-700 text-white"
-                                onClick={() => {
+                                disabled={reportSubmitting}
+                                onClick={async () => {
                                     const trimmed = reportConcern.trim()
                                     if (!trimmed) {
                                         toast.error("Please describe your concern before submitting.")
                                         return
                                     }
-                                    setReportOpportunity(null)
-                                    setReportConcern("")
-                                    toast.success("Report has been successfully submitted. We'll get back to you within 24 hours.")
+                                    if (!user?.uid || !reportOpportunity) return
+                                    setReportSubmitting(true)
+                                    try {
+                                        await submitReport(user.uid, reportOpportunity.opportunityId, trimmed)
+                                        setReportOpportunity(null)
+                                        setReportConcern("")
+                                        toast.success("Report has been successfully submitted. We'll get back to you within 24 hours.")
+                                    } catch (err: any) {
+                                        toast.error(err.message || "Failed to submit report. Please try again.")
+                                    } finally {
+                                        setReportSubmitting(false)
+                                    }
                                 }}
                             >
-                                Submit Report
+                                {reportSubmitting ? "Submitting..." : "Submit Report"}
                             </Button>
                             <Button
                                 variant="outline"
