@@ -43,6 +43,12 @@ export interface UserApplication {
     spotsLeft?: number;
     totalSpots?: number;
     updatedAt: any;
+    // External Opportunity Fields
+    isExternal?: boolean;
+    reflection?: string;
+    contactName?: string;
+    contactEmail?: string;
+    contactPhone?: string;
 }
 
 export interface SavedOpportunity {
@@ -220,6 +226,86 @@ export async function updateApplicationStatus(
         }
     } catch (error) {
         console.error("Error updating application status:", error);
+        throw error;
+    }
+}
+
+/**
+ * Submit an external opportunity
+ */
+export async function submitExternalOpportunity(
+    userId: string,
+    data: {
+        title: string;
+        organization: string;
+        date: string;
+        hours: number;
+        category: string;
+        reflection: string;
+        contactName: string;
+        contactEmail: string;
+        contactPhone?: string;
+    }
+): Promise<void> {
+    try {
+        const opportunityId = `ext_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        const appRef = doc(db, "user_applications", `${userId}_${opportunityId}`);
+
+        // Parse date for display and sorting
+        const parsedDate = new Date(data.date);
+        const dateStr = parsedDate.toLocaleDateString("en-US", { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+        const dateISO = parsedDate.toISOString().split('T')[0];
+
+        const appData: Omit<UserApplication, "id"> = {
+            userId,
+            opportunityId,
+            status: "completed", // Auto-complete external opportunities
+            appliedDate: new Date().toISOString(),
+            title: data.title,
+            organization: data.organization,
+            location: "External",
+            date: dateStr,
+            dateISO,
+            hours: data.hours,
+            category: data.category,
+            image: "/icon.svg", // Default image
+            updatedAt: serverTimestamp(),
+            // External specific fields
+            isExternal: true,
+            reflection: data.reflection,
+            contactName: data.contactName,
+            contactEmail: data.contactEmail,
+            contactPhone: data.contactPhone,
+        };
+
+        await setDoc(appRef, appData);
+
+        // Immediately increment hours and process badges
+        const profileRef = doc(db, "student_profiles", userId);
+        const profileDoc = await getDoc(profileRef);
+        
+        if (profileDoc.exists()) {
+            const currentHours = profileDoc.data()?.hoursCompleted || 0;
+            const currentBadges = profileDoc.data()?.badges || [];
+            const hoursToAdd = data.hours || 0;
+            const newTotalHours = currentHours + hoursToAdd;
+
+            const newBadges = [...currentBadges];
+            BADGE_MILESTONES.forEach(milestone => {
+                if (newTotalHours >= milestone.hours && !newBadges.includes(milestone.id)) {
+                    newBadges.push(milestone.id);
+                }
+            });
+
+            await updateDoc(profileRef, {
+                hoursCompleted: newTotalHours,
+                badges: newBadges,
+                updatedAt: serverTimestamp()
+            });
+        }
+
+    } catch (error) {
+        console.error("Error submitting external opportunity:", error);
         throw error;
     }
 }

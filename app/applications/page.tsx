@@ -32,6 +32,7 @@ import {
     BookOpen,
     ArrowUpDown,
     Flag,
+    Plus,
 } from "lucide-react"
 import {
     getUserApplications,
@@ -44,6 +45,7 @@ import { submitReport } from "@/lib/firebase/reports"
 import { toast } from "sonner"
 import { CATEGORIES } from "@/lib/preferences"
 import { categoryColors, statusColors, defaultCategoryColor } from "@/lib/ui-config"
+import { AddExternalOpportunityModal } from "@/components/add-external-opportunity-modal"
 
 const eventCategories = [...CATEGORIES]
 
@@ -88,6 +90,7 @@ export default function ApplicationsPage() {
     const [reportOpportunity, setReportOpportunity] = useState<UserApplication | null>(null)
     const [reportConcern, setReportConcern] = useState("")
     const [reportSubmitting, setReportSubmitting] = useState(false)
+    const [showExternalOppModal, setShowExternalOppModal] = useState(false)
 
     const { user } = useAuth()
 
@@ -422,17 +425,24 @@ export default function ApplicationsPage() {
                                                     : "User"}
                                             !
                                         </h1>
-                                        <p className="text-muted-foreground mt-1">Ready to make a difference today?</p>
                                     </div>
                                 </div>
-                                <div className="mt-4 ml-16">
+                                <div className="mt-4 ml-16 flex flex-col sm:flex-row">
                                     <Link href="/opportunities">
-                                        <Button className="bg-blue-500 hover:bg-blue-600 text-white gap-2 rounded-full">
+                                        <Button className="bg-blue-500 hover:bg-blue-600 text-white gap-2 rounded-full mb-2 sm:mb-0 sm:mr-2 w-full sm:w-auto">
                                             <FolderOpen className="w-4 h-4" />
                                             View Opportunities
                                             <ArrowRight className="w-4 h-4" />
                                         </Button>
                                     </Link>
+                                    <Button 
+                                        variant="outline" 
+                                        className="gap-2 rounded-full w-full sm:w-auto"
+                                        onClick={() => setShowExternalOppModal(true)}
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                        Add External Opportunity
+                                    </Button>
                                 </div>
                             </div>
 
@@ -1115,6 +1125,14 @@ export default function ApplicationsPage() {
                     </div>
                 </div>
             )}
+
+            <AddExternalOpportunityModal 
+                open={showExternalOppModal} 
+                onOpenChange={setShowExternalOppModal}
+                onSuccess={() => {
+                    fetchData()
+                }}
+            />
         </div>
     )
 }

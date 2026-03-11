@@ -59,6 +59,8 @@ import {
 } from "@/lib/firebase/dashboard"
 import { toast } from "sonner"
 import { categoryColors, commitmentColors, defaultCategoryColor } from "@/lib/ui-config"
+import { AddExternalOpportunityModal } from "@/components/add-external-opportunity-modal"
+
 const allCategories = [...CATEGORIES]
 const commitmentTypes = ["One-time", "Weekly", "Monthly"]
 const sortOptions = [
@@ -92,6 +94,7 @@ export default function OpportunitiesPage() {
   const [selectedDateRange, setSelectedDateRange] = useState<DateRange | undefined>(undefined)
   const [sortBy, setSortBy] = useState("featured")
   const [showFilters, setShowFilters] = useState(false)
+  const [showExternalOppModal, setShowExternalOppModal] = useState(false)
 
   // Fetch all opportunities
   const fetchAllOpportunities = useCallback(async () => {
@@ -712,6 +715,16 @@ export default function OpportunitiesPage() {
                 )}
               </Button>
 
+              {/* Add External Opportunity */}
+              <Button
+                variant="outline"
+                className="rounded-full gap-2 border-slate-300"
+                onClick={() => setShowExternalOppModal(true)}
+              >
+                <Plus className="w-4 h-4" />
+                Add External Opportunity
+              </Button>
+
               {/* Clear filters */}
               {hasActiveFilters && (
                 <Button
@@ -1205,6 +1218,14 @@ export default function OpportunitiesPage() {
           </div>
         </div>
       )}
+
+      <AddExternalOpportunityModal 
+        open={showExternalOppModal} 
+        onOpenChange={setShowExternalOppModal}
+        onSuccess={() => {
+          fetchAllOpportunities()
+        }}
+      />
 
       <style jsx>{`
         @keyframes fade-in {
