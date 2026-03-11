@@ -38,6 +38,7 @@ import {
     Clock3,
     Flag,
     Download,
+    Plus,
 } from "lucide-react"
 import {
     getUserApplications,
@@ -46,36 +47,20 @@ import {
     UserApplication,
     SavedOpportunity
 } from "@/lib/firebase/dashboard"
+import { submitReport } from "@/lib/firebase/reports"
 import { toast } from "sonner"
 import { CATEGORIES } from "@/lib/preferences"
 import { generateVolunteerPDF } from "@/lib/pdf-generator"
-
-// Color-coded category colors - matches signup preferences (lib/preferences.ts CATEGORY_OPTIONS)
-const categoryColors: { [key: string]: { bg: string; text: string; border: string; cardBg: string } } = {
-    "Environment": { bg: "bg-green-100", text: "text-green-700", border: "border-green-200", cardBg: "bg-green-50 border-green-200" },
-    "Education": { bg: "bg-amber-100", text: "text-amber-700", border: "border-amber-200", cardBg: "bg-amber-50 border-amber-200" },
-    "Healthcare": { bg: "bg-red-100", text: "text-red-700", border: "border-red-200", cardBg: "bg-red-50 border-red-200" },
-    "Animal Welfare": { bg: "bg-teal-100", text: "text-teal-700", border: "border-teal-200", cardBg: "bg-teal-50 border-teal-200" },
-    "Arts & Culture": { bg: "bg-purple-100", text: "text-purple-700", border: "border-purple-200", cardBg: "bg-purple-50 border-purple-200" },
-    "Senior Care": { bg: "bg-amber-100", text: "text-amber-700", border: "border-amber-200", cardBg: "bg-amber-50 border-amber-200" },
-    "Mental Health": { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-200", cardBg: "bg-pink-50 border-pink-200" },
-}
-
-// Status colors
-const statusColors: { [key: string]: { bg: string; text: string; border: string; icon: typeof CheckCircle } } = {
-    "approved": { bg: "bg-green-100", text: "text-green-700", border: "border-green-300", icon: CheckCircle },
-    "pending": { bg: "bg-yellow-100", text: "text-yellow-700", border: "border-yellow-300", icon: Clock3 },
-    "denied": { bg: "bg-red-100", text: "text-red-700", border: "border-red-300", icon: XCircle },
-    "completed": { bg: "bg-teal-100", text: "text-teal-700", border: "border-teal-300", icon: CheckCircle2 },
-}
+import { categoryColors, statusColors, defaultCategoryColor } from "@/lib/ui-config"
+import { AddExternalOpportunityModal } from "@/components/add-external-opportunity-modal"
 
 const eventCategories = [...CATEGORIES]
 
 const statusOptions = [
-    { id: "approved", label: "Approved", color: statusColors.approved },
-    { id: "pending", label: "Pending", color: statusColors.pending },
-    { id: "denied", label: "Not Approved", color: statusColors.denied },
-    { id: "completed", label: "Completed", color: statusColors.completed },
+    { id: "approved", label: statusColors.approved.label, color: statusColors.approved },
+    { id: "pending", label: statusColors.pending.label, color: statusColors.pending },
+    { id: "denied", label: statusColors.denied.label, color: statusColors.denied },
+    { id: "completed", label: statusColors.completed.label, color: statusColors.completed },
 ]
 
 const sortOptions = [
@@ -112,6 +97,8 @@ export default function ApplicationsPage() {
     const [reportOpportunity, setReportOpportunity] = useState<UserApplication | null>(null)
     const [reportConcern, setReportConcern] = useState("")
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
+    const [reportSubmitting, setReportSubmitting] = useState(false)
+    const [showExternalOppModal, setShowExternalOppModal] = useState(false)
 
     const { user } = useAuth()
 
@@ -460,17 +447,24 @@ export default function ApplicationsPage() {
                                                     : "User"}
                                             !
                                         </h1>
-                                        <p className="text-muted-foreground mt-1">Ready to make a difference today?</p>
                                     </div>
                                 </div>
-                                <div className="mt-4 ml-16">
+                                <div className="mt-4 ml-16 flex flex-col sm:flex-row">
                                     <Link href="/opportunities">
-                                        <Button className="bg-blue-500 hover:bg-blue-600 text-white gap-2 rounded-full">
+                                        <Button className="bg-blue-500 hover:bg-blue-600 text-white gap-2 rounded-full mb-2 sm:mb-0 sm:mr-2 w-full sm:w-auto">
                                             <FolderOpen className="w-4 h-4" />
                                             View Opportunities
                                             <ArrowRight className="w-4 h-4" />
                                         </Button>
                                     </Link>
+                                    <Button 
+                                        variant="outline" 
+                                        className="gap-2 rounded-full w-full sm:w-auto"
+                                        onClick={() => setShowExternalOppModal(true)}
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                        Add External Opportunity
+                                    </Button>
                                 </div>
                             </div>
 
@@ -1005,18 +999,28 @@ export default function ApplicationsPage() {
                         <div className="flex gap-3">
                             <Button
                                 className="flex-1 bg-red-600 hover:bg-red-700 text-white"
-                                onClick={() => {
+                                disabled={reportSubmitting}
+                                onClick={async () => {
                                     const trimmed = reportConcern.trim()
                                     if (!trimmed) {
                                         toast.error("Please describe your concern before submitting.")
                                         return
                                     }
-                                    setReportOpportunity(null)
-                                    setReportConcern("")
-                                    toast.success("Report has been successfully submitted. We'll get back to you within 24 hours.")
+                                    if (!user?.uid || !reportOpportunity) return
+                                    setReportSubmitting(true)
+                                    try {
+                                        await submitReport(user.uid, reportOpportunity.opportunityId, trimmed)
+                                        setReportOpportunity(null)
+                                        setReportConcern("")
+                                        toast.success("Report has been successfully submitted. We'll get back to you within 24 hours.")
+                                    } catch (err: any) {
+                                        toast.error(err.message || "Failed to submit report. Please try again.")
+                                    } finally {
+                                        setReportSubmitting(false)
+                                    }
                                 }}
                             >
-                                Submit Report
+                                {reportSubmitting ? "Submitting..." : "Submit Report"}
                             </Button>
                             <Button
                                 variant="outline"
@@ -1154,6 +1158,14 @@ export default function ApplicationsPage() {
                     </div>
                 </div>
             )}
+
+            <AddExternalOpportunityModal 
+                open={showExternalOppModal} 
+                onOpenChange={setShowExternalOppModal}
+                onSuccess={() => {
+                    fetchData()
+                }}
+            />
         </div>
     )
 }
