@@ -144,6 +144,7 @@ export default function DashboardPage() {
   const [reportOpportunity, setReportOpportunity] = useState<UserApplication | null>(null)
   const [reportConcern, setReportConcern] = useState("")
   const [reportSubmitting, setReportSubmitting] = useState(false)
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
   const completedOpportunitiesRef = useRef<HTMLDivElement>(null)
 
   const fetchData = async () => {

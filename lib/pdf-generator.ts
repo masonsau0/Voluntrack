@@ -12,7 +12,8 @@ export const generateVolunteerPDF = async (
 ) => {
   // Dynamically import client-only libraries to prevent SSR crashes
   const { default: jsPDF } = await import("jspdf")
-  await import("jspdf-autotable")
+  const autoTableImport = await import("jspdf-autotable")
+  const autoTable = autoTableImport.default || (autoTableImport as any)
 
   // Initialize document
   const doc = new jsPDF()
@@ -93,8 +94,7 @@ export const generateVolunteerPDF = async (
   })
 
   // 4. Draw Table
-  // @ts-expect-error - jspdf-autotable adds autoTable to the prototype, but TS type defs often miss it without complex augmentation
-  doc.autoTable({
+  autoTable(doc, {
     startY: 65,
     head: [tableColumn],
     body: tableRows,
