@@ -54,8 +54,8 @@ export async function updateStudentProfile(
     uid: string,
     data: Partial<Omit<StudentProfile, "userId" | "updatedAt">>
 ): Promise<void> {
-    await updateDoc(doc(db, "student_profiles", uid), {
+    await setDoc(doc(db, "student_profiles", uid), {
         ...data,
         updatedAt: serverTimestamp(),
-    });
+    }, { merge: true });
 }
