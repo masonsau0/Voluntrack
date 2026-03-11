@@ -227,7 +227,7 @@ export default function ApplicationsPage() {
         })
 
         return result
-    }, [selectedStatuses, selectedCategories, startDate, endDate, sortBy, searchQuery])
+    }, [applications, selectedStatuses, selectedCategories, startDate, endDate, sortBy, searchQuery])
 
     const displayedCategories = showMoreCategories ? eventCategories : eventCategories.slice(0, 4)
 
