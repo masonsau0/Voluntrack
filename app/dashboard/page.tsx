@@ -40,6 +40,7 @@ import {
   XCircle,
   Clock3,
   Flag,
+  Download,
 } from "lucide-react"
 import {
   getUserApplications,
@@ -50,6 +51,7 @@ import {
 } from "@/lib/firebase/dashboard"
 import { toast } from "sonner"
 import { categoryColors, statusColors, defaultCategoryColor } from "@/lib/ui-config"
+import { generateVolunteerPDF } from "@/lib/pdf-generator"
 
 const tabs = [
   { id: "progress", label: "Progress Tracking", icon: TrendingUp },
@@ -140,6 +142,7 @@ export default function DashboardPage() {
   const [reflectionText, setReflectionText] = useState("")
   const [reportOpportunity, setReportOpportunity] = useState<UserApplication | null>(null)
   const [reportConcern, setReportConcern] = useState("")
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
   const completedOpportunitiesRef = useRef<HTMLDivElement>(null)
 
   const fetchData = async () => {
@@ -172,6 +175,19 @@ export default function DashboardPage() {
       fetchData() // Refresh data
     } catch (error) {
       toast.error("Failed to update status.")
+    }
+  }
+
+  const handleExportPDF = async () => {
+    setIsGeneratingPDF(true)
+    try {
+      await generateVolunteerPDF(userProfile, completedOpportunities)
+      toast.success("PDF generated successfully!")
+    } catch (error) {
+      console.error("Error generating PDF:", error)
+      toast.error("Failed to generate PDF.")
+    } finally {
+      setIsGeneratingPDF(false)
     }
   }
 
@@ -619,13 +635,25 @@ export default function DashboardPage() {
                           <p className="text-xs text-muted-foreground">Volunteer opportunities you've finished</p>
                         </div>
                       </div>
-                      <Link
-                        href="/applications"
-                        className="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1"
-                      >
-                        View All
-                        <ArrowRight className="w-4 h-4" />
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleExportPDF}
+                          disabled={isGeneratingPDF || completedOpportunities.length === 0}
+                          className="h-8 gap-1 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          {isGeneratingPDF ? "Exporting..." : "Export PDF"}
+                        </Button>
+                        <Link
+                          href="/applications"
+                          className="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1"
+                        >
+                          View All
+                          <ArrowRight className="w-4 h-4" />
+                        </Link>
+                      </div>
                     </div>
 
                     {completedOpportunities.length > 0 ? (

@@ -37,6 +37,7 @@ import {
     XCircle,
     Clock3,
     Flag,
+    Download,
 } from "lucide-react"
 import {
     getUserApplications,
@@ -47,6 +48,7 @@ import {
 } from "@/lib/firebase/dashboard"
 import { toast } from "sonner"
 import { CATEGORIES } from "@/lib/preferences"
+import { generateVolunteerPDF } from "@/lib/pdf-generator"
 
 // Color-coded category colors - matches signup preferences (lib/preferences.ts CATEGORY_OPTIONS)
 const categoryColors: { [key: string]: { bg: string; text: string; border: string; cardBg: string } } = {
@@ -109,6 +111,7 @@ export default function ApplicationsPage() {
     const [reflectionText, setReflectionText] = useState("")
     const [reportOpportunity, setReportOpportunity] = useState<UserApplication | null>(null)
     const [reportConcern, setReportConcern] = useState("")
+    const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
 
     const { user } = useAuth()
 
@@ -142,6 +145,20 @@ export default function ApplicationsPage() {
             fetchData() // Refresh data
         } catch (error) {
             toast.error("Failed to update status.")
+        }
+    }
+
+    const handleExportPDF = async () => {
+        setIsGeneratingPDF(true)
+        try {
+            const completedOpportunities = applications.filter(app => app.status === "completed")
+            await generateVolunteerPDF(userProfile, completedOpportunities)
+            toast.success("PDF generated successfully!")
+        } catch (error) {
+            console.error("Error generating PDF:", error)
+            toast.error("Failed to generate PDF.")
+        } finally {
+            setIsGeneratingPDF(false)
         }
     }
 
@@ -503,12 +520,23 @@ export default function ApplicationsPage() {
                         </div>
                     </div>
 
-                    {/* Page Title */}
-                    <div className="mb-6">
-                        <h2 className="text-2xl font-bold text-foreground">My Applications</h2>
-                        <p className="text-muted-foreground mt-1">
-                            Track all your volunteer applications and their status
-                        </p>
+                    {/* Page Title & Actions */}
+                    <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h2 className="text-2xl font-bold text-foreground">My Applications</h2>
+                            <p className="text-muted-foreground mt-1">
+                                Track all your volunteer applications and their status
+                            </p>
+                        </div>
+                        <Button
+                            variant="outline"
+                            onClick={handleExportPDF}
+                            disabled={isGeneratingPDF || applications.filter(a => a.status === "completed").length === 0}
+                            className="gap-2 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800"
+                        >
+                            <Download className="w-4 h-4" />
+                            {isGeneratingPDF ? "Exporting..." : "Export PDF History"}
+                        </Button>
                     </div>
 
                     {/* Mobile Filter Toggle */}
