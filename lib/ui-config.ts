@@ -11,6 +11,25 @@ import {
   XCircle,
 } from "lucide-react"
 
+// ============================================================================
+// 🎨 CENTRALIZED COLOR CONFIGURATION
+// ============================================================================
+//
+// This is the SINGLE SOURCE OF TRUTH for all color mappings used across the app.
+// All pages (Dashboard, Applications, Opportunities, Org pages, etc.) import
+// from this file. Do NOT define colors locally in page components.
+//
+// TO ADD A NEW CATEGORY:
+//   Add a new entry to `categoryColors` below with all required fields.
+//
+// TO ADD A NEW STATUS:
+//   Add a new entry to `statusColors` below with all required fields.
+//
+// TO ADD A NEW COMMITMENT LEVEL:
+//   Add a new entry to `commitmentColors` below with all required fields.
+//
+// ============================================================================
+
 // Category Colors Map
 export const categoryColors: { [key: string]: { bg: string; text: string; border: string; gradient: string; icon: typeof Leaf; heroGradient: string; cardBg: string; leftColor: string } } = {
   "Environment": { bg: "bg-green-100", text: "text-green-700", border: "border-green-300", gradient: "from-green-500/15 to-emerald-600/15", heroGradient: "from-green-900/90 via-green-800/60 to-transparent", icon: Leaf, cardBg: "bg-green-50 border-green-200", leftColor: "#10b981" },
