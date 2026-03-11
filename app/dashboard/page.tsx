@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useAuth } from "@/contexts/AuthContext"
+import { getStudentProfile } from "@/lib/firebase/student-profiles"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -146,17 +147,22 @@ export default function DashboardPage() {
   const [reportSubmitting, setReportSubmitting] = useState(false)
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
   const completedOpportunitiesRef = useRef<HTMLDivElement>(null)
+  const [studentHours, setStudentHours] = useState(0)
+  const [studentBadges, setStudentBadges] = useState<string[]>([])
 
   const fetchData = async () => {
     if (!user?.uid) return
     setDataLoading(true)
     try {
-      const [userApps, userSaved] = await Promise.all([
+      const [userApps, userSaved, studentProfile] = await Promise.all([
         getUserApplications(user.uid),
-        getUserSaved(user.uid)
+        getUserSaved(user.uid),
+        getStudentProfile(user.uid)
       ])
       setApplications(userApps)
       setSavedOpps(userSaved)
+      setStudentHours(studentProfile?.hoursCompleted ?? 0)
+      setStudentBadges(studentProfile?.badges ?? [])
     } catch (error) {
       console.error("Error fetching dashboard data:", error)
       toast.error("Failed to load dashboard data.")
@@ -358,7 +364,7 @@ export default function DashboardPage() {
                 onClick={() => completedOpportunitiesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
               >
                 <CardContent className="p-4 h-full relative">
-                  <HorizontalProgressTracker completedHours={userProfile?.totalHours || 0} goalHours={userProfile?.goalHours || 40} />
+                  <HorizontalProgressTracker completedHours={studentHours} goalHours={userProfile?.goalHours || 40} />
                 </CardContent>
               </Card>
             </div>
@@ -490,7 +496,7 @@ export default function DashboardPage() {
                       style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                     >
                       {badges.map((badge) => {
-                        const isEarned = userProfile?.badges?.includes(badge.id)
+                        const isEarned = studentBadges.includes(badge.id)
                         return (
                           <div
                             key={badge.id}

@@ -51,6 +51,7 @@ import {
 } from "lucide-react"
 import { CATEGORIES, INTERESTS } from "@/lib/preferences"
 import { getAllOpportunities, type Opportunity } from "@/lib/firebase/opportunities"
+import { getStudentProfile } from "@/lib/firebase/student-profiles"
 import {
   applyToOpportunity,
   toggleSaveOpportunity,
@@ -82,6 +83,7 @@ export default function OpportunitiesPage() {
 
   const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set())
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
+  const [studentInterests, setStudentInterests] = useState<string[]>([])
 
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0)
   const [searchQuery, setSearchQuery] = useState("")
@@ -122,12 +124,14 @@ export default function OpportunitiesPage() {
     const fetchUserData = async () => {
       if (!user?.uid) return
       try {
-        const [apps, saved] = await Promise.all([
+        const [apps, saved, studentProfile] = await Promise.all([
           getUserApplications(user.uid),
-          getUserSaved(user.uid)
+          getUserSaved(user.uid),
+          getStudentProfile(user.uid)
         ])
         setAppliedIds(new Set(apps.map(a => a.opportunityId)))
         setSavedIds(new Set(saved.map(s => s.opportunityId)))
+        setStudentInterests(studentProfile?.interests ?? [])
       } catch (err) {
         console.error("Error fetching user data:", err)
       }
@@ -294,18 +298,18 @@ export default function OpportunitiesPage() {
     return filtered
   }, [opportunities, searchQuery, selectedCategories, selectedCommitments, selectedHours, selectedDateRange, sortBy])
 
-  // Personalized "Experiences for You" based on profile interests
+  // Personalized "Experiences for You" based on student profile interests
   const personalizedOpportunities = useMemo(() => {
-    if (!userProfile?.interests || userProfile.interests.length === 0) return []
+    if (studentInterests.length === 0) return []
 
     // Map interest IDs to labels used in categories
-    const interestLabels = userProfile.interests.map((id: string) => {
+    const interestLabels = studentInterests.map((id: string) => {
       const match = INTERESTS.find(i => (i as any).id === id)
       return match ? match.label : ""
     }).filter((label: string) => label !== "")
 
     return opportunities.filter(opp => (interestLabels as string[]).includes(opp.category))
-  }, [opportunities, userProfile])
+  }, [opportunities, studentInterests])
 
   // Group by category
   const groupedByCategory = useMemo(() => {
