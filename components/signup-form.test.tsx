@@ -33,6 +33,7 @@ describe("SignupForm", () => {
     await user.type(screen.getByLabelText(/Email/i), "john@example.com")
     await user.type(screen.getByLabelText(/^Password/i), "Password123!")
     await user.type(screen.getByLabelText(/Confirm Password/i), "Password123!")
+    await user.click(screen.getByRole("checkbox", { name: /by signing up, you agree to our/i }))
 
     // Submit
     await user.click(screen.getByRole("button", { name: "Sign Up" }))

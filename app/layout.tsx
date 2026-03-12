@@ -33,8 +33,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`font-sans ${inter.variable} ${cormorant.variable} antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`font-sans ${inter.variable} ${cormorant.variable} antialiased`} suppressHydrationWarning>
         <Providers>
           <Suspense fallback={<div>Loading...</div>}>
             {children}

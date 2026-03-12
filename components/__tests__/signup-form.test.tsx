@@ -22,30 +22,42 @@ describe('SignupForm', () => {
     jest.clearAllMocks();
   });
 
+  it('should disable Sign Up button until terms are agreed', () => {
+    render(<SignupForm />);
+
+    const submitButton = screen.getByRole('button', { name: /sign up/i });
+    const termsCheckbox = screen.getByRole('checkbox', { name: /by signing up, you agree to our/i });
+
+    expect(submitButton).toBeDisabled();
+    fireEvent.click(termsCheckbox);
+    expect(submitButton).not.toBeDisabled();
+  });
+
   it('should render signup form with all required fields', () => {
     render(<SignupForm />);
 
     expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/last name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /student/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /volunteer org/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument();
+    expect(screen.getByText(/by signing up, you agree to our/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /terms and condition/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign up/i })).toBeInTheDocument();
   });
 
   it('should show validation errors when form is submitted empty', async () => {
     render(<SignupForm />);
 
+    const termsCheckbox = screen.getByRole('checkbox', { name: /by signing up, you agree to our/i });
     const submitButton = screen.getByRole('button', { name: /sign up/i });
+    fireEvent.click(termsCheckbox);
     fireEvent.click(submitButton);
 
     await waitFor(() => {
       expect(screen.getByText(/first name is required/i)).toBeInTheDocument();
       expect(screen.getByText(/last name is required/i)).toBeInTheDocument();
       expect(screen.getByText(/email is required/i)).toBeInTheDocument();
-      expect(screen.getByText(/please select your account type/i)).toBeInTheDocument();
       expect(screen.getByText(/^password is required$/i)).toBeInTheDocument();
       expect(screen.getByText(/^confirm password is required$/i)).toBeInTheDocument();
     });
@@ -64,7 +76,7 @@ describe('SignupForm', () => {
     const firstNameInput = screen.getByLabelText(/first name/i);
     const lastNameInput = screen.getByLabelText(/last name/i);
     const emailInput = screen.getByLabelText(/email/i);
-    const studentButton = screen.getByRole('button', { name: /student/i });
+    const termsCheckbox = screen.getByRole('checkbox', { name: /by signing up, you agree to our/i });
     const passwordInput = screen.getByLabelText(/^password$/i);
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
     const submitButton = screen.getByRole('button', { name: /sign up/i });
@@ -72,9 +84,9 @@ describe('SignupForm', () => {
     fireEvent.change(firstNameInput, { target: { value: 'John' } });
     fireEvent.change(lastNameInput, { target: { value: 'Doe' } });
     fireEvent.change(emailInput, { target: { value: 'john@example.com' } });
-    fireEvent.click(studentButton);
     fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
     fireEvent.change(confirmPasswordInput, { target: { value: 'Password123!' } });
+    fireEvent.click(termsCheckbox);
     fireEvent.click(submitButton);
 
     await waitFor(() => {
@@ -96,7 +108,7 @@ describe('SignupForm', () => {
     const firstNameInput = screen.getByLabelText(/first name/i);
     const lastNameInput = screen.getByLabelText(/last name/i);
     const emailInput = screen.getByLabelText(/email/i);
-    const studentButton = screen.getByRole('button', { name: /student/i });
+    const termsCheckbox = screen.getByRole('checkbox', { name: /by signing up, you agree to our/i });
     const passwordInput = screen.getByLabelText(/^password$/i);
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
     const submitButton = screen.getByRole('button', { name: /sign up/i });
@@ -104,9 +116,9 @@ describe('SignupForm', () => {
     fireEvent.change(firstNameInput, { target: { value: 'John' } });
     fireEvent.change(lastNameInput, { target: { value: 'Doe' } });
     fireEvent.change(emailInput, { target: { value: 'existing@example.com' } });
-    fireEvent.click(studentButton);
     fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
     fireEvent.change(confirmPasswordInput, { target: { value: 'Password123!' } });
+    fireEvent.click(termsCheckbox);
     fireEvent.click(submitButton);
 
     await waitFor(() => {
@@ -124,7 +136,7 @@ describe('SignupForm', () => {
     const firstNameInput = screen.getByLabelText(/first name/i);
     const lastNameInput = screen.getByLabelText(/last name/i);
     const emailInput = screen.getByLabelText(/email/i);
-    const studentButton = screen.getByRole('button', { name: /student/i });
+    const termsCheckbox = screen.getByRole('checkbox', { name: /by signing up, you agree to our/i });
     const passwordInput = screen.getByLabelText(/^password$/i);
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
     const submitButton = screen.getByRole('button', { name: /sign up/i });
@@ -132,9 +144,9 @@ describe('SignupForm', () => {
     fireEvent.change(firstNameInput, { target: { value: 'John' } });
     fireEvent.change(lastNameInput, { target: { value: 'Doe' } });
     fireEvent.change(emailInput, { target: { value: 'john@example.com' } });
-    fireEvent.click(studentButton);
     fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
     fireEvent.change(confirmPasswordInput, { target: { value: 'Password123!' } });
+    fireEvent.click(termsCheckbox);
     fireEvent.click(submitButton);
 
     expect(screen.getByRole('button', { name: /creating account/i })).toBeInTheDocument();
@@ -151,15 +163,14 @@ describe('SignupForm', () => {
     const passwordInput = screen.getByLabelText(/^password$/i);
 
     // Check initial state - requirements should not be met
-    expect(screen.getByText(/at least 6 characters/i)).toHaveClass('text-red-600');
+    expect(screen.getByText(/at least 8 characters/i)).toHaveClass('text-red-600');
 
     // Type a password that meets some requirements
-    fireEvent.change(passwordInput, { target: { value: 'Pass1!' } });
+    fireEvent.change(passwordInput, { target: { value: 'Password1' } });
 
     // All requirements should now be met
-    expect(screen.getByText(/at least 6 characters/i)).toHaveClass('text-green-600');
+    expect(screen.getByText(/at least 8 characters/i)).toHaveClass('text-green-600');
     expect(screen.getByText(/one uppercase letter/i)).toHaveClass('text-green-600');
-    expect(screen.getByText(/one symbol/i)).toHaveClass('text-green-600');
   });
 
   it('should show error when passwords do not match', async () => {
@@ -197,8 +208,10 @@ describe('SignupForm', () => {
     render(<SignupForm />);
 
     const firstNameInput = screen.getByLabelText(/first name/i);
+    const termsCheckbox = screen.getByRole('checkbox', { name: /by signing up, you agree to our/i });
     const submitButton = screen.getByRole('button', { name: /sign up/i });
 
+    fireEvent.click(termsCheckbox);
     fireEvent.click(submitButton);
 
     await waitFor(() => {
