@@ -258,19 +258,19 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-background">
       <Navigation />
 
       <main className="flex-1 pt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Welcome Header with Stats */}
-          <div className="bg-white rounded-2xl p-6 mb-6 shadow-sm">
+          <div className="bg-card rounded-2xl p-6 mb-6 shadow-sm border border-border">
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
               {/* Welcome Message and Button */}
               <div>
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center">
-                    <Sparkles className="w-6 h-6 text-white" />
+                  <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
+                    <Sparkles className="w-6 h-6 text-primary-foreground" />
                   </div>
                   <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-foreground">
@@ -293,24 +293,24 @@ export default function DashboardPage() {
               {/* Stats in Banner */}
               <div className="flex flex-wrap gap-4">
                 {/* Completed Opportunities Stat */}
-                <div className="flex items-center gap-3 bg-teal-50 border border-teal-200 rounded-xl px-4 py-3">
+                <div className="flex items-center gap-3 bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-xl px-4 py-3">
                   <div className="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center">
                     <Award className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-xs text-teal-600 font-medium">Completed</p>
-                    <p className="text-xl font-bold text-teal-700">{completedOpportunities.length}</p>
+                    <p className="text-xs text-teal-600 dark:text-teal-400 font-medium">Completed</p>
+                    <p className="text-xl font-bold text-teal-700 dark:text-teal-300">{completedOpportunities.length}</p>
                   </div>
                 </div>
 
                 {/* Pending Applications Stat */}
-                <div className="flex items-center gap-3 bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
+                <div className="flex items-center gap-3 bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 rounded-xl px-4 py-3">
                   <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
                     <FileText className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-xs text-orange-600 font-medium">Pending</p>
-                    <p className="text-xl font-bold text-orange-700">{pendingCount}</p>
+                    <p className="text-xs text-orange-600 dark:text-orange-400 font-medium">Pending</p>
+                    <p className="text-xl font-bold text-orange-700 dark:text-orange-300">{pendingCount}</p>
                   </div>
                 </div>
               </div>
@@ -318,7 +318,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Tab Navigation */}
-          <div className="bg-white rounded-xl mb-6 shadow-sm overflow-x-auto">
+          <div className="bg-card rounded-xl mb-6 shadow-sm border border-border overflow-x-auto">
             <div className="flex w-full">
               {tabs.map((tab) => {
                 const isLinkTab = tab.id === "applications" || tab.id === "account"
@@ -343,7 +343,7 @@ export default function DashboardPage() {
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${isActive
-                      ? "border-blue-500 text-blue-600 bg-blue-50/50"
+                      ? "border-primary text-primary bg-primary/10"
                       : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
                       }`}
                   >
@@ -360,7 +360,7 @@ export default function DashboardPage() {
             <div className="lg:col-span-3">
               {/* Blue Card - Hours Progress with Rocket - Now Full Width */}
               <Card
-                className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500 border-0 text-white overflow-hidden transition-all duration-300 hover:scale-[1.01] cursor-pointer h-[260px] shadow-xl hover:shadow-2xl ring-1 ring-white/10"
+                className="bg-gradient-to-r from-primary via-primary to-primary border-0 text-primary-foreground overflow-hidden transition-all duration-300 hover:scale-[1.01] cursor-pointer h-[260px] shadow-xl hover:shadow-2xl ring-1 ring-primary-foreground/10"
                 onClick={() => completedOpportunitiesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
               >
                 <CardContent className="p-4 h-full relative">
@@ -370,12 +370,12 @@ export default function DashboardPage() {
             </div>
 
             {/* Right side: Interactive Calendar */}
-            <Card className="shadow-sm transition-transform duration-200 hover:scale-[1.02] cursor-pointer row-span-2">
+            <Card className="shadow-sm border border-border transition-transform duration-200 hover:scale-[1.02] cursor-pointer row-span-2">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                      <Calendar className="w-4 h-4 text-blue-600" />
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Calendar className="w-4 h-4 text-primary" />
                     </div>
                     <span className="font-semibold text-sm">
                       {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
@@ -411,7 +411,7 @@ export default function DashboardPage() {
                     return (
                       <button
                         key={day}
-                        className={`p-1 text-xs rounded-full transition-colors relative ${isToday ? "bg-blue-500 text-white font-bold" : "hover:bg-muted"
+                        className={`p-1 text-xs rounded-full transition-colors relative ${isToday ? "bg-primary text-primary-foreground font-bold" : "hover:bg-muted"
                           }`}
                       >
                         {day}
@@ -454,7 +454,7 @@ export default function DashboardPage() {
                   </ul>
                   <CalendarModal applications={applications}>
                     <button
-                      className="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1 mt-4 w-full justify-center py-2 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="text-primary hover:text-primary/90 text-sm font-medium flex items-center gap-1 mt-4 w-full justify-center py-2 hover:bg-primary/10 rounded-lg transition-colors"
                     >
                       View Full Calendar
                       <ArrowRight className="w-4 h-4" />
@@ -466,7 +466,7 @@ export default function DashboardPage() {
 
             {/* Badges Container */}
             <div className="lg:col-span-3">
-              <Card className="shadow-sm">
+              <Card className="shadow-sm border border-border">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center">
@@ -484,8 +484,8 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="relative">
-                    <div className="absolute left-0 top-0 bottom-2 w-8 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-                    <div className="absolute right-0 top-0 bottom-2 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+                    <div className="absolute left-0 top-0 bottom-2 w-8 bg-gradient-to-r from-card to-transparent z-10 pointer-events-none" />
+                    <div className="absolute right-0 top-0 bottom-2 w-8 bg-gradient-to-l from-card to-transparent z-10 pointer-events-none" />
                     <div
                       ref={badgesRef}
                       onMouseDown={handleMouseDown}
@@ -500,7 +500,7 @@ export default function DashboardPage() {
                         return (
                           <div
                             key={badge.id}
-                            className={`flex-shrink-0 flex flex-col items-center p-3 rounded-xl border w-28 select-none ${isEarned ? "bg-white" : "bg-muted/50 opacity-50"
+                            className={`flex-shrink-0 flex flex-col items-center p-3 rounded-xl border w-28 select-none ${isEarned ? "bg-card border-border" : "bg-muted/50 opacity-50"
                               }`}
                           >
                             <div
@@ -524,12 +524,12 @@ export default function DashboardPage() {
           <div className="grid lg:grid-cols-4 gap-6">
             {/* Recent Applications */}
             <div className="lg:col-span-3">
-              <Card className="shadow-sm">
+              <Card className="shadow-sm border border-border">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                        <FolderOpen className="w-4 h-4 text-blue-600" />
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <FolderOpen className="w-4 h-4 text-primary" />
                       </div>
                       <div>
                         <h2 className="text-base font-semibold">Recent Applications</h2>
@@ -538,7 +538,7 @@ export default function DashboardPage() {
                     </div>
                     <Link
                       href="/applications"
-                      className="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1"
+                      className="text-primary hover:text-primary/90 text-sm font-medium flex items-center gap-1"
                     >
                       View All
                       <ArrowRight className="w-4 h-4" />
@@ -620,10 +620,12 @@ export default function DashboardPage() {
                       <p className="text-muted-foreground text-xs mt-1 mb-3">
                         Start exploring opportunities to make a difference
                       </p>
-                      <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white gap-1">
-                        <Plus className="w-3 h-3" />
-                        Browse Opportunities
-                      </Button>
+                      <Link href="/opportunities">
+                        <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1">
+                          <Plus className="w-3 h-3" />
+                          Browse Opportunities
+                        </Button>
+                      </Link>
                     </div>
                   )}
                 </CardContent>
@@ -649,14 +651,14 @@ export default function DashboardPage() {
                           size="sm"
                           onClick={handleExportPDF}
                           disabled={isGeneratingPDF || completedOpportunities.length === 0}
-                          className="h-8 gap-1 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800"
+                          className="h-8 gap-1 border-primary/30 bg-primary/10 text-primary hover:bg-primary/20"
                         >
                           <Download className="w-3.5 h-3.5" />
                           {isGeneratingPDF ? "Exporting..." : "Export PDF"}
                         </Button>
                         <Link
                           href="/applications"
-                          className="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1"
+                          className="text-primary hover:text-primary/90 text-sm font-medium flex items-center gap-1"
                         >
                           View All
                           <ArrowRight className="w-4 h-4" />
@@ -726,7 +728,7 @@ export default function DashboardPage() {
             <div className="lg:col-span-1 space-y-6">
 
               {/* Saved */}
-              <Card className="shadow-sm">
+              <Card className="shadow-sm border border-border">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center">
@@ -755,7 +757,7 @@ export default function DashboardPage() {
 
                   <Link
                     href="/applications"
-                    className="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1 mt-4"
+                    className="text-primary hover:text-primary/90 text-sm font-medium flex items-center gap-1 mt-4"
                   >
                     View All
                     <ArrowRight className="w-4 h-4" />
@@ -775,7 +777,7 @@ export default function DashboardPage() {
             onClick={() => setSelectedApplication(null)}
           >
             <div
-              className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+              className="bg-card rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl border border-border"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header with Image */}
@@ -789,9 +791,9 @@ export default function DashboardPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-transparent" />
                 <button
                   onClick={() => setSelectedApplication(null)}
-                  className="absolute top-4 right-4 w-10 h-10 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full flex items-center justify-center transition-colors shadow-lg"
+                  className="absolute top-4 right-4 w-10 h-10 bg-card/90 hover:bg-card backdrop-blur-sm rounded-full flex items-center justify-center transition-colors shadow-lg"
                 >
-                  <X className="w-5 h-5 text-slate-600" />
+                  <X className="w-5 h-5 text-muted-foreground" />
                 </button>
 
                 {/* Status Badge */}
@@ -828,30 +830,30 @@ export default function DashboardPage() {
 
                 {/* Quick Stats */}
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-sky-50 rounded-xl p-4 border border-sky-100">
-                    <p className="text-2xl font-bold text-sky-700">{selectedApplication.spotsLeft}</p>
-                    <p className="text-sm text-slate-600">Spots Remaining</p>
+                  <div className="bg-primary/10 rounded-xl p-4 border border-primary/20">
+                    <p className="text-2xl font-bold text-primary">{selectedApplication.spotsLeft}</p>
+                    <p className="text-sm text-muted-foreground">Spots Remaining</p>
                   </div>
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                    <p className="text-2xl font-bold text-slate-700">{selectedApplication.totalSpots}</p>
-                    <p className="text-sm text-slate-600">Total Capacity</p>
+                  <div className="bg-muted/50 rounded-xl p-4 border border-border">
+                    <p className="text-2xl font-bold text-foreground">{selectedApplication.totalSpots}</p>
+                    <p className="text-sm text-muted-foreground">Total Capacity</p>
                   </div>
                 </div>
 
                 {/* Event Details */}
                 <div className="space-y-3 mb-6">
-                  <div className="flex items-center gap-3 text-slate-600">
-                    <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center">
-                      <Calendar className="w-5 h-5 text-sky-600" />
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Calendar className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <p className="font-medium text-slate-800">{selectedApplication.date.split(',').slice(0, 2).join(',')}</p>
+                      <p className="font-medium text-foreground">{selectedApplication.date.split(',').slice(0, 2).join(',')}</p>
                       <p className="text-sm">{selectedApplication.date.split(',').slice(2).join(',').trim()}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 text-slate-600">
-                    <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
-                      <MapPin className="w-5 h-5 text-rose-600" />
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center">
+                      <MapPin className="w-5 h-5 text-destructive" />
                     </div>
                     <span>{selectedApplication.location}</span>
                   </div>
@@ -859,10 +861,10 @@ export default function DashboardPage() {
 
                 {/* Skills */}
                 <div className="mb-6">
-                  <h3 className="font-semibold text-slate-800 mb-2">Helpful Skills</h3>
+                  <h3 className="font-semibold text-foreground mb-2">Helpful Skills</h3>
                   <div className="flex flex-wrap gap-2">
                     {(selectedApplication.skills || []).map((skill) => (
-                      <span key={skill} className="text-sm px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
+                      <span key={skill} className="text-sm px-3 py-1 bg-muted text-muted-foreground rounded-full">
                         {skill}
                       </span>
                     ))}
@@ -871,16 +873,16 @@ export default function DashboardPage() {
 
                 {/* Description */}
                 <div className="mb-6">
-                  <h3 className="font-semibold text-slate-800 mb-2">About This Opportunity</h3>
-                  <p className="text-slate-600 leading-relaxed">
+                  <h3 className="font-semibold text-foreground mb-2">About This Opportunity</h3>
+                  <p className="text-muted-foreground leading-relaxed">
                     {selectedApplication.description || "No description provided."}
                   </p>
                 </div>
 
                 {/* Application Info */}
-                <div className="bg-blue-50 rounded-xl p-4 mb-6 border border-blue-100">
-                  <h3 className="font-semibold text-blue-800 mb-2">Your Application</h3>
-                  <p className="text-sm text-blue-600">
+                <div className="bg-primary/10 rounded-xl p-4 mb-6 border border-primary/20">
+                  <h3 className="font-semibold text-primary mb-2">Your Application</h3>
+                  <p className="text-sm text-muted-foreground">
                     Applied on: {new Date(selectedApplication.appliedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
                   </p>
                 </div>
@@ -948,7 +950,7 @@ export default function DashboardPage() {
                   )}
                   <Button
                     variant="outline"
-                    className="px-6 rounded-full py-6 border-slate-300 text-slate-700 hover:bg-slate-100"
+                    className="px-6 rounded-full py-6 border-border text-foreground hover:bg-muted"
                     onClick={() => { setSelectedApplication(null); setReflectionText(""); }}
                   >
                     Close
@@ -968,7 +970,7 @@ export default function DashboardPage() {
             onClick={() => { setReportOpportunity(null); setReportConcern(""); }}
           >
             <div
-              className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-6"
+              className="bg-card rounded-2xl max-w-md w-full shadow-2xl p-6 border border-border"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center gap-3 mb-4">
@@ -1036,7 +1038,7 @@ export default function DashboardPage() {
             onClick={() => setSelectedSaved(null)}
           >
             <div
-              className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+              className="bg-card rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl border border-border"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header with Image */}
@@ -1050,9 +1052,9 @@ export default function DashboardPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-transparent" />
                 <button
                   onClick={() => setSelectedSaved(null)}
-                  className="absolute top-4 right-4 w-10 h-10 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full flex items-center justify-center transition-colors shadow-lg"
+                  className="absolute top-4 right-4 w-10 h-10 bg-card/90 hover:bg-card backdrop-blur-sm rounded-full flex items-center justify-center transition-colors shadow-lg"
                 >
-                  <X className="w-5 h-5 text-slate-600" />
+                  <X className="w-5 h-5 text-muted-foreground" />
                 </button>
 
                 {/* Category Badge */}
@@ -1088,30 +1090,30 @@ export default function DashboardPage() {
 
                 {/* Quick Stats */}
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-sky-50 rounded-xl p-4 border border-sky-100">
-                    <p className="text-2xl font-bold text-sky-700">{selectedSaved.spotsLeft}</p>
-                    <p className="text-sm text-slate-600">Spots Remaining</p>
+                  <div className="bg-primary/10 rounded-xl p-4 border border-primary/20">
+                    <p className="text-2xl font-bold text-primary">{selectedSaved.spotsLeft}</p>
+                    <p className="text-sm text-muted-foreground">Spots Remaining</p>
                   </div>
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                    <p className="text-2xl font-bold text-slate-700">{selectedSaved.totalSpots}</p>
-                    <p className="text-sm text-slate-600">Total Capacity</p>
+                  <div className="bg-muted/50 rounded-xl p-4 border border-border">
+                    <p className="text-2xl font-bold text-foreground">{selectedSaved.totalSpots}</p>
+                    <p className="text-sm text-muted-foreground">Total Capacity</p>
                   </div>
                 </div>
 
                 {/* Event Details */}
                 <div className="space-y-3 mb-6">
-                  <div className="flex items-center gap-3 text-slate-600">
-                    <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center">
-                      <Calendar className="w-5 h-5 text-sky-600" />
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Calendar className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <p className="font-medium text-slate-800">{(selectedSaved.fullDate || selectedSaved.date).split(',').slice(0, 2).join(',')}</p>
+                      <p className="font-medium text-foreground">{(selectedSaved.fullDate || selectedSaved.date).split(',').slice(0, 2).join(',')}</p>
                       <p className="text-sm">{(selectedSaved.fullDate || selectedSaved.date).split(',').slice(2).join(',').trim() || "Time TBD"}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 text-slate-600">
-                    <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
-                      <MapPin className="w-5 h-5 text-rose-600" />
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center">
+                      <MapPin className="w-5 h-5 text-destructive" />
                     </div>
                     <span>{selectedSaved.location}</span>
                   </div>
@@ -1119,10 +1121,10 @@ export default function DashboardPage() {
 
                 {/* Skills */}
                 <div className="mb-6">
-                  <h3 className="font-semibold text-slate-800 mb-2">Helpful Skills</h3>
+                  <h3 className="font-semibold text-foreground mb-2">Helpful Skills</h3>
                   <div className="flex flex-wrap gap-2">
                     {(selectedSaved.skills || []).map((skill) => (
-                      <span key={skill} className="text-sm px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
+                      <span key={skill} className="text-sm px-3 py-1 bg-muted text-muted-foreground rounded-full">
                         {skill}
                       </span>
                     ))}
@@ -1131,8 +1133,8 @@ export default function DashboardPage() {
 
                 {/* Description */}
                 <div className="mb-6">
-                  <h3 className="font-semibold text-slate-800 mb-2">About This Opportunity</h3>
-                  <p className="text-slate-600 leading-relaxed">
+                  <h3 className="font-semibold text-foreground mb-2">About This Opportunity</h3>
+                  <p className="text-muted-foreground leading-relaxed">
                     {selectedSaved.description || "No description provided."}
                   </p>
                 </div>
@@ -1144,7 +1146,7 @@ export default function DashboardPage() {
                   </Button>
                   <Button
                     variant="outline"
-                    className="px-6 rounded-full py-6 border-slate-300 text-slate-700 hover:bg-slate-100"
+                    className="px-6 rounded-full py-6 border-border text-foreground hover:bg-muted"
                     onClick={() => setSelectedSaved(null)}
                   >
                     Close

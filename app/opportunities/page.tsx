@@ -388,7 +388,7 @@ export default function OpportunitiesPage() {
         }}
       >
         <div
-          className="relative h-64 bg-white rounded-xl overflow-hidden border border-slate-200"
+          className="relative h-64 bg-card rounded-xl overflow-hidden border border-border"
           style={{
             transition: 'all 400ms cubic-bezier(0.4, 0, 0.2, 1)',
             transform: isHovered ? 'scale(1.02) translateY(-4px)' : 'scale(1)',
@@ -508,7 +508,7 @@ export default function OpportunitiesPage() {
   OpportunityCard.displayName = 'OpportunityCard'
 
   // Scrollable row component
-  const OpportunityRow = ({ title, opportunities, titleColor = "text-slate-800" }: { title: string, opportunities: Opportunity[], titleColor?: string }) => {
+  const OpportunityRow = ({ title, opportunities, titleColor = "text-foreground" }: { title: string, opportunities: Opportunity[], titleColor?: string }) => {
 
     const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -531,10 +531,10 @@ export default function OpportunitiesPage() {
           {/* Left scroll */}
           <button
             onClick={() => scroll('left')}
-            className="absolute left-0 top-0 bottom-0 z-30 w-12 bg-gradient-to-r from-sky-50 to-transparent flex items-center justify-start pl-1 opacity-0 group-hover/row:opacity-100 transition-opacity duration-300"
+            className="absolute left-0 top-0 bottom-0 z-30 w-12 bg-gradient-to-r from-background to-transparent flex items-center justify-start pl-1 opacity-0 group-hover/row:opacity-100 transition-opacity duration-300"
           >
-            <div className="w-9 h-9 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-slate-50 transition-colors">
-              <ChevronLeft className="w-5 h-5 text-slate-600" />
+            <div className="w-9 h-9 rounded-full bg-card shadow-lg flex items-center justify-center hover:bg-muted transition-colors border border-border">
+              <ChevronLeft className="w-5 h-5 text-foreground" />
             </div>
           </button>
 
@@ -552,10 +552,10 @@ export default function OpportunitiesPage() {
           {/* Right scroll */}
           <button
             onClick={() => scroll('right')}
-            className="absolute right-0 top-0 bottom-0 z-30 w-12 bg-gradient-to-l from-sky-50 to-transparent flex items-center justify-end pr-1 opacity-0 group-hover/row:opacity-100 transition-opacity duration-300"
+            className="absolute right-0 top-0 bottom-0 z-30 w-12 bg-gradient-to-l from-background to-transparent flex items-center justify-end pr-1 opacity-0 group-hover/row:opacity-100 transition-opacity duration-300"
           >
-            <div className="w-9 h-9 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-slate-50 transition-colors">
-              <ChevronRight className="w-5 h-5 text-slate-600" />
+            <div className="w-9 h-9 rounded-full bg-card shadow-lg flex items-center justify-center hover:bg-muted transition-colors border border-border">
+              <ChevronRight className="w-5 h-5 text-foreground" />
             </div>
           </button>
         </div>
@@ -564,12 +564,12 @@ export default function OpportunitiesPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-sky-50 via-white to-sky-50">
+    <div className="min-h-screen flex flex-col bg-background">
       <Navigation />
 
       <main className="flex-1 pt-16 md:pt-20">
         {/* Hero Section - Featured Opportunity with fading image */}
-        <div className="relative bg-gradient-to-r from-sky-100 via-sky-50 to-transparent overflow-hidden min-h-[430px]">
+        <div className="relative bg-gradient-to-r from-primary/10 via-background to-transparent overflow-hidden min-h-[430px]">
           {/* Full-width background image with left fade */}
           <div className="absolute inset-0">
             {featuredOpportunities.map((opp, idx) => (
@@ -588,30 +588,30 @@ export default function OpportunitiesPage() {
               </div>
             ))}
             {/* Gradient fade from left - matching reference image style */}
-            <div className="absolute inset-0 bg-gradient-to-r from-sky-100 via-sky-100/95 via-40% to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-background/95 via-40% to-transparent" />
           </div>
 
           {/* Left Arrow - Absolutely positioned on left edge */}
           <button
             onClick={goToPrev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-colors"
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-card/80 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-card transition-colors"
           >
-            <ChevronLeft className="w-5 h-5 text-slate-600" />
+            <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
 
           {/* Right Arrow - Absolutely positioned on right edge */}
           <button
             onClick={goToNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-card/80 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-card transition-colors"
           >
-            <ChevronRight className="w-5 h-5 text-slate-600" />
+            <ChevronRight className="w-5 h-5 text-foreground" />
           </button>
 
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="max-w-xl">
               {/* Spotlight label */}
               <div className="flex items-center gap-2 mb-4">
-                <span className="text-sky-600 text-sm font-medium bg-sky-100/80 backdrop-blur-sm px-3 py-1 rounded-full">
+                <span className="text-primary text-sm font-medium bg-primary/10 backdrop-blur-sm px-3 py-1 rounded-full">
                   #{currentHeroIndex + 1} Spotlight
                 </span>
                 <span className={`text-sm px-3 py-1 rounded-full ${categoryColors[currentHero?.category || ""]?.bg || defaultCategoryColor.bg} ${categoryColors[currentHero?.category || ""]?.text || defaultCategoryColor.text}`}>
@@ -622,54 +622,54 @@ export default function OpportunitiesPage() {
               {/* Title with animation */}
               <h1
                 key={currentHero?.id}
-                className="text-3xl md:text-4xl font-bold text-slate-800 mb-4 leading-tight animate-fade-in"
+                className="text-3xl md:text-4xl font-bold text-foreground mb-4 leading-tight animate-fade-in"
               >
                 {currentHero?.title}
               </h1>
 
               {/* Organization */}
-              <p className="text-lg text-slate-600 mb-5">
-                by <span className="font-semibold text-sky-700">{currentHero?.organization}</span>
+              <p className="text-lg text-muted-foreground mb-5">
+                by <span className="font-semibold text-primary">{currentHero?.organization}</span>
               </p>
 
               {/* Meta info */}
-              <div className="flex flex-wrap items-center gap-3 mb-5 text-slate-600 text-sm">
-                <span className="flex items-center gap-1.5 bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-sm">
-                  <Clock className="w-4 h-4 text-sky-600" />
+              <div className="flex flex-wrap items-center gap-3 mb-5 text-muted-foreground text-sm">
+                <span className="flex items-center gap-1.5 bg-card/80 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-sm">
+                  <Clock className="w-4 h-4 text-primary" />
                   {currentHero?.hours} hours
                 </span>
-                <span className="flex items-center gap-1.5 bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-sm">
-                  <Calendar className="w-4 h-4 text-sky-600" />
+                <span className="flex items-center gap-1.5 bg-card/80 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-sm">
+                  <Calendar className="w-4 h-4 text-primary" />
                   {currentHero?.date}
                 </span>
-                <span className="flex items-center gap-1.5 bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-sm">
-                  <MapPin className="w-4 h-4 text-sky-600" />
+                <span className="flex items-center gap-1.5 bg-card/80 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-sm">
+                  <MapPin className="w-4 h-4 text-primary" />
                   {currentHero?.location}
                 </span>
               </div>
 
               {/* Description - hidden on smaller screens */}
-              <p className="text-slate-600 mb-6 line-clamp-2 text-base leading-relaxed">
+              <p className="text-muted-foreground mb-6 line-clamp-2 text-base leading-relaxed">
                 {currentHero?.description}
               </p>
 
               {/* Action buttons and spots remaining */}
               <div className="flex items-center gap-4 mb-2">
                 <Button
-                  className="bg-sky-600 hover:bg-sky-700 text-white px-6 py-5 rounded-full text-sm font-semibold gap-2 shadow-lg shadow-sky-200"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-5 rounded-full text-sm font-semibold gap-2 shadow-lg"
                   onClick={() => setSelectedOpportunity(currentHero)}
                 >
                   <Zap className="w-4 h-4" />
                   Apply Now
                 </Button>
                 <Button
-                  className="bg-sky-600 hover:bg-sky-700 text-white px-6 py-5 rounded-full text-sm font-semibold gap-2 shadow-lg shadow-sky-200"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-5 rounded-full text-sm font-semibold gap-2 shadow-lg"
                   onClick={() => setSelectedOpportunity(currentHero)}
                 >
                   <Info className="w-4 h-4" />
                   Details
                 </Button>
-                <span className="text-sm font-semibold text-slate-700 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
+                <span className="text-sm font-semibold text-foreground bg-card/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
                   {currentHero?.spotsLeft} spots remaining
                 </span>
               </div>
@@ -683,8 +683,8 @@ export default function OpportunitiesPage() {
                 key={idx}
                 onClick={() => goToSlide(idx)}
                 className={`h-2 rounded-full transition-all duration-300 ${idx === currentHeroIndex
-                  ? 'w-8 bg-sky-600'
-                  : 'w-2 bg-slate-400 hover:bg-slate-500'
+                  ? 'w-8 bg-primary'
+                  : 'w-2 bg-muted-foreground/50 hover:bg-muted-foreground'
                   }`}
               />
             ))}
@@ -692,24 +692,24 @@ export default function OpportunitiesPage() {
         </div>
 
         {/* Filter/Sort Bar */}
-        <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm">
+        <div className="sticky top-0 z-40 bg-card/95 backdrop-blur-sm border-b border-border shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <div className="flex flex-wrap items-center gap-3">
               {/* Search */}
               <div className="relative flex-1 min-w-[200px] max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Search opportunities..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-slate-50 border-slate-200 rounded-full"
+                  className="pl-10 bg-muted/50 border-border rounded-full"
                 />
               </div>
 
               {/* Filter toggle button */}
               <Button
                 variant={showFilters ? "default" : "outline"}
-                className={`rounded-full gap-2 ${showFilters ? 'bg-sky-600 text-white' : 'border-slate-300'}`}
+                className={`rounded-full gap-2 ${showFilters ? 'bg-primary text-primary-foreground' : 'border-border'}`}
                 onClick={() => setShowFilters(!showFilters)}
               >
                 <SlidersHorizontal className="w-4 h-4" />
@@ -722,7 +722,7 @@ export default function OpportunitiesPage() {
               {/* Add External Opportunity */}
               <Button
                 variant="outline"
-                className="rounded-full gap-2 border-slate-300"
+                className="rounded-full gap-2 border-border"
                 onClick={() => setShowExternalOppModal(true)}
               >
                 <Plus className="w-4 h-4" />
@@ -734,7 +734,7 @@ export default function OpportunitiesPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-slate-500 hover:text-slate-700 gap-1"
+                  className="text-muted-foreground hover:text-foreground gap-1"
                   onClick={clearFilters}
                 >
                   <RotateCcw className="w-4 h-4" />
@@ -743,25 +743,25 @@ export default function OpportunitiesPage() {
               )}
 
               {/* Results count */}
-              <span className="text-sm text-slate-500 ml-auto">
+              <span className="text-sm text-muted-foreground ml-auto">
                 {filteredOpportunities.length} opportunities
               </span>
             </div>
 
             {/* Expanded filter options */}
             {showFilters && (
-              <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="mt-4 pt-4 border-t border-border grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Category filters */}
                 <div>
-                  <h4 className="text-sm font-medium text-slate-700 mb-2">Categories</h4>
+                  <h4 className="text-sm font-medium text-foreground mb-2">Categories</h4>
                   <div className="flex flex-wrap gap-2">
                     {allCategories.map(category => (
                       <button
                         key={category}
                         onClick={() => toggleCategory(category)}
                         className={`px-3 py-1.5 rounded-full text-sm transition-all ${selectedCategories.includes(category)
-                          ? `${categoryColors[category].bg} ${categoryColors[category].text} ring-2 ring-offset-1 ring-sky-400`
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          ? `${categoryColors[category].bg} ${categoryColors[category].text} ring-2 ring-offset-1 ring-primary`
+                          : 'bg-muted text-muted-foreground hover:bg-muted/80'
                           }`}
                       >
                         {category}
@@ -772,15 +772,15 @@ export default function OpportunitiesPage() {
 
                 {/* Commitment filters */}
                 <div>
-                  <h4 className="text-sm font-medium text-slate-700 mb-2">Commitment</h4>
+                  <h4 className="text-sm font-medium text-foreground mb-2">Commitment</h4>
                   <div className="flex flex-wrap gap-2">
                     {commitmentTypes.map(commitment => (
                       <button
                         key={commitment}
                         onClick={() => toggleCommitment(commitment)}
                         className={`px-3 py-1.5 rounded-full text-sm transition-all ${selectedCommitments.includes(commitment)
-                          ? `${commitmentColors[commitment].bg} ${commitmentColors[commitment].text} ring-2 ring-offset-1 ring-sky-400`
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          ? `${commitmentColors[commitment].bg} ${commitmentColors[commitment].text} ring-2 ring-offset-1 ring-primary`
+                          : 'bg-muted text-muted-foreground hover:bg-muted/80'
                           }`}
                       >
                         {commitment}
@@ -791,14 +791,14 @@ export default function OpportunitiesPage() {
 
                 {/* Hours filter - "Up to X hours" (single select) */}
                 <div>
-                  <h4 className="text-sm font-medium text-slate-700 mb-2">Hours (up to)</h4>
-                  <p className="text-xs text-slate-500 mb-2">Show opportunities that fit within your available time</p>
+                  <h4 className="text-sm font-medium text-foreground mb-2">Hours (up to)</h4>
+                  <p className="text-xs text-muted-foreground mb-2">Show opportunities that fit within your available time</p>
                   <div className="flex flex-wrap gap-2 items-center">
                     <button
                       onClick={() => setSelectedHours([])}
                       className={`px-3 py-1.5 rounded-full text-sm transition-all ${selectedHours.length === 0
-                        ? 'bg-sky-100 text-sky-700 ring-2 ring-offset-1 ring-sky-400'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        ? 'bg-primary/10 text-primary ring-2 ring-offset-1 ring-primary'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
                         }`}
                     >
                       Any
@@ -808,8 +808,8 @@ export default function OpportunitiesPage() {
                         key={hours}
                         onClick={() => toggleHours(String(hours))}
                         className={`px-3 py-1.5 rounded-full text-sm transition-all ${selectedHours.includes(String(hours))
-                          ? 'bg-sky-100 text-sky-700 ring-2 ring-offset-1 ring-sky-400'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          ? 'bg-primary/10 text-primary ring-2 ring-offset-1 ring-primary'
+                          : 'bg-muted text-muted-foreground hover:bg-muted/80'
                           }`}
                       >
                         {hours} {hours === 1 ? 'hour' : 'hours'}
@@ -820,12 +820,12 @@ export default function OpportunitiesPage() {
 
                 {/* Date filter - Calendar */}
                 <div>
-                  <h4 className="text-sm font-medium text-slate-700 mb-2">Date</h4>
+                  <h4 className="text-sm font-medium text-foreground mb-2">Date</h4>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className={`w-full justify-start text-left font-normal rounded-lg ${!selectedDateRange?.from ? "text-slate-500" : "text-slate-700"}`}
+                        className={`w-full justify-start text-left font-normal rounded-lg ${!selectedDateRange?.from ? "text-muted-foreground" : "text-foreground"}`}
                       >
                         <Calendar className="mr-2 h-4 w-4" />
                         {selectedDateRange?.from ? (
@@ -863,7 +863,7 @@ export default function OpportunitiesPage() {
           {hasActiveFilters ? (
             // Filtered results view - grid layout
             <div>
-              <h2 className="text-xl font-bold text-slate-800 mb-6">
+              <h2 className="text-xl font-bold text-foreground mb-6">
                 Search Results ({filteredOpportunities.length})
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -874,7 +874,7 @@ export default function OpportunitiesPage() {
                     onClick={() => setSelectedOpportunity(opp)}
                   >
                     <div
-                      className="relative h-72 bg-white rounded-xl overflow-hidden border border-slate-200 transition-all duration-300 group-hover:shadow-xl group-hover:scale-[1.02] group-hover:-translate-y-1"
+                      className="relative h-72 bg-card rounded-xl overflow-hidden border border-border transition-all duration-300 group-hover:shadow-xl group-hover:scale-[1.02] group-hover:-translate-y-1"
                     >
                       <div className="absolute inset-0">
                         <Image
@@ -892,7 +892,7 @@ export default function OpportunitiesPage() {
                           Featured
                         </div>
                       )}
-                      <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full text-slate-700 text-xs font-medium shadow-sm">
+                      <div className="absolute top-3 right-3 px-2 py-1 bg-card/90 backdrop-blur-sm rounded-full text-foreground text-xs font-medium shadow-sm">
                         {opp.spotsLeft} spots left
                       </div>
                       <div className="absolute inset-0 p-4 flex flex-col justify-end">
@@ -935,7 +935,7 @@ export default function OpportunitiesPage() {
               {/* Experiences for You - Only if there are personalized matches */}
               {personalizedOpportunities.length > 0 && !hasActiveFilters && (
                 <div className="mb-12">
-                  <h2 className="text-xl font-bold text-sky-900 mb-6">Experiences for You</h2>
+                  <h2 className="text-xl font-bold text-foreground mb-6">Experiences for You</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {personalizedOpportunities.slice(0, 6).map((opp) => (
                       <div
@@ -962,7 +962,7 @@ export default function OpportunitiesPage() {
                               Featured
                             </div>
                           )}
-                          <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full text-slate-700 text-xs font-medium shadow-sm">
+                          <div className="absolute top-3 right-3 px-2 py-1 bg-card/90 backdrop-blur-sm rounded-full text-foreground text-xs font-medium shadow-sm">
                             {opp.spotsLeft} spots left
                           </div>
                           <div className="absolute inset-0 p-4 flex flex-col justify-end">
@@ -998,12 +998,12 @@ export default function OpportunitiesPage() {
 
               {/* All Opportunities - 3 columns grid */}
               <div className="mb-12">
-                <h2 className="text-xl font-bold text-slate-800 mb-6">All Opportunities</h2>
+                <h2 className="text-xl font-bold text-foreground mb-6">All Opportunities</h2>
                 {opportunities.length === 0 && loading ? (
                   // Skeleton loader for initial load
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[1, 2, 3, 4, 5, 6].map(i => (
-                      <div key={i} className="h-72 bg-slate-100 rounded-xl animate-pulse" />
+                      <div key={i} className="h-72 bg-muted rounded-xl animate-pulse" />
                     ))}
                   </div>
                 ) : (
@@ -1033,7 +1033,7 @@ export default function OpportunitiesPage() {
                               Featured
                             </div>
                           )}
-                          <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full text-slate-700 text-xs font-medium shadow-sm">
+                          <div className="absolute top-3 right-3 px-2 py-1 bg-card/90 backdrop-blur-sm rounded-full text-foreground text-xs font-medium shadow-sm">
                             {opp.spotsLeft} spots left
                           </div>
                           <div className="absolute inset-0 p-4 flex flex-col justify-end">
@@ -1078,11 +1078,11 @@ export default function OpportunitiesPage() {
           onClick={() => setSelectedOpportunity(null)}
         >
           <div
-            className="bg-slate-100 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+            className="bg-card rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl border border-border"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header with Image */}
-            <div className="relative h-64 bg-slate-200">
+            <div className="relative h-64 bg-muted">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={selectedOpportunity.image || "/icon.svg"}
@@ -1095,10 +1095,10 @@ export default function OpportunitiesPage() {
               <div className={`absolute inset-0 bg-gradient-to-t ${categoryColors[selectedOpportunity.category]?.heroGradient || 'from-slate-900/80 to-transparent'}`} />
               <button
                 onClick={() => setSelectedOpportunity(null)}
-                className="absolute top-4 right-4 w-10 h-10 bg-white/90 hover:bg-slate-700 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:scale-110 hover:shadow-xl group"
+                className="absolute top-4 right-4 w-10 h-10 bg-card/90 hover:bg-foreground backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:scale-110 hover:shadow-xl group"
                 aria-label="Close"
               >
-                <X className="w-5 h-5 text-slate-600 group-hover:text-white" />
+                <X className="w-5 h-5 text-muted-foreground group-hover:text-background" />
               </button>
 
               {/* Featured badge */}
@@ -1133,30 +1133,30 @@ export default function OpportunitiesPage() {
 
               {/* Quick Stats */}
               <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-sky-50 rounded-xl p-4 border border-sky-100">
-                  <p className="text-2xl font-bold text-sky-700">{selectedOpportunity.spotsLeft}</p>
-                  <p className="text-sm text-slate-600">Spots Remaining</p>
+                <div className="bg-primary/10 rounded-xl p-4 border border-primary/20">
+                  <p className="text-2xl font-bold text-primary">{selectedOpportunity.spotsLeft}</p>
+                  <p className="text-sm text-muted-foreground">Spots Remaining</p>
                 </div>
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                  <p className="text-2xl font-bold text-slate-700">{selectedOpportunity.totalSpots}</p>
-                  <p className="text-sm text-slate-600">Total Capacity</p>
+                <div className="bg-muted/50 rounded-xl p-4 border border-border">
+                  <p className="text-2xl font-bold text-foreground">{selectedOpportunity.totalSpots}</p>
+                  <p className="text-sm text-muted-foreground">Total Capacity</p>
                 </div>
               </div>
 
               {/* Event Details */}
               <div className="space-y-3 mb-6">
-                <div className="flex items-center gap-3 text-slate-600">
-                  <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center">
-                    <Calendar className="w-5 h-5 text-sky-600" />
+                <div className="flex items-center gap-3 text-muted-foreground">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Calendar className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-medium text-slate-800">{selectedOpportunity.date}</p>
+                    <p className="font-medium text-foreground">{selectedOpportunity.date}</p>
                     <p className="text-sm">{selectedOpportunity.time}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 text-slate-600">
-                  <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-rose-600" />
+                <div className="flex items-center gap-3 text-muted-foreground">
+                  <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center">
+                    <MapPin className="w-5 h-5 text-destructive" />
                   </div>
                   <span>{selectedOpportunity.location}</span>
                 </div>
@@ -1164,10 +1164,10 @@ export default function OpportunitiesPage() {
 
               {/* Skills */}
               <div className="mb-6">
-                <h3 className="font-semibold text-slate-800 mb-2">Helpful Skills</h3>
+                <h3 className="font-semibold text-foreground mb-2">Helpful Skills</h3>
                 <div className="flex flex-wrap gap-2">
                   {(selectedOpportunity.skills || []).map((skill) => (
-                    <span key={skill} className="text-sm px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
+                    <span key={skill} className="text-sm px-3 py-1 bg-muted text-muted-foreground rounded-full">
                       {skill}
                     </span>
                   ))}
@@ -1176,8 +1176,8 @@ export default function OpportunitiesPage() {
 
               {/* Description */}
               <div className="mb-6">
-                <h3 className="font-semibold text-slate-800 mb-2">About This Opportunity</h3>
-                <p className="text-slate-600 leading-relaxed">
+                <h3 className="font-semibold text-foreground mb-2">About This Opportunity</h3>
+                <p className="text-muted-foreground leading-relaxed">
                   {selectedOpportunity.description}
                 </p>
               </div>
@@ -1187,7 +1187,7 @@ export default function OpportunitiesPage() {
                 <Button
                   className={`flex-1 rounded-full py-6 text-base font-medium transition-all hover:scale-[1.02] hover:shadow-xl ${appliedIds.has(selectedOpportunity.id)
                     ? "bg-green-500 hover:bg-green-600 text-white cursor-default"
-                    : "bg-sky-600 hover:bg-sky-500 text-white shadow-lg shadow-sky-200"
+                    : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
                     }`}
                   onClick={() => handleApply(selectedOpportunity)}
                   disabled={actionLoading === selectedOpportunity.id || appliedIds.has(selectedOpportunity.id)}
@@ -1209,8 +1209,8 @@ export default function OpportunitiesPage() {
                 <Button
                   variant="outline"
                   className={`flex-1 rounded-full py-6 text-base font-medium transition-all hover:scale-[1.02] ${savedIds.has(selectedOpportunity.id)
-                    ? "bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100"
-                    : "border-slate-300 text-slate-700 hover:bg-slate-300 hover:border-slate-400 hover:text-slate-900"
+                    ? "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30"
+                    : "border-border text-foreground hover:bg-muted"
                     }`}
                   onClick={() => handleSave(selectedOpportunity)}
                   disabled={actionLoading === `save-${selectedOpportunity.id}`}
