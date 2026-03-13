@@ -25,7 +25,7 @@ export interface UserApplication {
     id: string;
     userId: string;
     opportunityId: string;
-    status: "pending" | "approved" | "completed" | "denied";
+    status: "pending" | "approved" | "completed" | "denied" | "saved";
     appliedDate: string; // ISO
     // Snapshot of opportunity details at time of application for fast rendering
     title: string;
@@ -80,7 +80,9 @@ export async function getUserApplications(userId: string): Promise<UserApplicati
         const appsRef = collection(db, "user_applications");
         const q = query(appsRef, where("userId", "==", userId));
         const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserApplication));
+        const allApps = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserApplication));
+        // Filter out "saved" status in memory to avoid needing a composite index
+        return allApps.filter(app => app.status !== "saved");
     } catch (error) {
         console.error("Error fetching user applications:", error);
         throw error;
@@ -90,12 +92,14 @@ export async function getUserApplications(userId: string): Promise<UserApplicati
 /**
  * Fetch all saved opportunities for a specific user
  */
-export async function getUserSaved(userId: string): Promise<SavedOpportunity[]> {
+export async function getUserSaved(userId: string): Promise<UserApplication[]> {
     try {
-        const savedRef = collection(db, "user_saved_opportunities");
-        const q = query(savedRef, where("userId", "==", userId));
+        const appsRef = collection(db, "user_applications");
+        const q = query(appsRef, where("userId", "==", userId));
         const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map(doc => doc.data() as SavedOpportunity);
+        const allApps = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserApplication));
+        // Filter for "saved" status in memory to avoid needing a composite index
+        return allApps.filter(app => app.status === "saved");
     } catch (error) {
         console.error("Error fetching saved opportunities:", error);
         throw error;
@@ -107,21 +111,27 @@ export async function getUserSaved(userId: string): Promise<SavedOpportunity[]> 
  */
 export async function toggleSaveOpportunity(userId: string, opportunity: Opportunity): Promise<boolean> {
     try {
-        const savedDocRef = doc(db, "user_saved_opportunities", `${userId}_${opportunity.id}`);
-        const savedDoc = await getDoc(savedDocRef);
+        const docRef = doc(db, "user_applications", `${userId}_${opportunity.id}`);
+        const existingDoc = await getDoc(docRef);
 
-        if (savedDoc.exists()) {
-            await deleteDoc(savedDocRef);
-            return false; // Removed
+        if (existingDoc.exists()) {
+            const data = existingDoc.data();
+            if (data.status === "saved") {
+                await deleteDoc(docRef);
+                return false; // Removed from saved
+            }
+            throw new Error("You have already applied to this opportunity.");
         } else {
-            const savedData: SavedOpportunity = {
+            const savedData: Omit<UserApplication, "id"> = {
                 userId,
                 opportunityId: opportunity.id,
-                savedAt: serverTimestamp(),
+                status: "saved",
+                appliedDate: new Date().toISOString(),
                 title: opportunity.title,
                 organization: opportunity.organization,
                 location: opportunity.location,
                 date: opportunity.date,
+                dateISO: opportunity.dateISO,
                 hours: opportunity.hours,
                 category: opportunity.category,
                 image: opportunity.image,
@@ -130,9 +140,9 @@ export async function toggleSaveOpportunity(userId: string, opportunity: Opportu
                 commitment: opportunity.commitment,
                 spotsLeft: opportunity.spotsLeft,
                 totalSpots: opportunity.totalSpots,
-                fullDate: opportunity.date
+                updatedAt: serverTimestamp()
             };
-            await setDoc(savedDocRef, savedData);
+            await setDoc(docRef, savedData);
             return true; // Added
         }
     } catch (error) {
@@ -146,9 +156,9 @@ export async function toggleSaveOpportunity(userId: string, opportunity: Opportu
  */
 export async function isOpportunitySaved(userId: string, opportunityId: string): Promise<boolean> {
     try {
-        const savedDocRef = doc(db, "user_saved_opportunities", `${userId}_${opportunityId}`);
-        const savedDoc = await getDoc(savedDocRef);
-        return savedDoc.exists();
+        const docRef = doc(db, "user_applications", `${userId}_${opportunityId}`);
+        const existingDoc = await getDoc(docRef);
+        return existingDoc.exists() && existingDoc.data()?.status === "saved";
     } catch (error) {
         console.error("Error checking saved status:", error);
         return false;
@@ -164,7 +174,11 @@ export async function applyToOpportunity(userId: string, opportunity: Opportunit
         const appDoc = await getDoc(appRef);
 
         if (appDoc.exists()) {
-            throw new Error("You have already applied to this opportunity.");
+            const status = appDoc.data()?.status;
+            if (status !== "saved") {
+                throw new Error("You have already applied to this opportunity.");
+            }
+            // If it was saved, we'll proceed to update it to pending below
         }
 
         const appData: Omit<UserApplication, "id"> = {
@@ -189,6 +203,29 @@ export async function applyToOpportunity(userId: string, opportunity: Opportunit
         };
 
         await setDoc(appRef, appData);
+
+        // Check if user has applied to 5 opportunities to award 'active-applicant' badge
+        const appsRef = collection(db, "user_applications");
+        const q = query(appsRef, where("userId", "==", userId));
+        const querySnapshot = await getDocs(q);
+        
+        // Count non-saved apps
+        const applicationCount = querySnapshot.docs.filter(d => d.data().status !== "saved").length;
+        
+        // If exactly 5, award badge (or if >= 5 and they don't have it)
+        if (applicationCount >= 5) {
+            const profileRef = doc(db, "student_profiles", userId);
+            const profileDoc = await getDoc(profileRef);
+            if (profileDoc.exists()) {
+                const currentBadges = profileDoc.data()?.badges || [];
+                if (!currentBadges.includes("active-applicant")) {
+                    await updateDoc(profileRef, {
+                        badges: [...currentBadges, "active-applicant"],
+                        updatedAt: serverTimestamp()
+                    });
+                }
+            }
+        }
     } catch (error) {
         console.error("Error applying to opportunity:", error);
         throw error;
