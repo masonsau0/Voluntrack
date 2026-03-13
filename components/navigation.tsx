@@ -22,18 +22,8 @@ export function Navigation() {
   const pathname = usePathname()
   // Detect if user is in org view
   const isOrgView = pathname?.startsWith("/org")
-  // Show logged-in state on dashboard, opportunities, feed, and all related subpages
-  const isLoggedIn = pathname?.startsWith("/dashboard") ||
-    pathname?.startsWith("/applications") ||
-    pathname?.startsWith("/account") ||
-    pathname?.startsWith("/news") ||
-    pathname?.startsWith("/opportunities") ||
-    pathname?.startsWith("/feed") ||
-    pathname?.startsWith("/about") ||
-    pathname?.startsWith("/org")
-
-  // Check if we're on a login page
-  const isLoginPage = pathname?.startsWith("/login")
+  // Use actual Firebase auth state instead of pathname-based heuristic
+  const isAuthenticated = !loading && !!user
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -49,7 +39,7 @@ export function Navigation() {
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
-            {isLoggedIn && !isOrgView && (
+            {isAuthenticated && !isOrgView && (
               <>
                 <Link
                   href="/opportunities"
@@ -71,7 +61,7 @@ export function Navigation() {
                 </Link>
               </>
             )}
-            {isLoggedIn && isOrgView && (
+            {isAuthenticated && isOrgView && (
               <>
                 <Link
                   href="/org/dashboard"
@@ -92,7 +82,7 @@ export function Navigation() {
           </div>
 
           <div className="flex items-center gap-4">
-            {isLoggedIn && (
+            {isAuthenticated && (
               <Button variant="ghost" size="icon" className="relative hidden sm:flex">
                 <Bell className="h-5 w-5" />
                 {notificationCount > 0 && (
@@ -104,7 +94,7 @@ export function Navigation() {
             )}
 
             {/* Authentication vs Profile */}
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="hidden sm:flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity outline-none">
@@ -186,7 +176,7 @@ export function Navigation() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background">
           <div className="px-4 py-6 space-y-4">
-            {isLoggedIn && !isOrgView && (
+            {isAuthenticated && !isOrgView && (
               <>
                 <Link
                   href="/opportunities"
@@ -211,7 +201,7 @@ export function Navigation() {
                 </Link>
               </>
             )}
-            {isLoggedIn && isOrgView && (
+            {isAuthenticated && isOrgView && (
               <>
                 <Link
                   href="/org/dashboard"
@@ -230,7 +220,7 @@ export function Navigation() {
               </>
             )}
             <div className="pt-4 border-t border-border flex flex-col gap-4">
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 <>
                   <Link
                     href="/account"

@@ -47,7 +47,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               ...userDoc.data(),
             } as UserProfile)
           } else {
-            console.error("User profile not found")
             setUserProfile(null)
           }
         } catch (error) {
@@ -66,6 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
+      await fetch('/api/auth/session', { method: 'DELETE' })
       await auth.signOut()
     } catch (error) {
       console.error("Error signing out:", error)
