@@ -7,21 +7,28 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useState } from "react"
+import { resetPassword } from "@/lib/firebase/auth"
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState("")
     const [isSubmitted, setIsSubmitted] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState("")
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!email) return
 
         setIsLoading(true)
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1500))
-        setIsLoading(false)
-        setIsSubmitted(true)
+        setError("")
+        try {
+            await resetPassword(email)
+            setIsSubmitted(true)
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to send reset email.")
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     return (
@@ -79,6 +86,7 @@ export default function ForgotPasswordPage() {
                                         "Send Reset Link"
                                     )}
                                 </Button>
+                                {error && <p className="text-sm text-destructive text-center">{error}</p>}
                                 <div className="mt-4 text-center text-sm">
                                     Remember your password?{" "}
                                     <Link href="/login" className="underline underline-offset-4">

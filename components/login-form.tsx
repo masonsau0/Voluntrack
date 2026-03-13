@@ -47,7 +47,13 @@ export function LoginForm({
     setErrors({})
 
     try {
-      await signIn(email, password)
+      const user = await signIn(email, password)
+      const token = await user.getIdToken()
+      await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      })
       router.push(redirectTo)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An error occurred during login"

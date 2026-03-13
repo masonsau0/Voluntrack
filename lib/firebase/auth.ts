@@ -3,6 +3,7 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   sendEmailVerification,
+  sendPasswordResetEmail,
   User,
   UserCredential,
   AuthError,
@@ -167,9 +168,21 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
 }
 
 /**
+ * Send a password reset email
+ */
+export async function resetPassword(email: string): Promise<void> {
+  try {
+    await sendPasswordResetEmail(auth, email);
+  } catch (error) {
+    const authError = error as AuthError;
+    throw new Error(getAuthErrorMessage(authError.code));
+  }
+}
+
+/**
  * Convert Firebase Auth error codes to user-friendly messages
  */
-function getAuthErrorMessage(errorCode: string): string {
+export function getAuthErrorMessage(errorCode: string): string {
   switch (errorCode) {
     case "auth/invalid-email":
       return "Invalid email address.";

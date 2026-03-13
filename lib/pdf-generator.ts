@@ -16,7 +16,8 @@ export const generateVolunteerPDF = async (
   const autoTable = autoTableImport.default || (autoTableImport as any)
 
   // Initialize document
-  const doc = new jsPDF()
+  // Initialize document in landscape to accommodate more columns
+  const doc = new jsPDF({ orientation: "landscape" })
   
   // Format Date
   const today = new Date()
@@ -46,19 +47,19 @@ export const generateVolunteerPDF = async (
   doc.setTextColor(100, 116, 139) // Slate-500
   doc.text("Official Volunteer Record", 14, 28)
 
-  // Right-aligned Name and Date
+  // Right-aligned Name and Date (A4 landscape width is ~297mm, margins 14mm)
   doc.setFontSize(12)
   doc.setTextColor(15, 23, 42) // Slate-900
-  doc.text(fullName, 196, 22, { align: "right" })
+  doc.text(fullName, 283, 22, { align: "right" })
   
   doc.setFontSize(10)
   doc.setTextColor(100, 116, 139) 
-  doc.text(dateString, 196, 28, { align: "right" })
+  doc.text(dateString, 283, 28, { align: "right" })
 
   // 2. Summary Section
   doc.setLineWidth(0.5)
   doc.setDrawColor(226, 232, 240) // Slate-200
-  doc.line(14, 35, 196, 35)
+  doc.line(14, 35, 283, 35)
 
   doc.setFontSize(11)
   doc.setTextColor(15, 23, 42)
@@ -80,15 +81,20 @@ export const generateVolunteerPDF = async (
   const tableColumn = [
     "Opportunity",
     "Organization",
+    "Contact Name",
+    "Contact Email",
     "Hours",
     "Date",
+    "Signature"
   ]
 
   const tableRows = completedOpportunities.map((opp) => {
     return [
       opp.title,
       opp.organization || "N/A",
-      opp.hours,
+      opp.contactName || "N/A",
+      opp.contactEmail || "N/A",
+      opp.hours,    
       opp.date || "N/A",
     ]
   })
@@ -113,10 +119,13 @@ export const generateVolunteerPDF = async (
       fillColor: [248, 250, 252], // Slate-50
     },
     columnStyles: {
-      0: { cellWidth: 50 }, // Title
-      1: { cellWidth: 50 }, // Org
-      2: { cellWidth: 20 }, // Hours
-      3: { cellWidth: 35 }, // Date
+      0: { cellWidth: 70 }, // Opportunity Title
+      1: { cellWidth: 50 }, // Organization
+      2: { cellWidth: 40 }, // Contact Name
+      3: { cellWidth: 60 }, // Contact Email
+      4: { cellWidth: 20 }, // Hours
+      5: { cellWidth: 30 }, // Date
+      6: { cellWidth: 10 }, // Signature
     },
     margin: { top: 65, left: 14, right: 14 },
     didDrawPage: (data: any) => {
@@ -133,29 +142,29 @@ export const generateVolunteerPDF = async (
     },
   })
 
-  // 5. Signature Section
-  // @ts-expect-error
-  const finalY = doc.lastAutoTable.finalY + 30 
+  // // 5. Signature Section
+  // // @ts-expect-error
+  // const finalY = doc.lastAutoTable.finalY + 30 
   
-  // Only add signature if there's enough room on the page; otherwise, add a new page (autoTable usually leaves some margin, but just in case)
-  if (finalY > doc.internal.pageSize.height - 40) {
-    doc.addPage()
-    // @ts-expect-error
-    doc.setY(30)
-  }
+  // // Only add signature if there's enough room on the page; otherwise, add a new page (autoTable usually leaves some margin, but just in case)
+  // if (finalY > doc.internal.pageSize.height - 40) {
+  //   doc.addPage()
+  //   // @ts-expect-error
+  //   doc.setY(30)
+  // }
 
-  const signatureY = finalY > doc.internal.pageSize.height - 40 ? 40 : finalY
+  // const signatureY = finalY > doc.internal.pageSize.height - 40 ? 40 : finalY
 
-  doc.setFontSize(10)
-  doc.setTextColor(71, 85, 105)
-  doc.text("Verified by:", 14, signatureY)
+  // doc.setFontSize(10)
+  // doc.setTextColor(71, 85, 105)
+  // doc.text("Verified by:", 14, signatureY)
   
-  doc.setLineWidth(0.5)
-  doc.setDrawColor(148, 163, 184) // Slate-400
-  doc.line(35, signatureY, 120, signatureY)
+  // doc.setLineWidth(0.5)
+  // doc.setDrawColor(148, 163, 184) // Slate-400
+  // doc.line(35, signatureY, 140, signatureY)
   
-  doc.setFontSize(8)
-  doc.text("(Signature / Official Stamp)", 45, signatureY + 5)
+  // doc.setFontSize(8)
+  // doc.text("(Signature / Official Stamp)", 45, signatureY + 5)
 
   // 6. Save the PDF
   const filename = `Volunteer_History_${firstName.replace(/\s+/g, "_")}.pdf`

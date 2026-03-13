@@ -21,6 +21,12 @@ export const BADGE_MILESTONES = [
     { id: "goal-setter", hours: 40, name: "Goal Setter" },
 ];
 
+export interface StructuredReflection {
+    orgDescription: string;   // "What does the organization do?"
+    howHelped: string;         // "How did you help?"
+    whatLearned: string;       // "What did you learn?"
+}
+
 export interface UserApplication {
     id: string;
     userId: string;
@@ -45,7 +51,7 @@ export interface UserApplication {
     updatedAt: any;
     // External Opportunity Fields
     isExternal?: boolean;
-    reflection?: string;
+    reflection?: StructuredReflection | string;
     contactName?: string;
     contactEmail?: string;
     contactPhone?: string;
@@ -317,6 +323,30 @@ export async function submitExternalOpportunity(
 
     } catch (error) {
         console.error("Error submitting external opportunity:", error);
+        throw error;
+    }
+}
+
+/**
+ * Submit a structured reflection for a completed/approved opportunity
+ */
+export async function submitReflection(
+    userId: string,
+    opportunityId: string,
+    reflection: StructuredReflection
+): Promise<void> {
+    try {
+        const appRef = doc(db, "user_applications", `${userId}_${opportunityId}`);
+        const appDoc = await getDoc(appRef);
+
+        if (!appDoc.exists()) throw new Error("Application not found.");
+
+        await updateDoc(appRef, {
+            reflection,
+            updatedAt: serverTimestamp()
+        });
+    } catch (error) {
+        console.error("Error submitting reflection:", error);
         throw error;
     }
 }
