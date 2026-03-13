@@ -79,20 +79,34 @@ describe('Firebase Admin SDK', () => {
 
   it('uses an already-initialised app when getApps() returns one', () => {
     jest.resetModules()
-    mockGetApps.mockReturnValue([mockApp])
-    mockInitializeApp.mockClear()
+
+    const localInitializeApp = jest.fn()
+    jest.doMock('firebase-admin/app', () => ({
+      getApps: jest.fn(() => [mockApp]),
+      initializeApp: localInitializeApp,
+      cert: jest.fn(),
+    }))
+    jest.doMock('firebase-admin/auth', () => ({ getAuth: jest.fn(() => mockAuth) }))
+    jest.doMock('firebase-admin/firestore', () => ({ getFirestore: jest.fn(() => mockDb) }))
 
     const { adminAuth, adminDb } = require('../admin')
 
-    expect(mockInitializeApp).not.toHaveBeenCalled()
+    expect(localInitializeApp).not.toHaveBeenCalled()
     expect(adminAuth).toBeDefined()
     expect(adminDb).toBeDefined()
   })
 
   it('throws when FIREBASE_SERVICE_ACCOUNT_KEY is not set', () => {
     jest.resetModules()
-    mockGetApps.mockReturnValue([])
     delete process.env.FIREBASE_SERVICE_ACCOUNT_KEY
+
+    jest.doMock('firebase-admin/app', () => ({
+      getApps: jest.fn(() => []),
+      initializeApp: jest.fn(),
+      cert: jest.fn(),
+    }))
+    jest.doMock('firebase-admin/auth', () => ({ getAuth: jest.fn() }))
+    jest.doMock('firebase-admin/firestore', () => ({ getFirestore: jest.fn() }))
 
     expect(() => require('../admin')).toThrow('FIREBASE_SERVICE_ACCOUNT_KEY')
   })

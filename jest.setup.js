@@ -10,7 +10,9 @@ class ResizeObserver {
   disconnect() {}
 }
 
-window.ResizeObserver = ResizeObserver;
+if (typeof window !== 'undefined') {
+  window.ResizeObserver = ResizeObserver;
+}
 
 // Mock Next.js router
 jest.mock('next/navigation', () => ({

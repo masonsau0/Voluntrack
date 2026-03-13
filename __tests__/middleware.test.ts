@@ -2,18 +2,19 @@
  * @jest-environment node
  */
 
-// Mock next/server before importing middleware
-const mockRedirect = jest.fn((url: URL) => ({ type: 'redirect', url: url.href }))
-const mockNext = jest.fn(() => ({ type: 'next' }))
-
+// jest.mock is hoisted, so factory must use inline jest.fn() — not outer variables
 jest.mock('next/server', () => ({
   NextResponse: {
-    redirect: mockRedirect,
-    next: mockNext,
+    redirect: jest.fn((url: URL) => ({ type: 'redirect', url: url.href })),
+    next: jest.fn(() => ({ type: 'next' })),
   },
 }))
 
+import { NextResponse } from 'next/server'
 import { middleware } from '../middleware'
+
+const mockRedirect = NextResponse.redirect as jest.Mock
+const mockNext = NextResponse.next as jest.Mock
 
 // --- helpers ---
 
