@@ -103,10 +103,8 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
           </div>
 
           <div className="flex items-center gap-4">
-            {isLoggedIn && (
-              <Button variant="ghost" size="icon" className={`relative hidden sm:flex transition-colors duration-300 ${forceWhite ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' : 'text-white/80 hover:text-white hover:bg-white/10'}`}>
             {isAuthenticated && (
-              <Button variant="ghost" size="icon" className="relative hidden sm:flex">
+              <Button variant="ghost" size="icon" className={`relative hidden sm:flex transition-colors duration-300 ${forceWhite ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' : 'text-white/80 hover:text-white hover:bg-white/10'}`}>
                 <Bell className="h-5 w-5" />
                 {notificationCount > 0 && (
                   <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-rose-600 text-white text-[10px] flex items-center justify-center font-bold">
