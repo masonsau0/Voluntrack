@@ -30,6 +30,8 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
   const isLoggedIn = !!user
   // Check if we're on a login/signup page
   const isAuthPage = pathname?.startsWith("/login") || pathname?.startsWith("/signup")
+  // Use actual Firebase auth state instead of pathname-based heuristic
+  const isAuthenticated = !loading && !!user
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${forceWhite ? 'bg-white shadow-md border-b border-gray-100' : 'bg-gradient-to-b from-black/80 via-black/50 to-transparent backdrop-blur-sm'}`}>
@@ -45,7 +47,7 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
-            {isLoggedIn && !isOrgView && (
+            {isAuthenticated && !isOrgView && (
               <>
                 <Link
                   href="/opportunities"
@@ -76,7 +78,7 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
                 </Link>
               </>
             )}
-            {isLoggedIn && isOrgView && (
+            {isAuthenticated && isOrgView && (
               <>
                 <Link
                   href="/org/dashboard"
@@ -103,6 +105,8 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
           <div className="flex items-center gap-4">
             {isLoggedIn && (
               <Button variant="ghost" size="icon" className={`relative hidden sm:flex transition-colors duration-300 ${forceWhite ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' : 'text-white/80 hover:text-white hover:bg-white/10'}`}>
+            {isAuthenticated && (
+              <Button variant="ghost" size="icon" className="relative hidden sm:flex">
                 <Bell className="h-5 w-5" />
                 {notificationCount > 0 && (
                   <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-rose-600 text-white text-[10px] flex items-center justify-center font-bold">
@@ -113,7 +117,7 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
             )}
 
             {/* Authentication vs Profile */}
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="hidden sm:flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity outline-none">
@@ -195,7 +199,7 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-white/10 bg-black/90 backdrop-blur-xl">
           <div className="px-4 py-6 space-y-4">
-            {isLoggedIn && !isOrgView && (
+            {isAuthenticated && !isOrgView && (
               <>
                 <Link
                   href="/opportunities"
@@ -220,7 +224,7 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
                 </Link>
               </>
             )}
-            {isLoggedIn && isOrgView && (
+            {isAuthenticated && isOrgView && (
               <>
                 <Link
                   href="/org/dashboard"
@@ -239,7 +243,7 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
               </>
             )}
             <div className="pt-4 border-t border-border flex flex-col gap-4">
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 <>
                   <Link
                     href="/account"
