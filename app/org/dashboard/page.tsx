@@ -33,7 +33,7 @@ import { Card, CardContent } from "@/components/ui/card"
 
 
 export default function OrgDashboardPage() {
-    const { userProfile, loading: authLoading } = useAuth()
+    const { user, userProfile, loading: authLoading } = useAuth()
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
     const [opportunities, setOpportunities] = useState<Opportunity[]>([])
     const [applicants, setApplicants] = useState<UserApplication[]>([])
@@ -42,11 +42,12 @@ export default function OrgDashboardPage() {
     useEffect(() => {
         let mounted = true;
         const fetchData = async () => {
-            if (userProfile?.uid) {
+            const uid = userProfile?.uid ?? user?.uid
+            if (uid) {
                 try {
                     const [oppsData, appsData] = await Promise.all([
-                        getOrgOpportunities(userProfile.uid),
-                        getOrgApplicants(userProfile.uid)
+                        getOrgOpportunities(uid),
+                        getOrgApplicants(uid)
                     ]);
                     if (mounted) {
                         setOpportunities(oppsData);
@@ -63,7 +64,7 @@ export default function OrgDashboardPage() {
         };
         fetchData();
         return () => { mounted = false; }
-    }, [userProfile?.uid, authLoading]);
+    }, [userProfile?.uid, user?.uid, authLoading]);
 
     const getApplicantCount = (opportunityId: string) => {
         return applicants.filter(a => a.opportunityId === opportunityId).length;

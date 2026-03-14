@@ -119,7 +119,7 @@ export async function getOrgApplicants(orgId: string): Promise<OrgApplicant[]> {
                     id: doc.id, // Explicitly override just to be safe, but place after ...data
                     userName,
                     userEmail,
-                    message: "I am very interested in this opportunity and would love to help out!", // Placeholder since we don't store messages yet
+                    message: (data as any).message ?? "",
                 } as OrgApplicant;
             });
             

@@ -1,6 +1,20 @@
 {
     "indexes": [
         {
+            "collectionGroup": "opportunities",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "orgId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "dateISO",
+                    "order": "ASCENDING"
+                }
+            ]
+        },
+        {
             "collectionGroup": "user_applications",
             "queryScope": "COLLECTION",
             "fields": [

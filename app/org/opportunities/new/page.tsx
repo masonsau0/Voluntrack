@@ -31,11 +31,8 @@ import { CATEGORIES } from "@/lib/preferences"
 
 
 const requirementOptions = [
-    "Training",
     "Background Check",
     "First Aid",
-    "Driver's License",
-    "18+",
     "Physical Fitness",
     "Experience Required",
     "None",
@@ -44,7 +41,7 @@ const requirementOptions = [
 export default function PostOpportunityPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const { userProfile } = useAuth()
+    const { user, userProfile } = useAuth()
     const [showSuccess, setShowSuccess] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -114,7 +111,11 @@ export default function PostOpportunityPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!validate() || !userProfile?.uid) return
+        const uid = userProfile?.uid ?? user?.uid
+        if (!validate() || !uid) {
+            if (!uid) toast.error("You must be logged in to post an opportunity.")
+            return
+        }
 
         // Layer 1: keyword check
         const keywordCheck = validateOpportunityContent(form.title, form.description)
@@ -148,7 +149,7 @@ export default function PostOpportunityPage() {
             const dateObj = new Date(form.startDate);
             const displayDate = dateObj.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", year: "numeric" });
 
-            await createOpportunity(userProfile.uid, {
+            await createOpportunity(uid, {
                 title: form.title,
                 organization: form.organizationName,
                 description: form.description,

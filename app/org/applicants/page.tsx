@@ -31,7 +31,8 @@ import { Input } from "@/components/ui/input"
 
 import { statusColors } from "@/lib/ui-config"
 export default function ApplicantsPage() {
-    const { userProfile, loading: authLoading } = useAuth()
+    const { user, userProfile, loading: authLoading } = useAuth()
+    const uid = userProfile?.uid ?? user?.uid
     const [searchQuery, setSearchQuery] = useState("")
     const [statusFilter, setStatusFilter] = useState<string>("all")
     const [applicants, setApplicants] = useState<OrgApplicant[]>([])
@@ -50,9 +51,9 @@ export default function ApplicantsPage() {
     useEffect(() => {
         let mounted = true;
         const fetchData = async () => {
-            if (userProfile?.uid) {
+            if (uid) {
                 try {
-                    const apps = await getOrgApplicants(userProfile.uid);
+                    const apps = await getOrgApplicants(uid);
                     if (mounted) {
                         setApplicants(apps);
                         setLoadingData(false);
@@ -67,7 +68,7 @@ export default function ApplicantsPage() {
         };
         fetchData();
         return () => { mounted = false; };
-    }, [userProfile?.uid, authLoading]);
+    }, [userProfile?.uid, user?.uid, authLoading]);
 
     // Stats
     const totalApplicants = applicants.length
@@ -192,7 +193,7 @@ export default function ApplicantsPage() {
                             <option value="all">All Status</option>
                             <option value="pending">Pending</option>
                             <option value="approved">Approved</option>
-                            <option value="rejected">Declined</option>
+                            <option value="denied">Declined</option>
                         </select>
                     </div>
 
