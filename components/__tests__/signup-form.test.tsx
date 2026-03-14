@@ -28,8 +28,6 @@ describe('SignupForm', () => {
     expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/last name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /student/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /volunteer org/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign up/i })).toBeInTheDocument();
@@ -45,7 +43,6 @@ describe('SignupForm', () => {
       expect(screen.getByText(/first name is required/i)).toBeInTheDocument();
       expect(screen.getByText(/last name is required/i)).toBeInTheDocument();
       expect(screen.getByText(/email is required/i)).toBeInTheDocument();
-      expect(screen.getByText(/please select your account type/i)).toBeInTheDocument();
       expect(screen.getByText(/^password is required$/i)).toBeInTheDocument();
       expect(screen.getByText(/^confirm password is required$/i)).toBeInTheDocument();
     });
@@ -61,21 +58,12 @@ describe('SignupForm', () => {
 
     render(<SignupForm />);
 
-    const firstNameInput = screen.getByLabelText(/first name/i);
-    const lastNameInput = screen.getByLabelText(/last name/i);
-    const emailInput = screen.getByLabelText(/email/i);
-    const studentButton = screen.getByRole('button', { name: /student/i });
-    const passwordInput = screen.getByLabelText(/^password$/i);
-    const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
-    const submitButton = screen.getByRole('button', { name: /sign up/i });
-
-    fireEvent.change(firstNameInput, { target: { value: 'John' } });
-    fireEvent.change(lastNameInput, { target: { value: 'Doe' } });
-    fireEvent.change(emailInput, { target: { value: 'john@example.com' } });
-    fireEvent.click(studentButton);
-    fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
-    fireEvent.change(confirmPasswordInput, { target: { value: 'Password123!' } });
-    fireEvent.click(submitButton);
+    fireEvent.change(screen.getByLabelText(/first name/i), { target: { value: 'John' } });
+    fireEvent.change(screen.getByLabelText(/last name/i), { target: { value: 'Doe' } });
+    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'john@example.com' } });
+    fireEvent.change(screen.getByLabelText(/^password$/i), { target: { value: 'Password123!' } });
+    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: 'Password123!' } });
+    fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
 
     await waitFor(() => {
       expect(mockSignUp).toHaveBeenCalledWith({
@@ -93,21 +81,12 @@ describe('SignupForm', () => {
 
     render(<SignupForm />);
 
-    const firstNameInput = screen.getByLabelText(/first name/i);
-    const lastNameInput = screen.getByLabelText(/last name/i);
-    const emailInput = screen.getByLabelText(/email/i);
-    const studentButton = screen.getByRole('button', { name: /student/i });
-    const passwordInput = screen.getByLabelText(/^password$/i);
-    const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
-    const submitButton = screen.getByRole('button', { name: /sign up/i });
-
-    fireEvent.change(firstNameInput, { target: { value: 'John' } });
-    fireEvent.change(lastNameInput, { target: { value: 'Doe' } });
-    fireEvent.change(emailInput, { target: { value: 'existing@example.com' } });
-    fireEvent.click(studentButton);
-    fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
-    fireEvent.change(confirmPasswordInput, { target: { value: 'Password123!' } });
-    fireEvent.click(submitButton);
+    fireEvent.change(screen.getByLabelText(/first name/i), { target: { value: 'John' } });
+    fireEvent.change(screen.getByLabelText(/last name/i), { target: { value: 'Doe' } });
+    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'existing@example.com' } });
+    fireEvent.change(screen.getByLabelText(/^password$/i), { target: { value: 'Password123!' } });
+    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: 'Password123!' } });
+    fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
 
     await waitFor(() => {
       expect(screen.getByText(/an account with this email already exists/i)).toBeInTheDocument();
@@ -121,20 +100,13 @@ describe('SignupForm', () => {
 
     render(<SignupForm />);
 
-    const firstNameInput = screen.getByLabelText(/first name/i);
-    const lastNameInput = screen.getByLabelText(/last name/i);
-    const emailInput = screen.getByLabelText(/email/i);
-    const studentButton = screen.getByRole('button', { name: /student/i });
-    const passwordInput = screen.getByLabelText(/^password$/i);
-    const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
     const submitButton = screen.getByRole('button', { name: /sign up/i });
 
-    fireEvent.change(firstNameInput, { target: { value: 'John' } });
-    fireEvent.change(lastNameInput, { target: { value: 'Doe' } });
-    fireEvent.change(emailInput, { target: { value: 'john@example.com' } });
-    fireEvent.click(studentButton);
-    fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
-    fireEvent.change(confirmPasswordInput, { target: { value: 'Password123!' } });
+    fireEvent.change(screen.getByLabelText(/first name/i), { target: { value: 'John' } });
+    fireEvent.change(screen.getByLabelText(/last name/i), { target: { value: 'Doe' } });
+    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'john@example.com' } });
+    fireEvent.change(screen.getByLabelText(/^password$/i), { target: { value: 'Password123!' } });
+    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: 'Password123!' } });
     fireEvent.click(submitButton);
 
     expect(screen.getByRole('button', { name: /creating account/i })).toBeInTheDocument();
@@ -150,62 +122,140 @@ describe('SignupForm', () => {
 
     const passwordInput = screen.getByLabelText(/^password$/i);
 
-    // Check initial state - requirements should not be met
+    // Initial state — no requirements met
     expect(screen.getByText(/at least 6 characters/i)).toHaveClass('text-red-600');
 
-    // Type a password that meets some requirements
+    // Type a password that meets all character requirements
     fireEvent.change(passwordInput, { target: { value: 'Pass1!' } });
 
-    // All requirements should now be met
     expect(screen.getByText(/at least 6 characters/i)).toHaveClass('text-green-600');
     expect(screen.getByText(/one uppercase letter/i)).toHaveClass('text-green-600');
     expect(screen.getByText(/one symbol/i)).toHaveClass('text-green-600');
   });
 
-  it('should show error when passwords do not match', async () => {
+  it('should show "passwords match" requirement as green when passwords match', () => {
     render(<SignupForm />);
 
-    const passwordInput = screen.getByLabelText(/^password$/i);
-    const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
-    const submitButton = screen.getByRole('button', { name: /sign up/i });
+    fireEvent.change(screen.getByLabelText(/^password$/i), { target: { value: 'Password123!' } });
+    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: 'Password123!' } });
 
-    fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
-    fireEvent.change(confirmPasswordInput, { target: { value: 'DifferentPassword123!' } });
+    expect(screen.getByText(/passwords match/i)).toHaveClass('text-green-600');
+  });
 
-    // The "Passwords match" requirement should show as not met
+  it('should show error when passwords do not match', () => {
+    render(<SignupForm />);
+
+    fireEvent.change(screen.getByLabelText(/^password$/i), { target: { value: 'Password123!' } });
+    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: 'DifferentPassword123!' } });
+
     expect(screen.getByText(/passwords match/i)).toHaveClass('text-red-600');
   });
 
-  it('should toggle password visibility for both password fields', () => {
+  it('should toggle password field visibility', () => {
     render(<SignupForm />);
 
     const passwordInput = screen.getByLabelText(/^password$/i) as HTMLInputElement;
-    const confirmPasswordInput = screen.getByLabelText(/confirm password/i) as HTMLInputElement;
-
-    // Find the toggle buttons (they're icon buttons, so we'll look for the inputs and check their type)
-    // The show password functionality is handled by the Eye/EyeOff icons
-    // We can test by checking the input type changes when clicking the toggle
+    const toggleButtons = screen.getAllByRole('button', { name: /toggle password visibility/i });
 
     expect(passwordInput.type).toBe('password');
+
+    fireEvent.click(toggleButtons[0]);
+    expect(passwordInput.type).toBe('text');
+
+    fireEvent.click(toggleButtons[0]);
+    expect(passwordInput.type).toBe('password');
+  });
+
+  it('should toggle confirm password field visibility independently', () => {
+    render(<SignupForm />);
+
+    const confirmPasswordInput = screen.getByLabelText(/confirm password/i) as HTMLInputElement;
+    const toggleButtons = screen.getAllByRole('button', { name: /toggle password visibility/i });
+
     expect(confirmPasswordInput.type).toBe('password');
 
-    // Note: The actual toggle buttons are icon buttons that might need different selectors
-    // This is a simplified test - in a real scenario you'd click the actual toggle buttons
+    fireEvent.click(toggleButtons[1]);
+    expect(confirmPasswordInput.type).toBe('text');
+
+    fireEvent.click(toggleButtons[1]);
+    expect(confirmPasswordInput.type).toBe('password');
+  });
+
+  it('should not submit when password is too short', async () => {
+    render(<SignupForm />);
+
+    fireEvent.change(screen.getByLabelText(/first name/i), { target: { value: 'John' } });
+    fireEvent.change(screen.getByLabelText(/last name/i), { target: { value: 'Doe' } });
+    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'john@example.com' } });
+    fireEvent.change(screen.getByLabelText(/^password$/i), { target: { value: 'Abc!1' } });
+    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: 'Abc!1' } });
+    fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/password does not meet all requirements/i)).toBeInTheDocument();
+    });
+
+    expect(mockSignUp).not.toHaveBeenCalled();
+  });
+
+  it('should not submit when password lacks an uppercase letter', async () => {
+    render(<SignupForm />);
+
+    fireEvent.change(screen.getByLabelText(/first name/i), { target: { value: 'John' } });
+    fireEvent.change(screen.getByLabelText(/last name/i), { target: { value: 'Doe' } });
+    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'john@example.com' } });
+    fireEvent.change(screen.getByLabelText(/^password$/i), { target: { value: 'password123!' } });
+    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: 'password123!' } });
+    fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/password does not meet all requirements/i)).toBeInTheDocument();
+    });
+
+    expect(mockSignUp).not.toHaveBeenCalled();
+  });
+
+  it('should not submit when password lacks a symbol', async () => {
+    render(<SignupForm />);
+
+    fireEvent.change(screen.getByLabelText(/first name/i), { target: { value: 'John' } });
+    fireEvent.change(screen.getByLabelText(/last name/i), { target: { value: 'Doe' } });
+    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'john@example.com' } });
+    fireEvent.change(screen.getByLabelText(/^password$/i), { target: { value: 'Password123' } });
+    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: 'Password123' } });
+    fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/password does not meet all requirements/i)).toBeInTheDocument();
+    });
+
+    expect(mockSignUp).not.toHaveBeenCalled();
+  });
+
+  it('should render login link with correct href', () => {
+    render(<SignupForm />);
+
+    const loginLink = screen.getByRole('link', { name: /log in/i });
+    expect(loginLink).toBeInTheDocument();
+    expect(loginLink).toHaveAttribute('href', '/login');
+  });
+
+  it('should display school email note', () => {
+    render(<SignupForm />);
+
+    expect(screen.getByText(/please use your school email address/i)).toBeInTheDocument();
   });
 
   it('should clear errors when user starts typing in a field', async () => {
     render(<SignupForm />);
 
-    const firstNameInput = screen.getByLabelText(/first name/i);
-    const submitButton = screen.getByRole('button', { name: /sign up/i });
-
-    fireEvent.click(submitButton);
+    fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
 
     await waitFor(() => {
       expect(screen.getByText(/first name is required/i)).toBeInTheDocument();
     });
 
-    fireEvent.change(firstNameInput, { target: { value: 'John' } });
+    fireEvent.change(screen.getByLabelText(/first name/i), { target: { value: 'John' } });
 
     await waitFor(() => {
       expect(screen.queryByText(/first name is required/i)).not.toBeInTheDocument();

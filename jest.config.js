@@ -23,6 +23,15 @@ const customJestConfig = {
     '!**/node_modules/**',
     '!**/.next/**',
   ],
+  // Low bar to catch regressions without forcing a large test expansion
+  coverageThreshold: {
+    global: {
+      branches: 0,
+      functions: 10,
+      lines: 15,
+      statements: 15,
+    },
+  },
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

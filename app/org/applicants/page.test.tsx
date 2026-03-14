@@ -128,4 +128,135 @@ describe("ApplicantsPage", () => {
     it("opens selected applicant modal and allows approving", async () => {
         expect(updateApplicationStatus).toBeDefined();
     });
+
+    // ── Decision Dialog ────────────────────────────────────────────────────
+
+    it("clicking row-level Approve opens the decision dialog", async () => {
+        const user = userEvent.setup();
+        render(<ApplicantsPage />);
+
+        await waitFor(() => expect(screen.getByText("Sarah Chen")).toBeInTheDocument());
+
+        const approveBtn = screen.getAllByRole("button", { name: /approve/i })[0];
+        await user.click(approveBtn);
+
+        expect(screen.getByText("Approve Applicant")).toBeInTheDocument();
+    });
+
+    it("clicking row-level Decline opens the decision dialog", async () => {
+        const user = userEvent.setup();
+        render(<ApplicantsPage />);
+
+        await waitFor(() => expect(screen.getByText("Sarah Chen")).toBeInTheDocument());
+
+        const declineBtn = screen.getAllByRole("button", { name: /decline/i })[0];
+        await user.click(declineBtn);
+
+        expect(screen.getByText("Decline Applicant")).toBeInTheDocument();
+    });
+
+    it("approval dialog shows coordinator contact fields", async () => {
+        const user = userEvent.setup();
+        render(<ApplicantsPage />);
+
+        await waitFor(() => expect(screen.getByText("Sarah Chen")).toBeInTheDocument());
+
+        await user.click(screen.getAllByRole("button", { name: /approve/i })[0]);
+
+        expect(screen.getByPlaceholderText("Coordinator name")).toBeInTheDocument();
+        expect(screen.getByPlaceholderText("Coordinator email")).toBeInTheDocument();
+        expect(screen.getByPlaceholderText("Phone number (optional)")).toBeInTheDocument();
+    });
+
+    it("decline dialog does not show coordinator contact fields", async () => {
+        const user = userEvent.setup();
+        render(<ApplicantsPage />);
+
+        await waitFor(() => expect(screen.getByText("Sarah Chen")).toBeInTheDocument());
+
+        await user.click(screen.getAllByRole("button", { name: /decline/i })[0]);
+
+        expect(screen.queryByPlaceholderText("Coordinator name")).not.toBeInTheDocument();
+        expect(screen.queryByPlaceholderText("Coordinator email")).not.toBeInTheDocument();
+    });
+
+    it("confirming approval calls updateApplicationStatus with message and contact info", async () => {
+        const user = userEvent.setup();
+        render(<ApplicantsPage />);
+
+        await waitFor(() => expect(screen.getByText("Sarah Chen")).toBeInTheDocument());
+
+        await user.click(screen.getAllByRole("button", { name: /approve/i })[0]);
+
+        await user.type(screen.getByPlaceholderText(/welcome!/i), "Great job applying!");
+        await user.type(screen.getByPlaceholderText("Coordinator name"), "Alex Smith");
+        await user.type(screen.getByPlaceholderText("Coordinator email"), "alex@org.com");
+
+        await user.click(screen.getByRole("button", { name: /confirm approval/i }));
+
+        await waitFor(() => {
+            expect(updateApplicationStatus).toHaveBeenCalledWith(
+                "user1", "opp1", "approved",
+                expect.objectContaining({
+                    decisionMessage: "Great job applying!",
+                    orgContactName: "Alex Smith",
+                    orgContactEmail: "alex@org.com",
+                })
+            );
+        });
+    });
+
+    it("confirming decline calls updateApplicationStatus without org contact fields", async () => {
+        const user = userEvent.setup();
+        render(<ApplicantsPage />);
+
+        await waitFor(() => expect(screen.getByText("Sarah Chen")).toBeInTheDocument());
+
+        await user.click(screen.getAllByRole("button", { name: /decline/i })[0]);
+
+        await user.type(screen.getByPlaceholderText(/thank you for applying/i), "Not a fit this time.");
+
+        await user.click(screen.getByRole("button", { name: /confirm decline/i }));
+
+        await waitFor(() => {
+            expect(updateApplicationStatus).toHaveBeenCalledWith(
+                "user1", "opp1", "denied",
+                expect.not.objectContaining({
+                    orgContactName: expect.anything(),
+                    orgContactEmail: expect.anything(),
+                })
+            );
+        });
+    });
+
+    it("dialog closes after successful confirmation", async () => {
+        const user = userEvent.setup();
+        render(<ApplicantsPage />);
+
+        await waitFor(() => expect(screen.getByText("Sarah Chen")).toBeInTheDocument());
+
+        await user.click(screen.getAllByRole("button", { name: /approve/i })[0]);
+        expect(screen.getByText("Approve Applicant")).toBeInTheDocument();
+
+        await user.click(screen.getByRole("button", { name: /confirm approval/i }));
+
+        await waitFor(() => {
+            expect(screen.queryByText("Approve Applicant")).not.toBeInTheDocument();
+        });
+    });
+
+    it("cancel button closes the dialog without calling updateApplicationStatus", async () => {
+        const user = userEvent.setup();
+        render(<ApplicantsPage />);
+
+        await waitFor(() => expect(screen.getByText("Sarah Chen")).toBeInTheDocument());
+
+        await user.click(screen.getAllByRole("button", { name: /approve/i })[0]);
+        expect(screen.getByText("Approve Applicant")).toBeInTheDocument();
+
+        await user.click(screen.getByRole("button", { name: /cancel/i }));
+
+        expect(screen.queryByText("Approve Applicant")).not.toBeInTheDocument();
+        expect(updateApplicationStatus).not.toHaveBeenCalled();
+    });
 });

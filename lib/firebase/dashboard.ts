@@ -10,7 +10,9 @@ import {
     orderBy,
     deleteDoc,
     serverTimestamp,
-    increment
+    increment,
+    addDoc,
+    onSnapshot
 } from "firebase/firestore";
 import { db } from "./config";
 import { Opportunity } from "./opportunities";
@@ -55,6 +57,22 @@ export interface UserApplication {
     contactName?: string;
     contactEmail?: string;
     contactPhone?: string;
+    // Decision metadata (written by org on approve/deny)
+    decisionMessage?: string;
+    orgContactName?: string;
+    orgContactEmail?: string;
+    orgContactPhone?: string;
+}
+
+export interface FirestoreNotification {
+    id: string;
+    recipientId: string;
+    type: "decision";
+    unread: boolean;
+    message: string;
+    timestamp: any;           // Firestore Timestamp
+    opportunityTitle: string; // Snapshot to avoid re-querying
+    status: "approved" | "denied";
 }
 
 export interface SavedOpportunity {
@@ -238,6 +256,27 @@ export async function applyToOpportunity(userId: string, opportunity: Opportunit
     }
 }
 
+async function writeDecisionNotification(
+    recipientId: string,
+    opportunityTitle: string,
+    decisionStatus: "approved" | "denied"
+): Promise<void> {
+    try {
+        await addDoc(collection(db, "notifications"), {
+            recipientId,
+            type: "decision",
+            unread: true,
+            message: `Your application to ${opportunityTitle} has been ${decisionStatus}.`,
+            timestamp: serverTimestamp(),
+            opportunityTitle,
+            status: decisionStatus,
+        });
+    } catch (error) {
+        console.error("Error writing decision notification:", error);
+        // Does not rethrow — notification failure must not surface as an error to the org user
+    }
+}
+
 /**
  * Update application status (Mock for demo/internal use)
  * In a real app, this would be triggered by an admin or organization.
@@ -245,7 +284,13 @@ export async function applyToOpportunity(userId: string, opportunity: Opportunit
 export async function updateApplicationStatus(
     userId: string,
     opportunityId: string,
-    status: "approved" | "completed" | "denied"
+    status: "approved" | "completed" | "denied",
+    options?: {
+        decisionMessage?: string;
+        orgContactName?: string;
+        orgContactEmail?: string;
+        orgContactPhone?: string;
+    }
 ): Promise<void> {
     try {
         const appRef = doc(db, "user_applications", `${userId}_${opportunityId}`);
@@ -254,7 +299,17 @@ export async function updateApplicationStatus(
         if (!appDoc.exists()) throw new Error("Application not found.");
 
         const oldStatus = appDoc.data().status;
-        await updateDoc(appRef, { status, updatedAt: serverTimestamp() });
+        const updateData: Record<string, any> = { status, updatedAt: serverTimestamp() };
+        if (options?.decisionMessage)  updateData.decisionMessage  = options.decisionMessage;
+        if (options?.orgContactName)   updateData.orgContactName   = options.orgContactName;
+        if (options?.orgContactEmail)  updateData.orgContactEmail  = options.orgContactEmail;
+        if (options?.orgContactPhone)  updateData.orgContactPhone  = options.orgContactPhone;
+        await updateDoc(appRef, updateData);
+
+        if (status === "approved" || status === "denied") {
+            const title = appDoc.data().title as string;
+            await writeDecisionNotification(userId, title, status);
+        }
 
         // If completed, increment student hours and check for badges in student_profiles
         if (status === "completed" && oldStatus !== "completed") {
@@ -360,6 +415,45 @@ export async function submitExternalOpportunity(
 
     } catch (error) {
         console.error("Error submitting external opportunity:", error);
+        throw error;
+    }
+}
+
+/**
+ * Subscribe to real-time decision notifications for a user
+ */
+export function subscribeToDecisionNotifications(
+    userId: string,
+    onUpdate: (notifications: FirestoreNotification[]) => void,
+    onError?: (error: Error) => void
+): () => void {
+    const q = query(
+        collection(db, "notifications"),
+        where("recipientId", "==", userId),
+        orderBy("timestamp", "desc")
+    );
+    return onSnapshot(
+        q,
+        (snapshot) => {
+            const notifications = snapshot.docs.map(
+                (doc) => ({ id: doc.id, ...doc.data() } as FirestoreNotification)
+            );
+            onUpdate(notifications);
+        },
+        (error) => {
+            if (onError) onError(error);
+        }
+    );
+}
+
+/**
+ * Mark a notification as read
+ */
+export async function markNotificationAsRead(notificationId: string): Promise<void> {
+    try {
+        await updateDoc(doc(db, "notifications", notificationId), { unread: false });
+    } catch (error) {
+        console.error("Error marking notification as read:", error);
         throw error;
     }
 }

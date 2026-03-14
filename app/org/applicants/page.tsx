@@ -37,6 +37,15 @@ export default function ApplicantsPage() {
     const [applicants, setApplicants] = useState<OrgApplicant[]>([])
     const [loadingData, setLoadingData] = useState(true)
     const [selectedApplicant, setSelectedApplicant] = useState<OrgApplicant | null>(null)
+    const [decisionPending, setDecisionPending] = useState<{
+        applicant: OrgApplicant;
+        intent: "approved" | "denied";
+    } | null>(null)
+    const [decisionMessage, setDecisionMessage] = useState("")
+    const [contactName, setContactName] = useState("")
+    const [contactEmail, setContactEmail] = useState("")
+    const [contactPhone, setContactPhone] = useState("")
+    const [submitting, setSubmitting] = useState(false)
 
     useEffect(() => {
         let mounted = true;
@@ -75,17 +84,34 @@ export default function ApplicantsPage() {
         return matchesSearch && matchesStatus
     })
 
-    const updateStatus = async (userId: string, oppId: string, id: string, newStatus: "approved" | "denied") => {
+    const openDecision = (applicant: OrgApplicant, intent: "approved" | "denied") => {
+        setDecisionPending({ applicant, intent })
+        setDecisionMessage("")
+        setContactName(""); setContactEmail(""); setContactPhone("")
+    }
+
+    const confirmDecision = async () => {
+        if (!decisionPending || submitting) return
+        setSubmitting(true)
+        const { applicant, intent } = decisionPending
         try {
-            await updateApplicationStatus(userId, oppId, newStatus);
-            setApplicants(prev => prev.map(a => a.id === id ? { ...a, status: newStatus } : a));
-            if (selectedApplicant?.id === id) {
-                setSelectedApplicant(prev => prev ? { ...prev, status: newStatus } : null);
-            }
-            toast.success("Application status updated!");
-        } catch (error) {
-            console.error("Failed to update status", error);
-            toast.error("Failed to update status");
+            await updateApplicationStatus(applicant.userId, applicant.opportunityId, intent, {
+                decisionMessage: decisionMessage.trim() || undefined,
+                ...(intent === "approved" ? {
+                    orgContactName:  contactName.trim()  || undefined,
+                    orgContactEmail: contactEmail.trim() || undefined,
+                    orgContactPhone: contactPhone.trim() || undefined,
+                } : {})
+            })
+            setApplicants(prev => prev.map(a => a.id === applicant.id ? { ...a, status: intent } : a))
+            if (selectedApplicant?.id === applicant.id)
+                setSelectedApplicant(prev => prev ? { ...prev, status: intent } : null)
+            toast.success(`Application ${intent === "approved" ? "approved" : "declined"}!`)
+            setDecisionPending(null)
+        } catch {
+            toast.error("Failed to update status")
+        } finally {
+            setSubmitting(false)
         }
     }
 
@@ -237,7 +263,7 @@ export default function ApplicantsPage() {
                                                                 <Button
                                                                     size="sm"
                                                                     className="rounded-lg h-8 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
-                                                                    onClick={(e) => { e.stopPropagation(); updateStatus(applicant.userId, applicant.opportunityId, applicant.id, "approved") }}
+                                                                    onClick={(e) => { e.stopPropagation(); openDecision(applicant, "approved") }}
                                                                 >
                                                                     <CheckCircle className="w-3.5 h-3.5 mr-1" />
                                                                     Approve
@@ -246,7 +272,7 @@ export default function ApplicantsPage() {
                                                                     size="sm"
                                                                     variant="outline"
                                                                     className="rounded-lg h-8 px-3 border-red-300 text-red-700 hover:bg-red-50 text-xs"
-                                                                    onClick={(e) => { e.stopPropagation(); updateStatus(applicant.userId, applicant.opportunityId, applicant.id, "denied") }}
+                                                                    onClick={(e) => { e.stopPropagation(); openDecision(applicant, "denied") }}
                                                                 >
                                                                     <XCircle className="w-3.5 h-3.5 mr-1" />
                                                                     Decline
@@ -368,7 +394,7 @@ export default function ApplicantsPage() {
                                 <div className="flex items-center gap-3 p-6 border-t border-slate-100">
                                     <Button
                                         className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl"
-                                        onClick={() => updateStatus(selectedApplicant.userId, selectedApplicant.opportunityId, selectedApplicant.id, "approved")}
+                                        onClick={() => openDecision(selectedApplicant, "approved")}
                                     >
                                         <CheckCircle className="w-4 h-4 mr-2" />
                                         Approve Applicant
@@ -376,7 +402,7 @@ export default function ApplicantsPage() {
                                     <Button
                                         variant="outline"
                                         className="flex-1 rounded-xl border-red-300 text-red-700 hover:bg-red-50"
-                                        onClick={() => updateStatus(selectedApplicant.userId, selectedApplicant.opportunityId, selectedApplicant.id, "denied")}
+                                        onClick={() => openDecision(selectedApplicant, "denied")}
                                     >
                                         <XCircle className="w-4 h-4 mr-2" />
                                         Decline Applicant
@@ -387,6 +413,76 @@ export default function ApplicantsPage() {
                     </div>
                 )
             })()}
+
+            {/* Decision Dialog */}
+            {decisionPending && (
+                <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+                     onClick={() => !submitting && setDecisionPending(null)}>
+                    <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+                        {/* Header */}
+                        <div className="flex items-center justify-between p-6 border-b border-slate-100">
+                            <h2 className="text-lg font-bold text-slate-900">
+                                {decisionPending.intent === "approved" ? "Approve Applicant" : "Decline Applicant"}
+                            </h2>
+                            <button onClick={() => !submitting && setDecisionPending(null)}
+                                    className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center">
+                                <X className="w-4 h-4 text-slate-600" />
+                            </button>
+                        </div>
+
+                        <div className="p-6 space-y-4">
+                            {/* Optional message */}
+                            <div>
+                                <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                                    Message to Applicant <span className="normal-case text-slate-400">(optional)</span>
+                                </label>
+                                <textarea
+                                    value={decisionMessage}
+                                    onChange={e => setDecisionMessage(e.target.value)}
+                                    placeholder={decisionPending.intent === "approved"
+                                        ? "e.g. Welcome! Please arrive 10 minutes early..."
+                                        : "e.g. Thank you for applying. Unfortunately..."}
+                                    className="mt-1.5 w-full min-h-[90px] px-3 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none"
+                                    rows={3}
+                                />
+                            </div>
+
+                            {/* Contact info — approval only */}
+                            {decisionPending.intent === "approved" && (
+                                <div className="space-y-3">
+                                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                                        Coordinator Contact <span className="normal-case text-slate-400">(shown to student on approval)</span>
+                                    </p>
+                                    <input value={contactName} onChange={e => setContactName(e.target.value)}
+                                        placeholder="Coordinator name"
+                                        className="w-full h-10 px-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500" />
+                                    <input value={contactEmail} onChange={e => setContactEmail(e.target.value)}
+                                        placeholder="Coordinator email"
+                                        type="email"
+                                        className="w-full h-10 px-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500" />
+                                    <input value={contactPhone} onChange={e => setContactPhone(e.target.value)}
+                                        placeholder="Phone number (optional)"
+                                        type="tel"
+                                        className="w-full h-10 px-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500" />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex gap-3 p-6 border-t border-slate-100">
+                            <Button variant="outline" className="flex-1 rounded-xl"
+                                    onClick={() => setDecisionPending(null)} disabled={submitting}>
+                                Cancel
+                            </Button>
+                            <Button
+                                className={`flex-1 rounded-xl text-white ${decisionPending.intent === "approved" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-red-600 hover:bg-red-700"}`}
+                                onClick={confirmDecision} disabled={submitting}>
+                                {submitting ? "Saving..." : decisionPending.intent === "approved" ? "Confirm Approval" : "Confirm Decline"}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

@@ -927,8 +927,29 @@ export default function DashboardPage() {
                 )}
                 {selectedApplication.status === 'approved' && (
                   <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
-                    <p className="text-green-800 text-sm">
-                      <strong>Approved!</strong> Congratulations! Your application has been approved. Make sure to arrive on time at the specified location.
+                    <p className="text-sm font-semibold text-green-800 mb-1">Approved!</p>
+                    <p className="text-green-700 text-sm">
+                      {selectedApplication.decisionMessage
+                        ? selectedApplication.decisionMessage
+                        : "Congratulations! Your application has been approved. Make sure to arrive on time at the specified location."}
+                    </p>
+                    {(selectedApplication.orgContactName || selectedApplication.orgContactEmail) && (
+                      <div className="mt-3 pt-3 border-t border-green-200 space-y-0.5">
+                        <p className="text-xs font-semibold text-green-800 uppercase tracking-wide mb-1">Coordinator Contact</p>
+                        {selectedApplication.orgContactName  && <p className="text-sm text-green-700">{selectedApplication.orgContactName}</p>}
+                        {selectedApplication.orgContactEmail && <p className="text-sm text-green-700">{selectedApplication.orgContactEmail}</p>}
+                        {selectedApplication.orgContactPhone && <p className="text-sm text-green-700">{selectedApplication.orgContactPhone}</p>}
+                      </div>
+                    )}
+                  </div>
+                )}
+                {selectedApplication.status === 'denied' && (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+                    <p className="text-sm font-semibold text-red-800 mb-1">Not Approved</p>
+                    <p className="text-red-700 text-sm">
+                      {selectedApplication.decisionMessage
+                        ? selectedApplication.decisionMessage
+                        : "Unfortunately your application was not approved this time. Keep an eye out for future opportunities!"}
                     </p>
                   </div>
                 )}
