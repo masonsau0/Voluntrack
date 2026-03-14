@@ -173,8 +173,11 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
                 </Link>
                 <Link href="/signup">
                   <Button
-                    variant="outline"
-                    className="rounded-full px-6 tracking-wide uppercase text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                    variant={pathname?.startsWith("/signup") ? "default" : "outline"}
+                    className={`rounded-full px-6 tracking-wide uppercase text-xs ${pathname?.startsWith("/signup")
+                      ? "bg-primary text-primary-foreground"
+                      : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                      }`}
                   >
                     Sign up
                   </Button>
@@ -266,14 +269,14 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
                 <>
                   <Link
                     href="/login"
-                    className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                    className={`block text-base tracking-wider uppercase transition-colors ${pathname?.startsWith("/login") ? "text-primary font-semibold" : "text-foreground/70 hover:text-foreground"}`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Log in
                   </Link>
                   <Link
                     href="/signup"
-                    className="block text-base tracking-wider uppercase text-primary font-medium transition-colors"
+                    className={`block text-base tracking-wider uppercase transition-colors ${pathname?.startsWith("/signup") ? "text-primary font-semibold" : "text-foreground/70 hover:text-foreground"}`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Sign up

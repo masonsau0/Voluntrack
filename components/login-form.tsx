@@ -65,27 +65,28 @@ export function LoginForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden bg-sky-50/80 backdrop-blur-sm border-sky-200/50">
+      <Card className="overflow-hidden bg-sky-50/80 backdrop-blur-sm border border-sky-200/50">
         <CardContent className="p-0">
-          <form className="p-6 md:p-8" onSubmit={handleSubmit} data-testid="login-form">
+          <form className="p-6 md:p-8 font-serif" onSubmit={handleSubmit} data-testid="login-form">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
-                <h1 className="text-2xl font-bold">Login</h1>
-                <p className="text-balance text-muted-foreground">
+                <h1 className="text-2xl font-serif font-bold">Login</h1>
+                <p className="text-balance text-muted-foreground font-serif">
                   {/* Login to your Acme Inc account */}
                 </p>
               </div>
               {errors.general && (
-                <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">
+                <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md font-serif">
                   {errors.general}
                 </div>
               )}
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="font-serif">Email</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="m@example.com"
+                  className="font-serif"
                   required
                   value={email}
                   onChange={(e) => {
@@ -94,15 +95,15 @@ export function LoginForm({
                   }}
                 />
                 {errors.email && (
-                  <p className="text-sm text-red-500 font-medium">{errors.email}</p>
+                  <p className="text-sm text-red-500 font-medium font-serif">{errors.email}</p>
                 )}
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password" className="font-serif">Password</Label>
                   <Link
                     href="/forgot-password"
-                    className="ml-auto text-sm underline-offset-2 hover:underline"
+                    className="ml-auto text-sm underline-offset-2 hover:underline font-serif"
                   >
                     Forgot your password?
                   </Link>
@@ -110,6 +111,7 @@ export function LoginForm({
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
+                  className="font-serif"
                   required
                   value={password}
                   onChange={(e) => {
@@ -118,7 +120,7 @@ export function LoginForm({
                   }}
                 />
                 {errors.password && (
-                  <p className="text-sm text-red-500 font-medium">{errors.password}</p>
+                  <p className="text-sm text-red-500 font-medium font-serif">{errors.password}</p>
                 )}
                 <div className="flex items-center space-x-2">
                   <Checkbox
@@ -131,7 +133,7 @@ export function LoginForm({
                   </Label>
                 </div>
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full font-serif" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -141,16 +143,12 @@ export function LoginForm({
                   "Login"
                 )}
               </Button>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="remember" />
-                <Label htmlFor="remember">Remember me</Label>
-              </div>
               {showSignUp && (
                 <div className="text-center text-sm pt-2">
-                  <span className="text-muted-foreground">Don't have an account? </span>
+                  <span className="text-muted-foreground font-serif">Don't have an account? </span>
                   <Link
                     href="/signup"
-                    className="underline-offset-2 hover:underline text-primary font-medium"
+                    className="underline-offset-2 hover:underline text-primary font-medium font-serif"
                   >
                     Sign up
                   </Link>
