@@ -1,0 +1,51 @@
+export interface ValidationResult {
+  valid: boolean
+  errors: string[]
+}
+
+const INELIGIBLE_PATTERNS: { pattern: RegExp; category: string }[] = [
+  {
+    pattern: /household chores|housework|doing chores|house chores/i,
+    category: "household chores",
+  },
+  {
+    pattern: /babysit(ting)?|nanny|mow.{0,10}lawn|cut.{0,10}grass|grass cutting|lawn mowing/i,
+    category: "normally-paid work",
+  },
+  {
+    pattern: /court.?ordered|mandated service|court ordered community service/i,
+    category: "court-ordered service",
+  },
+  {
+    pattern: /power tools?|chainsaw|operate.{0,10}vehicle|must drive|driving required/i,
+    category: "activities requiring vehicle operation or power tools",
+  },
+]
+
+export function validateOpportunityContent(
+  title: string,
+  description: string
+): ValidationResult {
+  const errors: string[] = []
+
+  if (title.length < 20) {
+    errors.push("Title must be at least 20 characters.")
+  }
+
+  if (description.length < 50) {
+    errors.push("Description must be at least 50 characters.")
+  }
+
+  const combined = `${title} ${description}`.toLowerCase()
+
+  for (const { pattern, category } of INELIGIBLE_PATTERNS) {
+    if (pattern.test(combined)) {
+      errors.push(
+        `This activity may not be eligible for community service hours. Matched category: ${category}.`
+      )
+      break
+    }
+  }
+
+  return { valid: errors.length === 0, errors }
+}

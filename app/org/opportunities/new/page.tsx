@@ -6,6 +6,7 @@ import Link from "next/link"
 import { Navigation } from "@/components/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { createOpportunity } from "@/lib/firebase/org"
+import { validateOpportunityContent } from "@/lib/opportunityValidation"
 import { toast } from "sonner"
 import {
     ArrowLeft,
@@ -30,11 +31,8 @@ import { CATEGORIES } from "@/lib/preferences"
 
 
 const requirementOptions = [
-    "Training",
     "Background Check",
     "First Aid",
-    "Driver's License",
-    "18+",
     "Physical Fitness",
     "Experience Required",
     "None",
@@ -43,7 +41,7 @@ const requirementOptions = [
 export default function PostOpportunityPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const { userProfile } = useAuth()
+    const { user, userProfile } = useAuth()
     const [showSuccess, setShowSuccess] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -99,16 +97,59 @@ export default function PostOpportunityPage() {
         return Object.keys(newErrors).length === 0
     }
 
+    const handleContentBlur = () => {
+        const result = validateOpportunityContent(form.title, form.description)
+        if (!result.valid) {
+            const contentErrors = result.errors.filter(
+                (e) => !e.includes("Title must be") && !e.includes("Description must be")
+            )
+            if (contentErrors.length > 0) {
+                setErrors((prev) => ({ ...prev, description: contentErrors.join(" ") }))
+            }
+        }
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!validate() || !userProfile?.uid) return
+        const uid = userProfile?.uid ?? user?.uid
+        if (!validate() || !uid) {
+            if (!uid) toast.error("You must be logged in to post an opportunity.")
+            return
+        }
+
+        // Layer 1: keyword check
+        const keywordCheck = validateOpportunityContent(form.title, form.description)
+        if (!keywordCheck.valid) {
+            setErrors({ description: keywordCheck.errors.join(" ") })
+            return
+        }
 
         setIsSubmitting(true)
+
+        // Layer 2: Gemini LLM check
+        try {
+            const res = await fetch("/api/validate-opportunity", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title: form.title, description: form.description }),
+            })
+            const check = await res.json()
+            if (!check.valid) {
+                setErrors({
+                    description: check.reason ?? "This opportunity does not appear to be eligible.",
+                })
+                setIsSubmitting(false)
+                return
+            }
+        } catch {
+            // Fail open — network error should not block submission
+        }
+
         try {
             const dateObj = new Date(form.startDate);
             const displayDate = dateObj.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", year: "numeric" });
-            
-            await createOpportunity(userProfile.uid, {
+
+            await createOpportunity(uid, {
                 title: form.title,
                 organization: form.organizationName,
                 description: form.description,
@@ -218,6 +259,7 @@ export default function PostOpportunityPage() {
                                         placeholder="e.g. Park Clean-Up"
                                         value={form.title}
                                         onChange={(e) => updateField("title", e.target.value)}
+                                        onBlur={handleContentBlur}
                                         className={`bg-sky-50/50 border-sky-200 rounded-xl h-11 ${errors.title ? "border-red-400 bg-red-50" : ""}`}
                                     />
                                     {errors.title && <p className="text-xs text-red-500">{errors.title}</p>}
@@ -233,6 +275,7 @@ export default function PostOpportunityPage() {
                                         placeholder="Describe the volunteer opportunity, what volunteers will do, and any other relevant details..."
                                         value={form.description}
                                         onChange={(e) => updateField("description", e.target.value)}
+                                        onBlur={handleContentBlur}
                                         rows={4}
                                         className={`w-full rounded-xl border bg-sky-50/50 border-sky-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 resize-none ${errors.description ? "border-red-400 bg-red-50" : ""}`}
                                     />

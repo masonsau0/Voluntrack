@@ -6,7 +6,7 @@ import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 import { Navigation } from "@/components/navigation"
 import { getOrgOpportunities, deleteOpportunity, updateOpportunity } from "@/lib/firebase/org"
-import { Opportunity } from "@/lib/firebase/opportunities"
+import { getAllOpportunities, Opportunity } from "@/lib/firebase/opportunities"
 import { useAuth } from "@/contexts/AuthContext"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -70,9 +70,10 @@ const sortOptions = [
 ]
 
 export default function OrgOpportunitiesPage() {
-  const { userProfile, loading: authLoading } = useAuth()
+  const { user, userProfile, loading: authLoading } = useAuth()
   const searchParams = useSearchParams()
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([])
+  const [browseOpportunities, setBrowseOpportunities] = useState<Opportunity[]>([])
+  const [manageOpportunities, setManageOpportunities] = useState<Opportunity[]>([])
   const [loadingData, setLoadingData] = useState(true)
   const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null)
 
@@ -86,24 +87,27 @@ export default function OrgOpportunitiesPage() {
   useEffect(() => {
     let mounted = true;
     const fetchData = async () => {
-      if (userProfile?.uid) {
-        try {
-          const opps = await getOrgOpportunities(userProfile.uid);
-          if (mounted) {
-            setOpportunities(opps);
-            setLoadingData(false);
-          }
-        } catch (error) {
-          console.error("Error fetching opportunities:", error);
-          if (mounted) setLoadingData(false);
+      try {
+        // Always fetch all opportunities for browse mode
+        const allOpps = await getAllOpportunities();
+        if (mounted) setBrowseOpportunities(allOpps);
+
+        // Fetch org-specific opportunities for manage mode
+        const uid = userProfile?.uid ?? user?.uid;
+        if (uid) {
+          const orgOpps = await getOrgOpportunities(uid);
+          if (mounted) setManageOpportunities(orgOpps);
         }
-      } else if (!authLoading) {
+      } catch (error) {
+        console.error("Error fetching opportunities:", error);
+      } finally {
         if (mounted) setLoadingData(false);
       }
     };
-    fetchData();
+
+    if (!authLoading) fetchData();
     return () => { mounted = false; };
-  }, [userProfile?.uid, authLoading]);
+  }, [userProfile?.uid, user?.uid, authLoading]);
 
   // Filter states
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
@@ -117,7 +121,7 @@ export default function OrgOpportunitiesPage() {
 
   // Filter and sort opportunities
   const filteredOpportunities = useMemo(() => {
-    let filtered = [...opportunities]
+    let filtered = [...browseOpportunities]
 
     // Search filter
     if (searchQuery) {
@@ -178,7 +182,7 @@ export default function OrgOpportunitiesPage() {
     }
 
     return filtered
-  }, [opportunities, searchQuery, selectedCategories, selectedCommitments, selectedHours, selectedDateRange, sortBy])
+  }, [browseOpportunities, searchQuery, selectedCategories, selectedCommitments, selectedHours, selectedDateRange, sortBy])
 
   // Group by category
   const groupedByCategory = useMemo(() => {
@@ -238,7 +242,7 @@ export default function OrgOpportunitiesPage() {
   const hasActiveFilters = selectedCategories.length > 0 || selectedCommitments.length > 0 || selectedHours.length > 0 || !!selectedDateRange?.from || searchQuery
 
   // Manage view helpers
-  const filteredManagePostings = opportunities.filter(
+  const filteredManagePostings = manageOpportunities.filter(
     (p) =>
       p.title.toLowerCase().includes(manageSearch.toLowerCase()) ||
       p.organization.toLowerCase().includes(manageSearch.toLowerCase()) ||
@@ -248,7 +252,7 @@ export default function OrgOpportunitiesPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteOpportunity(id);
-      setOpportunities(opportunities.filter((p) => p.id !== id));
+      setManageOpportunities(manageOpportunities.filter((p) => p.id !== id));
       setDeleteConfirm(null);
       toast.success("Opportunity deleted");
     } catch (error) {
