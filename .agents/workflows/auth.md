@@ -37,3 +37,29 @@ Voluntrack uses a global `RoleGuard` wrapper inside `components/providers.tsx` t
 1. Auth state changes trigger the user profile fetch (`getUserProfile`).
 2. The user profile document contains business logic fields like `school`, `totalHours`, `badges`, etc.
 3. Validate user roles or requirements based on this stored Firestore profile data rather than Auth tokens alone.
+
+## 4. Using `useAuth()` in Page Components
+
+`useAuth()` returns a single context object with both `userProfile` and `user`. Some pages call it twice to keep destructuring clean — this is fine since it's the same context instance:
+
+```ts
+const { userProfile, loading } = useAuth()  // for display/profile data
+const { user } = useAuth()                  // for user.uid in async handlers
+```
+
+Both calls return the same object; there is no performance cost to calling the hook twice.
+
+## 5. Security Rules & Deployment
+
+Firestore security rules in `firestore.rules` are the enforcement layer for `request.auth`. Key helpers defined at the top of the rules file:
+
+- `isAuthenticated()` — `request.auth != null`
+- `isOwner(userId)` — authenticated AND `request.auth.uid == userId`
+
+These are used consistently across all collection rules. After editing `firestore.rules`, always deploy immediately:
+
+```bash
+firebase deploy --only firestore:rules
+```
+
+Never rely on client-side role checks alone for security — they can be bypassed. The rules file is the source of truth. See `firestore.md` for the critical pattern around read rules and non-existent documents.
