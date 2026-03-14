@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Bell, Menu, X, ChevronDown, User, LogOut, UserCircle, Info } from "lucide-react"
+import { Menu, X, ChevronDown, User, LogOut, UserCircle, Info } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
@@ -12,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/contexts/AuthContext"
+import { useNotifications } from "@/hooks/use-notifications"
+import { NotificationDropdown } from "@/components/notification-dropdown"
 
 interface NavigationProps {
   forceWhite?: boolean;
@@ -21,7 +23,7 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { user, userProfile, loading, logout } = useAuth()
   const router = useRouter()
-  const notificationCount = 0
+  const { notifications, count, refresh, markAsRead } = useNotifications()
 
   const pathname = usePathname()
   // Detect if user is in org view
@@ -103,15 +105,13 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
           </div>
 
           <div className="flex items-center gap-4">
-            {isAuthenticated && (
-              <Button variant="ghost" size="icon" className={`relative hidden sm:flex transition-colors duration-300 ${forceWhite ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' : 'text-white/80 hover:text-white hover:bg-white/10'}`}>
-                <Bell className="h-5 w-5" />
-                {notificationCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-rose-600 text-white text-[10px] flex items-center justify-center font-bold">
-                    {notificationCount}
-                  </span>
-                )}
-              </Button>
+            {isAuthenticated && !isOrgView && (
+              <NotificationDropdown
+                notifications={notifications}
+                count={count}
+                onReflectionSubmitted={refresh}
+                onMarkRead={markAsRead}
+              />
             )}
 
             {/* Authentication vs Profile */}
