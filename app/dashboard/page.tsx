@@ -517,7 +517,7 @@ export default function DashboardPage() {
                       onMouseUp={handleMouseUp}
                       onMouseMove={handleMouseMove}
                       onMouseLeave={handleMouseLeave}
-                      className={`flex gap-4 overflow-x-auto pb-2 scrollbar-hide ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+                      className={`flex gap-4 overflow-x-auto pt-2 pb-2 scrollbar-hide ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
                       style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                     >
                       {badges.map((badge) => {
