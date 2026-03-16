@@ -61,6 +61,8 @@ import {
 import { toast } from "sonner"
 import { categoryColors, commitmentColors, defaultCategoryColor } from "@/lib/ui-config"
 import { AddExternalOpportunityModal } from "@/components/add-external-opportunity-modal"
+import { ReportOpportunityModal } from "@/components/report-opportunity-modal"
+import { getHiddenOpportunityIds } from "@/lib/firebase/hidden-opportunities"
 
 const allCategories = [...CATEGORIES]
 const commitmentTypes = ["One-time", "Weekly", "Monthly"]
@@ -83,7 +85,9 @@ export default function OpportunitiesPage() {
 
   const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set())
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set())
   const [studentInterests, setStudentInterests] = useState<string[]>([])
+  const [reportTarget, setReportTarget] = useState<Opportunity | null>(null)
 
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0)
   const [searchQuery, setSearchQuery] = useState("")
@@ -132,13 +136,15 @@ export default function OpportunitiesPage() {
     const fetchUserData = async () => {
       if (!user?.uid) return
       try {
-        const [apps, saved, studentProfile] = await Promise.all([
+        const [apps, saved, studentProfile, hidden] = await Promise.all([
           getUserApplications(user.uid),
           getUserSaved(user.uid),
-          getStudentProfile(user.uid)
+          getStudentProfile(user.uid),
+          getHiddenOpportunityIds(user.uid),
         ])
         setAppliedIds(new Set(apps.map(a => a.opportunityId)))
         setSavedIds(new Set(saved.map(s => s.opportunityId)))
+        setHiddenIds(hidden)
         setStudentInterests(studentProfile?.interests ?? [])
       } catch (err) {
         console.error("Error fetching user data:", err)
@@ -242,7 +248,7 @@ export default function OpportunitiesPage() {
 
   // Filter and sort opportunities
   const filteredOpportunities = useMemo(() => {
-    let filtered = [...opportunities]
+    let filtered = opportunities.filter(o => !hiddenIds.has(o.id))
 
 
     // Search filter
@@ -309,7 +315,7 @@ export default function OpportunitiesPage() {
     }
 
     return filtered
-  }, [opportunities, searchQuery, selectedCategories, selectedCommitments, selectedHours, selectedDateRange, sortBy])
+  }, [opportunities, hiddenIds, searchQuery, selectedCategories, selectedCommitments, selectedHours, selectedDateRange, sortBy])
 
   // Personalized "Experiences for You" based on student profile interests
   const personalizedOpportunities = useMemo(() => {
@@ -321,8 +327,10 @@ export default function OpportunitiesPage() {
       return match ? match.label : ""
     }).filter((label: string) => label !== "")
 
-    return opportunities.filter(opp => (interestLabels as string[]).includes(opp.category))
-  }, [opportunities, studentInterests])
+    return opportunities
+      .filter(opp => !hiddenIds.has(opp.id))
+      .filter(opp => (interestLabels as string[]).includes(opp.category))
+  }, [opportunities, hiddenIds, studentInterests])
 
   // Group by category
   const groupedByCategory = useMemo(() => {
@@ -987,18 +995,40 @@ export default function OpportunitiesPage() {
                   {savedIds.has(selectedOpportunity.id) ? "Saved to List" : "Save for later"}
                 </Button>
               </div>
+              <button
+                className="w-full mt-3 text-xs text-gray-400 hover:text-red-500 transition-colors text-center"
+                onClick={() => {
+                  setReportTarget(selectedOpportunity)
+                  setSelectedOpportunity(null)
+                }}
+              >
+                Report this opportunity
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      <AddExternalOpportunityModal 
-        open={showExternalOppModal} 
+      <AddExternalOpportunityModal
+        open={showExternalOppModal}
         onOpenChange={setShowExternalOppModal}
         onSuccess={() => {
           fetchAllOpportunities()
         }}
       />
+
+      {reportTarget && (
+        <ReportOpportunityModal
+          open={!!reportTarget}
+          onOpenChange={(o) => { if (!o) setReportTarget(null) }}
+          opportunityId={reportTarget.id}
+          opportunityTitle={reportTarget.title}
+          onReportSubmitted={() => {
+            setHiddenIds(prev => new Set([...Array.from(prev), reportTarget!.id]))
+            setReportTarget(null)
+          }}
+        />
+      )}
 
       <style jsx>{`
         @keyframes fade-in {

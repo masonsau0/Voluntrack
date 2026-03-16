@@ -13,6 +13,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Link href="/admin/create-org" className="text-gray-600 hover:text-gray-900 transition-colors">
               Create Org
             </Link>
+            <Link href="/admin/reports" className="text-gray-600 hover:text-gray-900 transition-colors">
+              Reports
+            </Link>
           </nav>
         </div>
       </header>

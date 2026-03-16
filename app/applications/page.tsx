@@ -1052,7 +1052,7 @@ export default function ApplicationsPage() {
                                     if (!user?.uid || !reportOpportunity) return
                                     setReportSubmitting(true)
                                     try {
-                                        await submitReport(user.uid, reportOpportunity.opportunityId, trimmed)
+                                        await submitReport(user.uid, reportOpportunity.opportunityId, "Other", trimmed)
                                         setReportOpportunity(null)
                                         setReportConcern("")
                                         toast.success("Report has been successfully submitted. We'll get back to you within 24 hours.")

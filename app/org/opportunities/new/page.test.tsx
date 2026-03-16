@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react"
+import { render, screen, waitFor, act } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import PostOpportunityPage from "./page"
 import { useAuth } from "@/contexts/AuthContext"
@@ -39,6 +39,21 @@ jest.mock("sonner", () => ({
 // Mock opportunityValidation (Layer 1)
 jest.mock("@/lib/opportunityValidation", () => ({
     validateOpportunityContent: jest.fn(() => ({ valid: true, errors: [] })),
+}))
+
+// Mock LocationMapPreview (dynamically imported — next/jest loads dynamic imports synchronously)
+jest.mock("@/components/LocationMapPreview", () => ({
+    __esModule: true,
+    default: ({ lat, lng, displayName, isValid }: { lat: number; lng: number; displayName: string; isValid: boolean }) => (
+        <div
+            data-testid="location-map-preview"
+            data-lat={lat}
+            data-lng={lng}
+            data-valid={String(isValid)}
+        >
+            {displayName}
+        </div>
+    ),
 }))
 
 describe("PostOpportunityPage", () => {
@@ -119,7 +134,7 @@ describe("PostOpportunityPage", () => {
     function mockBothValidationsValid(geminiOverride?: object) {
         global.fetch = jest.fn().mockImplementation((url: string) => {
             if (url.includes("validate-location")) {
-                return Promise.resolve({ json: jest.fn().mockResolvedValue({ valid: true }) });
+                return Promise.resolve({ json: jest.fn().mockResolvedValue({ valid: true, lat: 43.6532, lng: -79.3832, displayName: "123 King St W, Toronto, Ontario, Canada" }) });
             }
             // validate-opportunity (Gemini)
             return Promise.resolve({ json: jest.fn().mockResolvedValue(geminiOverride ?? { valid: true }) });
@@ -309,7 +324,7 @@ describe("PostOpportunityPage", () => {
         const user = userEvent.setup();
         global.fetch = jest.fn().mockImplementation((url: string) => {
             if (url.includes("validate-location")) {
-                return Promise.resolve({ json: jest.fn().mockResolvedValue({ valid: false, reason: "Address must be located in Ontario, Canada." }) });
+                return Promise.resolve({ json: jest.fn().mockResolvedValue({ valid: false, reason: "Address must be located in Ontario, Canada.", lat: 49.28, lng: -123.12, displayName: "Vancouver, BC" }) });
             }
             return Promise.resolve({ json: jest.fn().mockResolvedValue({ valid: true }) });
         }) as jest.Mock;
@@ -365,4 +380,181 @@ describe("PostOpportunityPage", () => {
 
         expect(mockPush).not.toHaveBeenCalled();
     });
+
+    // ── Location map preview ──────────────────────────────────────────────────
+
+    describe("Location map preview (debounced validation)", () => {
+        beforeEach(() => {
+            jest.useFakeTimers()
+        })
+
+        afterEach(() => {
+            jest.useRealTimers()
+        })
+
+        function setupFetch(locationResponse: object, geminiResponse?: object) {
+            global.fetch = jest.fn().mockImplementation((url: string) => {
+                if (url.includes("validate-location")) {
+                    return Promise.resolve({ json: jest.fn().mockResolvedValue(locationResponse) })
+                }
+                return Promise.resolve({ json: jest.fn().mockResolvedValue(geminiResponse ?? { valid: true }) })
+            }) as jest.Mock
+        }
+
+        it("shows loading spinner while debounce is pending", async () => {
+            const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime.bind(jest) })
+            setupFetch({ valid: true, lat: 43.65, lng: -79.38, displayName: "123 King St W, Toronto" })
+
+            render(<PostOpportunityPage />)
+            await user.type(screen.getByLabelText(/location/i), "123 King St W, Toronto")
+
+            expect(screen.getByText(/validating address/i)).toBeInTheDocument()
+        })
+
+        it("shows 'Address confirmed in Ontario' after the debounce resolves for a valid address", async () => {
+            const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime.bind(jest) })
+            setupFetch({ valid: true, lat: 43.65, lng: -79.38, displayName: "123 King St W, Toronto, Ontario, Canada" })
+
+            render(<PostOpportunityPage />)
+            await user.type(screen.getByLabelText(/location/i), "123 King St W, Toronto, ON")
+
+            await act(async () => { jest.advanceTimersByTime(500) })
+
+            await waitFor(() => {
+                expect(screen.getByText(/address confirmed in ontario/i)).toBeInTheDocument()
+            })
+        })
+
+        it("renders the map preview with isValid=true after a valid Ontario address", async () => {
+            const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime.bind(jest) })
+            setupFetch({ valid: true, lat: 43.65, lng: -79.38, displayName: "123 King St W, Toronto, Ontario, Canada" })
+
+            render(<PostOpportunityPage />)
+            await user.type(screen.getByLabelText(/location/i), "123 King St W, Toronto, ON")
+
+            await act(async () => { jest.advanceTimersByTime(500) })
+
+            await waitFor(() => {
+                const map = screen.getByTestId("location-map-preview")
+                expect(map).toBeInTheDocument()
+                expect(map).toHaveAttribute("data-valid", "true")
+            })
+        })
+
+        it("renders the map preview with isValid=false for a non-Ontario address", async () => {
+            const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime.bind(jest) })
+            setupFetch({ valid: false, reason: "Address must be located in Ontario, Canada.", lat: 49.28, lng: -123.12, displayName: "Vancouver, BC" })
+
+            render(<PostOpportunityPage />)
+            await user.type(screen.getByLabelText(/location/i), "123 Main St, Vancouver, BC")
+
+            await act(async () => { jest.advanceTimersByTime(500) })
+
+            await waitFor(() => {
+                const map = screen.getByTestId("location-map-preview")
+                expect(map).toHaveAttribute("data-valid", "false")
+            })
+        })
+
+        it("shows an error and no map when the address cannot be found (no lat/lng returned)", async () => {
+            const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime.bind(jest) })
+            setupFetch({ valid: false, reason: "Address could not be found. Please enter a valid Ontario address." })
+
+            render(<PostOpportunityPage />)
+            await user.type(screen.getByLabelText(/location/i), "xyzzy not a real address")
+
+            await act(async () => { jest.advanceTimersByTime(500) })
+
+            await waitFor(() => {
+                expect(screen.getByText(/address could not be found/i)).toBeInTheDocument()
+            })
+            expect(screen.queryByTestId("location-map-preview")).not.toBeInTheDocument()
+        })
+
+        it("does not call validate-location before the 500ms debounce elapses", async () => {
+            const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime.bind(jest) })
+            setupFetch({ valid: true, lat: 43.65, lng: -79.38, displayName: "123 King St W" })
+
+            render(<PostOpportunityPage />)
+            await user.type(screen.getByLabelText(/location/i), "123 King St W, Toronto")
+
+            act(() => { jest.advanceTimersByTime(499) })
+
+            const locationCalls = (global.fetch as jest.Mock).mock.calls.filter(
+                (args: string[]) => args[0].includes("validate-location")
+            )
+            expect(locationCalls).toHaveLength(0)
+        })
+
+        it("does not call validate-location at submit when locationStatus is already valid", async () => {
+            const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime.bind(jest) })
+            const fetchMock = jest.fn().mockImplementation((url: string) => {
+                if (url.includes("validate-location")) {
+                    return Promise.resolve({ json: jest.fn().mockResolvedValue({ valid: true, lat: 43.65, lng: -79.38, displayName: "123 King St W, Toronto" }) })
+                }
+                return Promise.resolve({ json: jest.fn().mockResolvedValue({ valid: true }) })
+            })
+            global.fetch = fetchMock as jest.Mock
+            ;(createOpportunity as jest.Mock).mockResolvedValue("new-id")
+
+            render(<PostOpportunityPage />)
+            await fillRequiredFields(user)
+
+            // Fire debounce so locationStatus becomes 'valid'
+            await act(async () => { jest.advanceTimersByTime(500) })
+            await waitFor(() => { expect(screen.getByText(/address confirmed in ontario/i)).toBeInTheDocument() })
+
+            fetchMock.mockClear()
+
+            await user.click(screen.getByText("Post Opportunity"))
+
+            await waitFor(() => { expect(createOpportunity).toHaveBeenCalled() })
+
+            const locationCallsAfterSubmit = fetchMock.mock.calls.filter(
+                (args: string[]) => args[0].includes("validate-location")
+            )
+            expect(locationCallsAfterSubmit).toHaveLength(0)
+        })
+
+        it("blocks submission without re-calling the API when locationStatus is already invalid", async () => {
+            const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime.bind(jest) })
+            const fetchMock = jest.fn().mockImplementation((url: string) => {
+                if (url.includes("validate-location")) {
+                    return Promise.resolve({ json: jest.fn().mockResolvedValue({ valid: false, reason: "Address must be located in Ontario, Canada.", lat: 49.28, lng: -123.12 }) })
+                }
+                return Promise.resolve({ json: jest.fn().mockResolvedValue({ valid: true }) })
+            })
+            global.fetch = fetchMock as jest.Mock
+
+            render(<PostOpportunityPage />)
+            await fillRequiredFields(user)
+
+            // Fire debounce so locationStatus becomes 'invalid'
+            await act(async () => { jest.advanceTimersByTime(500) })
+            await waitFor(() => { expect(screen.getByText(/address must be located in ontario/i)).toBeInTheDocument() })
+
+            fetchMock.mockClear()
+
+            await user.click(screen.getByText("Post Opportunity"))
+
+            expect(createOpportunity).not.toHaveBeenCalled()
+            const locationCallsAfterSubmit = fetchMock.mock.calls.filter(
+                (args: string[]) => args[0].includes("validate-location")
+            )
+            expect(locationCallsAfterSubmit).toHaveLength(0)
+        })
+
+        it("does not show the map when the location field has fewer than 5 characters", async () => {
+            const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime.bind(jest) })
+            setupFetch({ valid: true, lat: 43.65, lng: -79.38, displayName: "123" })
+
+            render(<PostOpportunityPage />)
+            await user.type(screen.getByLabelText(/location/i), "123")
+
+            await act(async () => { jest.advanceTimersByTime(500) })
+
+            expect(screen.queryByTestId("location-map-preview")).not.toBeInTheDocument()
+            expect(screen.queryByText(/validating address/i)).not.toBeInTheDocument()
+        })
+    })
 });

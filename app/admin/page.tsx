@@ -20,6 +20,19 @@ export default function AdminPage() {
             </Link>
           </CardContent>
         </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Flagged Opportunities</CardTitle>
+            <CardDescription>
+              Review opportunities reported by students. Remove, edit, or dismiss flagged listings.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/admin/reports">
+              <Button className="w-full" variant="outline">Review Reports</Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
