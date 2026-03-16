@@ -38,7 +38,7 @@ export function HorizontalProgressTracker({ completedHours, goalHours }: Horizon
   }, [progress])
 
   return (
-    <div className="flex flex-col h-full relative overflow-hidden justify-center">
+    <div className="flex flex-col h-full relative justify-center">
       {/* Animated background starfield with parallax effect */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none bg-[#1a365d]/10">
         <div className="stars-small animate-starfield-slow" />
@@ -163,9 +163,9 @@ export function HorizontalProgressTracker({ completedHours, goalHours }: Horizon
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
-                      <div className="w-12 h-12 bg-gradient-to-br from-white to-blue-50 rounded-full flex items-center justify-center shadow-2xl border-2 border-white relative z-10 group overflow-hidden">
+                      <div className="w-12 h-12 bg-gradient-to-br from-white to-blue-50 rounded-full flex items-center justify-center shadow-2xl border-2 border-white relative z-10 group">
                         <div className="absolute inset-0 bg-blue-400/10 group-hover:bg-blue-400/20 transition-colors" />
-                        <Rocket className="w-6 h-6 text-blue-600 rotate-90 drop-shadow-sm group-hover:scale-110 transition-transform" />
+                        <Rocket className="w-6 h-6 text-blue-600 drop-shadow-sm group-hover:scale-110 transition-transform" />
                       </div>
                       {/* Hours Label above Rocket */}
                       <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm border border-blue-100 text-xs font-bold text-blue-600 whitespace-nowrap z-30">
