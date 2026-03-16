@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Navigation } from "@/components/navigation"
@@ -50,6 +50,7 @@ export default function PostOpportunityPage() {
         title: "",
         description: "",
         location: "",
+        numberOfOpenings: "",
         startDate: "",
         endDate: "",
         startTime: "",
@@ -81,18 +82,51 @@ export default function PostOpportunityPage() {
         }))
     }
 
+    function parseTimeToMinutes(time: string): number | null {
+        const parts = time.split(":")
+        if (parts.length !== 2) return null
+        const h = parseInt(parts[0], 10)
+        const m = parseInt(parts[1], 10)
+        if (isNaN(h) || isNaN(m)) return null
+        return h * 60 + m
+    }
+
+    useEffect(() => {
+        if (!form.startTime || !form.endTime) return
+        const startMins = parseTimeToMinutes(form.startTime)
+        const endMins = parseTimeToMinutes(form.endTime)
+        if (startMins === null || endMins === null) return
+        const diffMins = endMins - startMins
+        if (diffMins <= 0) return
+        const rounded = Math.round((diffMins / 60) * 2) / 2
+        setForm((prev) => ({ ...prev, volunteerHours: String(rounded) }))
+        setErrors((prev) => ({ ...prev, volunteerHours: "" }))
+    }, [form.startTime, form.endTime])
+
     const validate = () => {
         const newErrors: { [key: string]: string } = {}
         if (!form.organizationName) newErrors.organizationName = "Required"
         if (!form.title) newErrors.title = "Required"
         if (!form.description) newErrors.description = "Required"
         if (!form.location) newErrors.location = "Required"
+        if (!form.numberOfOpenings || Number(form.numberOfOpenings) < 1) newErrors.numberOfOpenings = "Required"
         if (!form.startDate) newErrors.startDate = "Required"
         if (!form.startTime) newErrors.startTime = "Required"
         if (!form.endTime) newErrors.endTime = "Required"
         if (!form.category) newErrors.category = "Required"
         if (!form.contactName) newErrors.contactName = "Required"
         if (!form.email) newErrors.email = "Required"
+        // Hours must not exceed event duration
+        if (form.startTime && form.endTime && form.volunteerHours) {
+            const startMins = parseTimeToMinutes(form.startTime)
+            const endMins = parseTimeToMinutes(form.endTime)
+            if (startMins !== null && endMins !== null && endMins > startMins) {
+                const maxHours = (endMins - startMins) / 60
+                if (Number(form.volunteerHours) > maxHours) {
+                    newErrors.volunteerHours = `Volunteer hours cannot exceed the event duration (${Number.isInteger(maxHours) ? maxHours : maxHours.toFixed(1)} hrs)`
+                }
+            }
+        }
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
@@ -145,6 +179,23 @@ export default function PostOpportunityPage() {
             // Fail open — network error should not block submission
         }
 
+        // Layer 1.75: Ontario location validation
+        try {
+            const locRes = await fetch("/api/validate-location", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ address: form.location }),
+            })
+            const locCheck = await locRes.json()
+            if (!locCheck.valid) {
+                setErrors({ location: locCheck.reason ?? "Address must be in Ontario, Canada." })
+                setIsSubmitting(false)
+                return
+            }
+        } catch {
+            // Fail open — network error should not block submission
+        }
+
         try {
             const dateObj = new Date(form.startDate);
             const displayDate = dateObj.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", year: "numeric" });
@@ -158,8 +209,8 @@ export default function PostOpportunityPage() {
                 dateISO: form.startDate,
                 time: `${form.startTime} - ${form.endTime}`,
                 hours: Number(form.volunteerHours) || 0,
-                spotsLeft: 20,
-                totalSpots: 20,
+                spotsLeft: Number(form.numberOfOpenings),
+                totalSpots: Number(form.numberOfOpenings),
                 category: form.category,
                 commitment: "One-time",
                 skills: form.requirements,
@@ -300,6 +351,27 @@ export default function PostOpportunityPage() {
                                     {errors.location && <p className="text-xs text-red-500">{errors.location}</p>}
                                 </div>
 
+                                {/* Number of Openings */}
+                                <div className="space-y-2">
+                                    <Label htmlFor="openings" className="text-sm font-semibold text-slate-700">
+                                        Number of Openings
+                                    </Label>
+                                    <div className="relative">
+                                        <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                        <Input
+                                            id="openings"
+                                            type="number"
+                                            min="1"
+                                            step="1"
+                                            placeholder="e.g. 20"
+                                            value={form.numberOfOpenings}
+                                            onChange={(e) => updateField("numberOfOpenings", e.target.value)}
+                                            className={`pl-10 bg-sky-50/50 border-sky-200 rounded-xl h-11 ${errors.numberOfOpenings ? "border-red-400 bg-red-50" : ""}`}
+                                        />
+                                    </div>
+                                    {errors.numberOfOpenings && <p className="text-xs text-red-500">{errors.numberOfOpenings}</p>}
+                                </div>
+
                                 {/* Date Fields */}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
@@ -382,11 +454,12 @@ export default function PostOpportunityPage() {
                                             type="number"
                                             min="0"
                                             step="0.5"
-                                            placeholder="e.g. 2"
+                                            placeholder="Auto-calculated from times"
                                             value={form.volunteerHours}
                                             onChange={(e) => updateField("volunteerHours", e.target.value)}
-                                            className="bg-sky-50/50 border-sky-200 rounded-xl h-11"
+                                            className={`bg-sky-50/50 border-sky-200 rounded-xl h-11 ${errors.volunteerHours ? "border-red-400 bg-red-50" : ""}`}
                                         />
+                                        {errors.volunteerHours && <p className="text-xs text-red-500">{errors.volunteerHours}</p>}
                                     </div>
                                 </div>
 
