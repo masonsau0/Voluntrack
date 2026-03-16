@@ -568,7 +568,7 @@ export default function OpportunitiesPage() {
             <ChevronRight className="w-5 h-5 text-white" />
           </button>
 
-          <div className="relative w-full px-6 sm:px-10 lg:px-16 py-12 flex flex-col justify-end" style={{ minHeight: '60vh' }}>
+          <div className="relative w-full px-6 sm:px-10 lg:px-16 pt-24 pb-12 flex flex-col justify-end" style={{ minHeight: '60vh' }}>
             <div className="max-w-xl">
               {/* Spotlight label */}
               <div className="flex items-center gap-2 mb-4">

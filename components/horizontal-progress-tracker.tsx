@@ -153,7 +153,7 @@ export function HorizontalProgressTracker({ completedHours, goalHours }: Horizon
             {/* Rocket - Enhanced with trail effect */}
             <div
               className="absolute top-1/2 -translate-y-1/2 transition-all duration-1000 ease-out z-20"
-              style={{ left: `${animatedProgress}%` }}
+              style={{ left: `clamp(24px, ${animatedProgress}%, calc(100% - 24px))` }}
             >
               <div className="relative -translate-x-1/2">
                 {/* Glow behind rocket */}

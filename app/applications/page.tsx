@@ -562,7 +562,7 @@ export default function ApplicationsPage() {
                             variant="outline"
                             onClick={handleExportPDF}
                             disabled={isGeneratingPDF || applications.filter(a => a.status === "completed").length === 0}
-                            className="gap-2 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800"
+                            className="gap-2 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 rounded-full"
                         >
                             <Download className="w-4 h-4" />
                             {isGeneratingPDF ? "Exporting..." : "Export PDF History"}

@@ -50,7 +50,7 @@ export function NotificationDropdown({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="relative hidden sm:flex" id="notification-bell">
+          <Button variant="ghost" size="icon" className="relative hidden sm:flex rounded-full" id="notification-bell">
             <Bell className="h-5 w-5" />
             {count > 0 && (
               <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center animate-in fade-in zoom-in">
@@ -59,7 +59,7 @@ export function NotificationDropdown({
             )}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-80 p-0 rounded-xl shadow-xl border-slate-200">
+        <DropdownMenuContent align="end" className="w-80 p-0 rounded-xl shadow-xl border-slate-200 z-[200]">
           {/* Header */}
           <div className="px-4 py-3 border-b border-slate-100">
             <h3 className="font-semibold text-sm text-slate-800">Notifications</h3>

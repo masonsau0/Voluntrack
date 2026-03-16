@@ -517,7 +517,7 @@ export default function DashboardPage() {
                       onMouseUp={handleMouseUp}
                       onMouseMove={handleMouseMove}
                       onMouseLeave={handleMouseLeave}
-                      className={`flex gap-4 overflow-x-auto pb-2 scrollbar-hide ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+                      className={`flex gap-4 overflow-x-auto pt-2 pb-2 scrollbar-hide ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
                       style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                     >
                       {badges.map((badge) => {
@@ -525,7 +525,7 @@ export default function DashboardPage() {
                         return (
                           <div
                             key={badge.id}
-                            className={`flex-shrink-0 flex flex-col items-center p-3 rounded-xl border w-28 select-none ${isEarned ? "bg-white" : "bg-muted/50 opacity-50"
+                            className={`flex-shrink-0 flex flex-col items-center p-3 rounded-xl border shadow-sm w-28 select-none transition-all duration-200 hover:scale-[1.02] hover:shadow-md ${isEarned ? "bg-white" : "bg-muted/50 opacity-50"
                               }`}
                           >
                             <div
@@ -577,7 +577,7 @@ export default function DashboardPage() {
                           <div
                             key={app.id}
                             onClick={() => setSelectedApplication(app)}
-                            className={`border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm hover:shadow transition-all duration-200 cursor-pointer ${categoryColors[app.category]?.cardBg || defaultCategoryColor.cardBg}`}
+                            className={`border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02] cursor-pointer ${categoryColors[app.category]?.cardBg || defaultCategoryColor.cardBg}`}
                           >
                             <div className="flex-1 min-w-0">
                               <h3 className="font-medium text-foreground text-sm truncate">{app.title}</h3>
@@ -645,7 +645,7 @@ export default function DashboardPage() {
                       <p className="text-muted-foreground text-xs mt-1 mb-3">
                         Start exploring opportunities to make a difference
                       </p>
-                      <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white gap-1">
+                      <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white gap-1 rounded-full">
                         <Plus className="w-3 h-3" />
                         Browse Opportunities
                       </Button>
@@ -674,7 +674,7 @@ export default function DashboardPage() {
                           size="sm"
                           onClick={handleExportPDF}
                           disabled={isGeneratingPDF || completedOpportunities.length === 0}
-                          className="h-8 gap-1 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800"
+                          className="h-8 gap-1 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 rounded-full"
                         >
                           <Download className="w-3.5 h-3.5" />
                           {isGeneratingPDF ? "Exporting..." : "Export PDF"}
@@ -696,7 +696,7 @@ export default function DashboardPage() {
                             <div
                               key={app.id}
                               onClick={() => setSelectedApplication(app)}
-                              className={`border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm hover:shadow transition-all duration-200 cursor-pointer ${categoryColors[app.category]?.cardBg || defaultCategoryColor.cardBg}`}
+                              className={`border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02] cursor-pointer ${categoryColors[app.category]?.cardBg || defaultCategoryColor.cardBg}`}
                             >
                               <div className="flex-1 min-w-0">
                                 <h3 className="font-bold text-foreground text-sm truncate tracking-tight">{app.title}</h3>
@@ -803,7 +803,7 @@ export default function DashboardPage() {
       {
         selectedApplication && (
           <div
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 pt-24"
             onClick={() => setSelectedApplication(null)}
           >
             <div
@@ -1017,7 +1017,7 @@ export default function DashboardPage() {
       {
         reportOpportunity && (
           <div
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 pt-24"
             onClick={() => { setReportOpportunity(null); setReportConcern(""); }}
           >
             <div
@@ -1085,7 +1085,7 @@ export default function DashboardPage() {
       {
         selectedSaved && (
           <div
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 pt-24"
             onClick={() => setSelectedSaved(null)}
           >
             <div

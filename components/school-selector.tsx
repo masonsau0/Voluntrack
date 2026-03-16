@@ -77,7 +77,7 @@ export function SchoolSelector({
     if (disabled) {
         return (
             <div className={cn(
-                "flex items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm",
+                "flex items-center gap-2 rounded-full border border-input bg-background px-3 py-2 text-sm",
                 className
             )}>
                 <GraduationCap className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -96,7 +96,7 @@ export function SchoolSelector({
                     setTimeout(() => inputRef.current?.focus(), 50)
                 }}
                 className={cn(
-                    "w-full flex items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm",
+                    "w-full flex items-center gap-2 rounded-full border border-input bg-background px-3 py-2 text-sm",
                     "hover:bg-accent/50 transition-colors",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     isOpen && "ring-2 ring-ring"
