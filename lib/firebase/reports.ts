@@ -12,6 +12,7 @@ export interface Report {
     reporterId: string;
     opportunityId: string;
     orgId: string;
+    reason: string;
     text: string;
     createdAt: any;
 }
@@ -28,15 +29,16 @@ const MAX_REPORT_LENGTH = 1000;
 export async function submitReport(
     reporterId: string,
     opportunityId: string,
+    reason: string,
     text: string
 ): Promise<string> {
     try {
-        const trimmed = text.trim();
-
-        if (trimmed.length === 0) {
-            throw new Error("Report text cannot be empty.");
+        if (!reason.trim()) {
+            throw new Error("A report reason is required.");
         }
-        if (trimmed.length > MAX_REPORT_LENGTH) {
+
+        const trimmedText = text.trim();
+        if (trimmedText.length > MAX_REPORT_LENGTH) {
             throw new Error(
                 `Report text cannot exceed ${MAX_REPORT_LENGTH} characters.`
             );
@@ -56,7 +58,8 @@ export async function submitReport(
             reporterId,
             opportunityId,
             orgId,
-            text: trimmed,
+            reason: reason.trim(),
+            text: trimmedText,
             createdAt: serverTimestamp(),
         };
 

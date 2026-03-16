@@ -111,17 +111,35 @@ service cloud.firestore {
     // 11. Reports Collection — immutable audit trail
     // Only authenticated users can create; no reads/updates/deletes.
     // reporterId must match the caller's UID to prevent spoofing.
-    // Text is capped at 1-1000 chars to prevent abuse.
+    // reason is required; text (custom "Other" message) is capped at 1000 chars.
     match /reports/{reportId} {
       allow create: if isAuthenticated()
         && request.resource.data.reporterId == request.auth.uid
         && request.resource.data.reporterId is string
         && request.resource.data.opportunityId is string
         && request.resource.data.orgId is string
+        && request.resource.data.reason is string
+        && request.resource.data.reason.size() >= 1
         && request.resource.data.text is string
-        && request.resource.data.text.size() >= 1
         && request.resource.data.text.size() <= 1000;
       allow read, update, delete: if false;
+    }
+
+    // 12. User Hidden Opportunities Collection
+    // Doc ID: {userId}_{opportunityId}
+    // Users manage only their own hidden docs (created after reporting).
+    match /user_hidden_opportunities/{hiddenId} {
+      allow read: if isAuthenticated()
+        && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated()
+        && resource.data.userId == request.auth.uid;
+    }
+
+    // 13. Report Resolutions Collection — admin-only via server SDK
+    match /report_resolutions/{resolutionId} {
+      allow read, write: if false;
     }
   }
 }

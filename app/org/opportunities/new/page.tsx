@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
+import dynamic from "next/dynamic"
 import { Navigation } from "@/components/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { createOpportunity } from "@/lib/firebase/org"
 import { validateOpportunityContent } from "@/lib/opportunityValidation"
 import { toast } from "sonner"
+
 import {
     ArrowLeft,
     Building2,
@@ -29,6 +31,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CATEGORIES } from "@/lib/preferences"
 
+const LocationMapPreview = dynamic(() => import("@/components/LocationMapPreview"), { ssr: false })
 
 const requirementOptions = [
     "Background Check",
@@ -65,6 +68,8 @@ export default function PostOpportunityPage() {
     })
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({})
+    const [locationStatus, setLocationStatus] = useState<"idle" | "loading" | "valid" | "invalid">("idle")
+    const [mapPreview, setMapPreview] = useState<{ lat: number; lng: number; displayName: string; isValid: boolean } | null>(null)
 
     const updateField = (field: string, value: string) => {
         setForm((prev) => ({ ...prev, [field]: value }))
@@ -102,6 +107,43 @@ export default function PostOpportunityPage() {
         setForm((prev) => ({ ...prev, volunteerHours: String(rounded) }))
         setErrors((prev) => ({ ...prev, volunteerHours: "" }))
     }, [form.startTime, form.endTime])
+
+    useEffect(() => {
+        if (form.location.trim().length < 5) {
+            setMapPreview(null)
+            setLocationStatus("idle")
+            return
+        }
+        setLocationStatus("loading")
+        setMapPreview(null)
+        const timer = setTimeout(async () => {
+            try {
+                const res = await fetch("/api/validate-location", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ address: form.location }),
+                })
+                const data = await res.json()
+                if (data.lat != null && data.lng != null) {
+                    setMapPreview({ lat: data.lat, lng: data.lng, displayName: data.displayName ?? form.location, isValid: data.valid })
+                    setLocationStatus(data.valid ? "valid" : "invalid")
+                    if (!data.valid) {
+                        setErrors((prev) => ({ ...prev, location: data.reason ?? "Address must be in Ontario, Canada." }))
+                    } else {
+                        setErrors((prev) => ({ ...prev, location: "" }))
+                    }
+                } else {
+                    setMapPreview(null)
+                    setLocationStatus("invalid")
+                    setErrors((prev) => ({ ...prev, location: data.reason ?? "Address could not be found." }))
+                }
+            } catch {
+                setMapPreview(null)
+                setLocationStatus("idle")
+            }
+        }, 500)
+        return () => clearTimeout(timer)
+    }, [form.location])
 
     const validate = () => {
         const newErrors: { [key: string]: string } = {}
@@ -180,20 +222,27 @@ export default function PostOpportunityPage() {
         }
 
         // Layer 1.75: Ontario location validation
-        try {
-            const locRes = await fetch("/api/validate-location", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ address: form.location }),
-            })
-            const locCheck = await locRes.json()
-            if (!locCheck.valid) {
-                setErrors({ location: locCheck.reason ?? "Address must be in Ontario, Canada." })
-                setIsSubmitting(false)
-                return
+        if (locationStatus === "invalid") {
+            setErrors({ location: "Address must be in Ontario, Canada." })
+            setIsSubmitting(false)
+            return
+        } else if (locationStatus !== "valid") {
+            // idle or loading — validate now
+            try {
+                const locRes = await fetch("/api/validate-location", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ address: form.location }),
+                })
+                const locCheck = await locRes.json()
+                if (!locCheck.valid) {
+                    setErrors({ location: locCheck.reason ?? "Address must be in Ontario, Canada." })
+                    setIsSubmitting(false)
+                    return
+                }
+            } catch {
+                // Fail open — network error should not block submission
             }
-        } catch {
-            // Fail open — network error should not block submission
         }
 
         try {
@@ -349,6 +398,23 @@ export default function PostOpportunityPage() {
                                         />
                                     </div>
                                     {errors.location && <p className="text-xs text-red-500">{errors.location}</p>}
+                                    {locationStatus === "loading" && (
+                                        <div className="flex items-center gap-2 text-xs text-slate-500 mt-1.5">
+                                            <div className="w-3.5 h-3.5 border-2 border-sky-400 border-t-transparent rounded-full animate-spin" />
+                                            Validating address…
+                                        </div>
+                                    )}
+                                    {locationStatus === "valid" && !errors.location && (
+                                        <p className="text-xs text-emerald-600 font-medium mt-1">Address confirmed in Ontario</p>
+                                    )}
+                                    {mapPreview && (
+                                        <LocationMapPreview
+                                            lat={mapPreview.lat}
+                                            lng={mapPreview.lng}
+                                            displayName={mapPreview.displayName}
+                                            isValid={mapPreview.isValid}
+                                        />
+                                    )}
                                 </div>
 
                                 {/* Number of Openings */}

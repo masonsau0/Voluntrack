@@ -34,7 +34,7 @@ describe('submitReport', () => {
     });
     mockAddDoc.mockResolvedValue({ id: 'report-1' });
 
-    const result = await submitReport('user-1', 'opp-1', 'This is a concern');
+    const result = await submitReport('user-1', 'opp-1', 'Other', 'This is a concern');
 
     expect(mockDoc).toHaveBeenCalledWith(db, 'opportunities', 'opp-1');
     expect(mockGetDoc).toHaveBeenCalledWith('doc-ref');
@@ -42,6 +42,7 @@ describe('submitReport', () => {
       reporterId: 'user-1',
       opportunityId: 'opp-1',
       orgId: 'org-123',
+      reason: 'Other',
       text: 'This is a concern',
       createdAt: 'mock-timestamp',
     });
@@ -55,7 +56,7 @@ describe('submitReport', () => {
     });
     mockAddDoc.mockResolvedValue({ id: 'report-2' });
 
-    await submitReport('user-1', 'opp-1', '  trimmed text  ');
+    await submitReport('user-1', 'opp-1', 'Other', '  trimmed text  ');
 
     expect(mockAddDoc).toHaveBeenCalledWith(
       'collection-ref',
@@ -63,9 +64,9 @@ describe('submitReport', () => {
     );
   });
 
-  it('should throw an error for empty text', async () => {
-    await expect(submitReport('user-1', 'opp-1', '   ')).rejects.toThrow(
-      'Report text cannot be empty.',
+  it('should throw an error for empty reason', async () => {
+    await expect(submitReport('user-1', 'opp-1', '   ', 'Some text')).rejects.toThrow(
+      'A report reason is required.',
     );
     expect(mockGetDoc).not.toHaveBeenCalled();
   });
@@ -73,7 +74,7 @@ describe('submitReport', () => {
   it('should throw an error for text exceeding 1000 characters', async () => {
     const longText = 'a'.repeat(1001);
 
-    await expect(submitReport('user-1', 'opp-1', longText)).rejects.toThrow(
+    await expect(submitReport('user-1', 'opp-1', 'Other', longText)).rejects.toThrow(
       'Report text cannot exceed 1000 characters.',
     );
     expect(mockGetDoc).not.toHaveBeenCalled();
@@ -85,7 +86,7 @@ describe('submitReport', () => {
     });
 
     await expect(
-      submitReport('user-1', 'opp-missing', 'Some concern'),
+      submitReport('user-1', 'opp-missing', 'Other', 'Some concern'),
     ).rejects.toThrow('Opportunity not found.');
   });
 
@@ -96,7 +97,7 @@ describe('submitReport', () => {
     });
 
     await expect(
-      submitReport('user-1', 'opp-no-org', 'Some concern'),
+      submitReport('user-1', 'opp-no-org', 'Other', 'Some concern'),
     ).rejects.toThrow('Organization ID not found for this opportunity.');
   });
 
@@ -108,7 +109,7 @@ describe('submitReport', () => {
     mockAddDoc.mockRejectedValue(new Error('Firestore write failed'));
 
     await expect(
-      submitReport('user-1', 'opp-1', 'Valid concern'),
+      submitReport('user-1', 'opp-1', 'Other', 'Valid concern'),
     ).rejects.toThrow('Firestore write failed');
   });
 });

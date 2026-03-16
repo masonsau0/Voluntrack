@@ -40,15 +40,22 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    const lat = parseFloat(results[0].lat)
+    const lng = parseFloat(results[0].lon)
+    const displayName: string = results[0].display_name ?? address
+
     const state: string = results[0]?.address?.state ?? ""
     if (!state.toLowerCase().includes("ontario")) {
       return NextResponse.json({
         valid: false,
         reason: "Address must be located in Ontario, Canada.",
+        lat,
+        lng,
+        displayName,
       })
     }
 
-    return NextResponse.json({ valid: true })
+    return NextResponse.json({ valid: true, lat, lng, displayName })
   } catch (err) {
     console.error("[validate-location] Nominatim call failed:", err)
     return NextResponse.json({ valid: true })
