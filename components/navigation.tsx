@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Menu, X, ChevronDown, User, LogOut, UserCircle, Info } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -21,11 +21,22 @@ interface NavigationProps {
 
 export function Navigation({ forceWhite = false }: NavigationProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const { user, userProfile, loading, logout } = useAuth()
   const router = useRouter()
   const { notifications, count, refresh, markAsRead } = useNotifications()
 
   const pathname = usePathname()
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10)
+    }
+    window.addEventListener("scroll", handleScroll)
+    handleScroll() // Initialize on mount
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
   // Detect if user is in org view
   const isOrgView = pathname?.startsWith("/org")
   // Use the actual user object for authenticaton state
@@ -35,8 +46,12 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
   // Use actual Firebase auth state instead of pathname-based heuristic
   const isAuthenticated = !loading && !!user
 
+  const navBgClass = forceWhite 
+    ? "bg-white shadow-md border-b border-gray-100" 
+    : "bg-gradient-to-b from-black/60 via-black/30 to-transparent backdrop-blur-sm"
+
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${forceWhite ? 'bg-white shadow-md border-b border-gray-100' : 'bg-gradient-to-b from-black/80 via-black/50 to-transparent backdrop-blur-sm'}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${navBgClass}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}

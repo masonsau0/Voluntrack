@@ -38,9 +38,9 @@ export function HorizontalProgressTracker({ completedHours, goalHours }: Horizon
   }, [progress])
 
   return (
-    <div className="flex flex-col h-full relative justify-center">
+    <div className="flex flex-col h-full relative overflow-hidden justify-center rounded-2xl">
       {/* Animated background starfield with parallax effect */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none bg-[#1a365d]/10">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none bg-[#1a365d]/10 rounded-2xl">
         <div className="stars-small animate-starfield-slow" />
         <div className="stars-medium animate-starfield-medium" />
         <div className="stars-large animate-starfield-fast" />
