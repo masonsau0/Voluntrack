@@ -525,7 +525,7 @@ export default function DashboardPage() {
                         return (
                           <div
                             key={badge.id}
-                            className={`flex-shrink-0 flex flex-col items-center p-3 rounded-xl border w-28 select-none ${isEarned ? "bg-white" : "bg-muted/50 opacity-50"
+                            className={`flex-shrink-0 flex flex-col items-center p-3 rounded-xl border shadow-sm w-28 select-none transition-all duration-200 hover:scale-[1.02] hover:shadow-md ${isEarned ? "bg-white" : "bg-muted/50 opacity-50"
                               }`}
                           >
                             <div
@@ -577,7 +577,7 @@ export default function DashboardPage() {
                           <div
                             key={app.id}
                             onClick={() => setSelectedApplication(app)}
-                            className={`border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm hover:shadow transition-all duration-200 cursor-pointer ${categoryColors[app.category]?.cardBg || defaultCategoryColor.cardBg}`}
+                            className={`border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02] cursor-pointer ${categoryColors[app.category]?.cardBg || defaultCategoryColor.cardBg}`}
                           >
                             <div className="flex-1 min-w-0">
                               <h3 className="font-medium text-foreground text-sm truncate">{app.title}</h3>
@@ -696,7 +696,7 @@ export default function DashboardPage() {
                             <div
                               key={app.id}
                               onClick={() => setSelectedApplication(app)}
-                              className={`border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm hover:shadow transition-all duration-200 cursor-pointer ${categoryColors[app.category]?.cardBg || defaultCategoryColor.cardBg}`}
+                              className={`border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02] cursor-pointer ${categoryColors[app.category]?.cardBg || defaultCategoryColor.cardBg}`}
                             >
                               <div className="flex-1 min-w-0">
                                 <h3 className="font-bold text-foreground text-sm truncate tracking-tight">{app.title}</h3>
@@ -803,7 +803,7 @@ export default function DashboardPage() {
       {
         selectedApplication && (
           <div
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 pt-24"
             onClick={() => setSelectedApplication(null)}
           >
             <div
@@ -1017,7 +1017,7 @@ export default function DashboardPage() {
       {
         reportOpportunity && (
           <div
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 pt-24"
             onClick={() => { setReportOpportunity(null); setReportConcern(""); }}
           >
             <div
@@ -1085,7 +1085,7 @@ export default function DashboardPage() {
       {
         selectedSaved && (
           <div
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 pt-24"
             onClick={() => setSelectedSaved(null)}
           >
             <div
