@@ -1,12 +1,13 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { AdminReport } from "@/app/api/admin/reports/route"
 import { ReportCard } from "@/components/admin/report-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
+import { getAuth } from "firebase/auth"
 
 export default function AdminReportsPage() {
   const [reports, setReports] = useState<AdminReport[]>([])
@@ -14,21 +15,55 @@ export default function AdminReportsPage() {
   const [editingReport, setEditingReport] = useState<AdminReport | null>(null)
   const [editForm, setEditForm] = useState({ title: "", description: "", location: "", hours: "", spotsLeft: "" })
   const [isActing, setIsActing] = useState(false)
+  const hasFetched = useRef(false)
 
   useEffect(() => {
+    if (hasFetched.current) return
+    hasFetched.current = true
     fetchReports()
   }, [])
+
+  async function refreshSession(): Promise<boolean> {
+    try {
+      const auth = getAuth()
+      const currentUser = auth.currentUser
+      if (!currentUser) return false
+      const freshToken = await currentUser.getIdToken(true)
+      const res = await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: freshToken }),
+      })
+      return res.ok
+    } catch {
+      return false
+    }
+  }
 
   async function fetchReports() {
     setLoading(true)
     try {
-      const res = await fetch("/api/admin/reports")
-      if (!res.ok) throw new Error("Failed to fetch reports")
+      let res = await fetch("/api/admin/reports")
+
+      // Token expired — refresh once and retry
+      if (res.status === 401) {
+        const refreshed = await refreshSession()
+        if (!refreshed) {
+          toast.error("Session expired. Please log out and log back in.")
+          return
+        }
+        res = await fetch("/api/admin/reports")
+      }
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.error ?? `HTTP ${res.status}`)
+      }
       const data = await res.json()
       setReports(data.reports)
     } catch (err) {
-      console.error(err)
-      toast.error("Failed to load reports.")
+      console.error('[admin/reports]', err)
+      toast.error(`Failed to load reports: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
       setLoading(false)
     }
@@ -37,11 +72,20 @@ export default function AdminReportsPage() {
   async function resolve(reportId: string, opportunityId: string, action: string, opportunityData?: Record<string, unknown>) {
     setIsActing(true)
     try {
-      const res = await fetch(`/api/admin/reports/${reportId}/resolve`, {
+      const body = JSON.stringify({ action, opportunityId, opportunityData })
+      let res = await fetch(`/api/admin/reports/${reportId}/resolve`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, opportunityId, opportunityData }),
+        body,
       })
+      if (res.status === 401) {
+        await refreshSession()
+        res = await fetch(`/api/admin/reports/${reportId}/resolve`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body,
+        })
+      }
       if (!res.ok) throw new Error("Action failed")
       setReports((prev) => prev.filter((r) => r.id !== reportId))
       setEditingReport(null)
