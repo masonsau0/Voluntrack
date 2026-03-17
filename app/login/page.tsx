@@ -29,8 +29,8 @@ export default function RoleSelectionPage() {
 
             {/* Students Card */}
             <Link href="/login/student" className="group h-full block">
-              <Card className="h-full overflow-hidden flex flex-col transition-all duration-300 border-2 border-sky-100/50 shadow-md hover:border-sky-300 hover:shadow-2xl hover:shadow-sky-400/25 hover:-translate-y-2 transform hover:scale-[1.02] bg-transparent">
-                <div className="relative h-56 overflow-hidden">
+              <Card className="h-full overflow-hidden flex flex-col transition-all duration-300 border-2 border-sky-100/50 shadow-md hover:border-sky-300 hover:shadow-2xl hover:shadow-sky-400/25 hover:-translate-y-2 transform hover:scale-[1.02] bg-transparent rounded-2xl">
+                <div className="relative h-56 overflow-hidden rounded-t-2xl">
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500 z-10" />
                   <img
                     src="/student-with-laptop-searching-for-volunteer-opport.jpg"
@@ -45,7 +45,7 @@ export default function RoleSelectionPage() {
                   </p>
                 </CardContent>
                 <CardFooter className="p-8 pt-0 bg-transparent transition-colors">
-                  <Button asChild className="w-full text-base py-6 transition-all duration-300 group-hover:bg-sky-700 group-hover:shadow-lg" size="lg">
+                  <Button asChild className="w-full text-base py-6 rounded-xl transition-all duration-300 group-hover:bg-sky-700 group-hover:shadow-lg" size="lg">
                     <div>Log In as Student</div>
                   </Button>
                 </CardFooter>
@@ -54,8 +54,8 @@ export default function RoleSelectionPage() {
 
             {/* Volunteer Organizations Card */}
             <Link href="/login/organization" className="group h-full block">
-              <Card className="h-full overflow-hidden flex flex-col transition-all duration-300 border-2 border-sky-100/50 shadow-md hover:border-sky-300 hover:shadow-2xl hover:shadow-sky-400/25 hover:-translate-y-2 transform hover:scale-[1.02] bg-transparent">
-                <div className="relative h-56 overflow-hidden">
+              <Card className="h-full overflow-hidden flex flex-col transition-all duration-300 border-2 border-sky-100/50 shadow-md hover:border-sky-300 hover:shadow-2xl hover:shadow-sky-400/25 hover:-translate-y-2 transform hover:scale-[1.02] bg-transparent rounded-2xl">
+                <div className="relative h-56 overflow-hidden rounded-t-2xl">
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500 z-10" />
                   <img
                     src="/volunteer-organization-team-working-together-commu.jpg"
@@ -70,7 +70,7 @@ export default function RoleSelectionPage() {
                   </p>
                 </CardContent>
                 <CardFooter className="p-8 pt-0 bg-transparent transition-colors">
-                  <Button asChild className="w-full text-base py-6 transition-all duration-300 group-hover:bg-sky-700 group-hover:shadow-lg" size="lg">
+                  <Button asChild className="w-full text-base py-6 rounded-xl transition-all duration-300 group-hover:bg-sky-700 group-hover:shadow-lg" size="lg">
                     <div>Manage Opportunities</div>
                   </Button>
                 </CardFooter>
@@ -82,7 +82,7 @@ export default function RoleSelectionPage() {
           {/* Sign up prompt */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-2 text-base md:text-lg">
             <span className="text-foreground font-medium">Don&apos;t have an account?</span>
-            <Button asChild size="lg" variant="outline" className="rounded-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+            <Button asChild size="lg" variant="outline" className="rounded-2xl border-primary text-primary hover:bg-primary hover:text-primary-foreground">
               <Link href="/signup">Sign up</Link>
             </Button>
           </div>
@@ -105,9 +105,9 @@ export default function RoleSelectionPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Centralized Discovery - Green */}
-                <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-xl p-6">
+                <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-2xl p-6">
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-green-500 flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 rounded-2xl bg-green-500 flex items-center justify-center shrink-0">
                       <Search className="h-6 w-6 text-white" />
                     </div>
                     <div>
@@ -121,9 +121,9 @@ export default function RoleSelectionPage() {
                 </div>
 
                 {/* Integrated Hour Validation - Blue */}
-                <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
+                <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6">
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-500 flex items-center justify-center shrink-0">
                       <ClipboardCheck className="h-6 w-6 text-white" />
                     </div>
                     <div>
@@ -137,9 +137,9 @@ export default function RoleSelectionPage() {
                 </div>
 
                 {/* Connected Community - Purple */}
-                <div className="bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-xl p-6">
+                <div className="bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-2xl p-6">
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-purple-500 flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 rounded-2xl bg-purple-500 flex items-center justify-center shrink-0">
                       <Users className="h-6 w-6 text-white" />
                     </div>
                     <div>
@@ -153,9 +153,9 @@ export default function RoleSelectionPage() {
                 </div>
 
                 {/* Gamified Milestones - Amber */}
-                <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-xl p-6">
+                <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6">
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-amber-500 flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-500 flex items-center justify-center shrink-0">
                       <Zap className="h-6 w-6 text-white" />
                     </div>
                     <div>

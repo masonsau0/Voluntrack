@@ -86,7 +86,7 @@ export function SignupForm({
 
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
-            <Card className="overflow-hidden">
+            <Card className="overflow-hidden rounded-2xl">
                 <CardContent className="p-0">
                     <form className="p-6 md:p-8 font-serif" onSubmit={handleSubmit} noValidate>
                         <div className="flex flex-col gap-6">
@@ -343,7 +343,7 @@ export function SignupForm({
                                     </li>
                                 ))}
                             </ul>
-                            <Button type="submit" className="w-full h-9" disabled={isLoading || !termsAgreed}>
+                            <Button type="submit" className="w-full h-9 rounded-xl" disabled={isLoading || !termsAgreed}>
                                 {isLoading ? "Creating account..." : "Sign Up"}
                             </Button>
                             <div className="text-center text-sm font-serif">

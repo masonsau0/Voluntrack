@@ -28,21 +28,21 @@ export default function SignupPage() {
 
                 {/* RIGHT COLUMN */}
                 <div className="hidden lg:flex flex-col gap-4 lg:mt-[152px]">
-                    <div className="rounded-xl overflow-hidden shadow-lg border-2 border-white/50">
+                    <div className="rounded-2xl overflow-hidden shadow-lg border-2 border-white/50">
                         <img
                             src="/images/volunteers-food-bank.jpg"
                             alt="Food bank"
                             className="w-full h-40 object-cover"
                         />
                     </div>
-                    <div className="rounded-xl overflow-hidden shadow-lg border-2 border-white/50">
+                    <div className="rounded-2xl overflow-hidden shadow-lg border-2 border-white/50">
                         <img
                             src="/images/volunteers-tutoring.jpg"
                             alt="Tutoring"
                             className="w-full h-40 object-cover"
                         />
                     </div>
-                    <div className="rounded-xl overflow-hidden shadow-lg border-2 border-white/50">
+                    <div className="rounded-2xl overflow-hidden shadow-lg border-2 border-white/50">
                         <img
                             src="/images/volunteers-healthcare.jpg"
                             alt="Healthcare"
