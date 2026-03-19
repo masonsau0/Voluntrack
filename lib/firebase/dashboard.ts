@@ -264,8 +264,41 @@ export async function applyToOpportunity(userId: string, opportunity: Opportunit
                         badges: [...currentBadges, "active-applicant"],
                         updatedAt: serverTimestamp()
                     });
+                    await writeFeedEvent("badge_earned", { opportunityTitle: opportunity.title, opportunityId: opportunity.id, badgeId: "active-applicant", badgeName: "Active Applicant" });
                 }
             }
+        }
+
+        // Check for early-bird badge: applied within 24 hours of opportunity being posted
+        try {
+            const oppDocRef = doc(db, "opportunities", opportunity.id);
+            const oppDoc = await getDoc(oppDocRef);
+            if (oppDoc.exists()) {
+                const oppData = oppDoc.data();
+                const createdAt = oppData?.createdAt;
+                if (createdAt && typeof createdAt.toDate === "function") {
+                    const postedTime = createdAt.toDate().getTime();
+                    const now = Date.now();
+                    const twentyFourHours = 24 * 60 * 60 * 1000;
+                    if (now - postedTime <= twentyFourHours) {
+                        const profileRef = doc(db, "student_profiles", userId);
+                        const profileDoc = await getDoc(profileRef);
+                        if (profileDoc.exists()) {
+                            const currentBadges = profileDoc.data()?.badges || [];
+                            if (!currentBadges.includes("early-bird")) {
+                                await updateDoc(profileRef, {
+                                    badges: [...currentBadges, "early-bird"],
+                                    updatedAt: serverTimestamp()
+                                });
+                                await writeFeedEvent("badge_earned", { opportunityTitle: opportunity.title, opportunityId: opportunity.id, badgeId: "early-bird", badgeName: "Early Bird" });
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (earlyBirdError) {
+            // Non-critical — don't block the application if badge check fails
+            console.error("Error checking early-bird badge:", earlyBirdError);
         }
     } catch (error) {
         console.error("Error applying to opportunity:", error);
