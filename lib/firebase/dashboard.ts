@@ -264,16 +264,12 @@ export async function applyToOpportunity(userId: string, opportunity: Opportunit
                         badges: [...currentBadges, "active-applicant"],
                         updatedAt: serverTimestamp()
                     });
-<<<<<<< HEAD
                     await writeFeedEvent("badge_earned", {
                         opportunityTitle: opportunity.title,
                         opportunityId: opportunity.id,
                         badgeId: "active-applicant",
                         badgeName: "Active Applicant",
                     });
-=======
-                    await writeFeedEvent("badge_earned", { opportunityTitle: opportunity.title, opportunityId: opportunity.id, badgeId: "active-applicant", badgeName: "Active Applicant" });
->>>>>>> 86b2ef7ec0ca9f6ecae2f2624d381527092a2a0b
                 }
             }
         }
