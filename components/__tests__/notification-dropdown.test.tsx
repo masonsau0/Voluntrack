@@ -73,6 +73,7 @@ describe("NotificationDropdown", () => {
       status: "approved" as const,
       unread: true,
       timestamp: { toDate: () => new Date() },
+      opportunityTitle: "Community Cleanup",
     }
     render(
       <NotificationDropdown
@@ -94,10 +95,14 @@ describe("NotificationDropdown", () => {
     const notif = {
       type: "reflection_due" as const,
       id: "r1",
+      applicationId: "app-1",
+      opportunityId: "opp-1",
       title: "Reflect on Soup Kitchen",
       organization: "Soup Kitchen Inc",
       date: "Mar 15",
-      opportunityId: "opp-1",
+      hours: 2,
+      category: "Community Outreach",
+      image: "/icon.svg",
     }
     render(
       <NotificationDropdown

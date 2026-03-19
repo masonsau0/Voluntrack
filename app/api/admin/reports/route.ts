@@ -10,6 +10,19 @@ export interface AdminReport {
   text: string
   createdAt: string
   opportunityTitle: string
+  // Opportunity preview fields
+  orgName: string
+  description: string
+  location: string
+  hours: number
+  date: string
+  time: string
+  spotsLeft: number
+  totalSpots: number
+  category: string
+  commitment: string
+  skills: string[]
+  image: string
 }
 
 async function verifyAdmin(request: NextRequest) {
@@ -62,13 +75,15 @@ export async function GET(request: NextRequest) {
       pending.map(async (d) => {
         const data = d.data()
         let opportunityTitle = 'Unknown Opportunity'
+        let oppData: Record<string, unknown> = {}
         try {
           const oppDoc = await adminDb.collection('opportunities').doc(data.opportunityId).get()
           if (oppDoc.exists) {
-            opportunityTitle = oppDoc.data()?.title ?? opportunityTitle
+            oppData = oppDoc.data() ?? {}
+            opportunityTitle = (oppData.title as string) ?? opportunityTitle
           }
         } catch {
-          // leave default title
+          // leave defaults
         }
         return {
           id: d.id,
@@ -79,6 +94,18 @@ export async function GET(request: NextRequest) {
           text: data.text ?? '',
           createdAt: data.createdAt?.toDate?.()?.toISOString() ?? new Date().toISOString(),
           opportunityTitle,
+          orgName: oppData.organization ?? '',
+          description: oppData.description ?? '',
+          location: oppData.location ?? '',
+          hours: oppData.hours ?? 0,
+          date: oppData.date ?? '',
+          time: oppData.time ?? '',
+          spotsLeft: oppData.spotsLeft ?? 0,
+          totalSpots: oppData.totalSpots ?? 0,
+          category: oppData.category ?? '',
+          commitment: oppData.commitment ?? '',
+          skills: oppData.skills ?? [],
+          image: oppData.image ?? '/icon.svg',
         }
       })
     )
