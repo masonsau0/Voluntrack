@@ -41,6 +41,14 @@ jest.mock("@/lib/opportunityValidation", () => ({
     validateOpportunityContent: jest.fn(() => ({ valid: true, errors: [] })),
 }))
 
+// Mock Firestore for org name lookup
+jest.mock("firebase/firestore", () => ({
+    doc: jest.fn(),
+    getDoc: jest.fn().mockResolvedValue({ exists: () => false }),
+}))
+
+jest.mock("@/lib/firebase/config", () => ({ db: {} }))
+
 // Mock LocationMapPreview (dynamically imported — next/jest loads dynamic imports synchronously)
 jest.mock("@/components/LocationMapPreview", () => ({
     __esModule: true,
@@ -111,7 +119,6 @@ describe("PostOpportunityPage", () => {
 
     // Helper: fill all required fields (excluding category which needs selectOptions)
     async function fillRequiredFields(user: ReturnType<typeof userEvent.setup>, opts: { openings?: string; startTime?: string; endTime?: string; hours?: string } = {}) {
-        await user.type(screen.getByLabelText(/organization name/i), "Test Org");
         await user.type(screen.getByLabelText(/opportunity title/i), "Volunteer opportunity title here");
         await user.type(screen.getByLabelText(/description/i), "This is a long enough description that explains the volunteer opportunity in sufficient detail.");
         await user.type(screen.getByLabelText(/location/i), "123 King St W, Toronto, ON");
@@ -184,7 +191,6 @@ describe("PostOpportunityPage", () => {
         const user = userEvent.setup();
         render(<PostOpportunityPage />);
 
-        await user.type(screen.getByLabelText(/organization name/i), "Test Org");
         await user.type(screen.getByLabelText(/opportunity title/i), "Volunteer opportunity title here");
         await user.type(screen.getByLabelText(/description/i), "This is a long enough description that explains the volunteer opportunity in sufficient detail.");
         await user.type(screen.getByLabelText(/location/i), "123 King St W, Toronto, ON");

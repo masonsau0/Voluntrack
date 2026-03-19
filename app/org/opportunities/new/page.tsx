@@ -30,6 +30,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CATEGORIES } from "@/lib/preferences"
+import { doc, getDoc } from "firebase/firestore"
+import { db } from "@/lib/firebase/config"
 
 const LocationMapPreview = dynamic(() => import("@/components/LocationMapPreview"), { ssr: false })
 
@@ -70,6 +72,22 @@ export default function PostOpportunityPage() {
     const [errors, setErrors] = useState<{ [key: string]: string }>({})
     const [locationStatus, setLocationStatus] = useState<"idle" | "loading" | "valid" | "invalid">("idle")
     const [mapPreview, setMapPreview] = useState<{ lat: number; lng: number; displayName: string; isValid: boolean } | null>(null)
+
+    useEffect(() => {
+        const fetchOrgName = async () => {
+            const uid = userProfile?.uid ?? user?.uid
+            if (!uid) return
+            const profileSnap = await getDoc(doc(db, "volunteer_org_profiles", uid))
+            if (!profileSnap.exists()) return
+            const { orgId } = profileSnap.data()
+            if (!orgId) return
+            const orgSnap = await getDoc(doc(db, "volunteer_orgs", orgId))
+            if (!orgSnap.exists()) return
+            const { name } = orgSnap.data()
+            if (name) setForm((prev) => ({ ...prev, organizationName: name }))
+        }
+        fetchOrgName()
+    }, [user, userProfile])
 
     const updateField = (field: string, value: string) => {
         setForm((prev) => ({ ...prev, [field]: value }))
@@ -147,7 +165,6 @@ export default function PostOpportunityPage() {
 
     const validate = () => {
         const newErrors: { [key: string]: string } = {}
-        if (!form.organizationName) newErrors.organizationName = "Required"
         if (!form.title) newErrors.title = "Required"
         if (!form.description) newErrors.description = "Required"
         if (!form.location) newErrors.location = "Required"
@@ -339,17 +356,12 @@ export default function PostOpportunityPage() {
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 {/* Organization Name */}
                                 <div className="space-y-2">
-                                    <Label htmlFor="org-name" className="text-sm font-semibold text-slate-700">
+                                    <Label className="text-sm font-semibold text-slate-700">
                                         Organization Name
                                     </Label>
-                                    <Input
-                                        id="org-name"
-                                        placeholder="e.g. Trinity Bellwoods Park"
-                                        value={form.organizationName}
-                                        onChange={(e) => updateField("organizationName", e.target.value)}
-                                        className={`bg-sky-50/50 border-sky-200 rounded-xl h-11 focus:ring-sky-500 focus:border-sky-500 ${errors.organizationName ? "border-red-400 bg-red-50" : ""}`}
-                                    />
-                                    {errors.organizationName && <p className="text-xs text-red-500">{errors.organizationName}</p>}
+                                    <div className="flex items-center h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700">
+                                        {form.organizationName || <span className="text-slate-400">Loading...</span>}
+                                    </div>
                                 </div>
 
                                 {/* Opportunity Title */}
