@@ -296,20 +296,14 @@ export default function FeedPage() {
                   <Card key={opp.id} className="overflow-hidden shadow-sm">
                     <CardContent className="p-0">
                       <div className="p-4">
-                        <div className="flex flex-wrap gap-1.5 mb-3">
-                          {opp.featured && (
-                            <div className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full text-white text-[10px] font-bold shadow-lg">
-                              <Star className="w-2.5 h-2.5 fill-current" />
-                              Featured
-                            </div>
-                          )}
-                          {score !== undefined && (
+                        {score !== undefined && (
+                          <div className="flex mb-3">
                             <div className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-violet-500 to-indigo-600 rounded-full text-white text-[10px] font-bold shadow-lg">
                               <Sparkles className="w-2.5 h-2.5" />
                               {score}% match
                             </div>
-                          )}
-                        </div>
+                          </div>
+                        )}
                         <h3 className="text-lg font-bold text-primary mb-1">{opp.title}</h3>
                         <p className="text-sm text-muted-foreground mb-3">by {opp.organization}</p>
                         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-3">
