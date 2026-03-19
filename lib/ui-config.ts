@@ -41,6 +41,7 @@ export const categoryColors: { [key: string]: { bg: string; text: string; border
   "Arts & Culture": { bg: "bg-purple-100", text: "text-purple-700", border: "border-purple-300", gradient: "from-purple-500/15 to-violet-600/15", heroGradient: "from-purple-900/90 via-purple-800/60 to-transparent", icon: Palette, cardBg: "bg-purple-50 border-purple-200", leftColor: "#a855f7" },
   "Senior Care": { bg: "bg-rose-100", text: "text-rose-700", border: "border-rose-300", gradient: "from-rose-500/15 to-pink-600/15", heroGradient: "from-rose-900/90 via-rose-800/60 to-transparent", icon: Heart, cardBg: "bg-rose-50 border-rose-200", leftColor: "#f43f5e" },
   "Mental Health": { bg: "bg-pink-100", text: "text-pink-700", border: "border-pink-300", gradient: "from-pink-500/15 to-rose-600/15", heroGradient: "from-pink-900/90 via-pink-800/60 to-transparent", icon: Heart, cardBg: "bg-pink-50 border-pink-200", leftColor: "#ec4899" },
+  "Other": { bg: "bg-slate-100", text: "text-slate-700", border: "border-slate-300", gradient: "from-slate-500/15 to-slate-600/15", heroGradient: "from-slate-900/90 via-slate-800/60 to-transparent", icon: Leaf, cardBg: "bg-slate-50 border-slate-200", leftColor: "#64748b" },
 }
 
 // Fallback for missing category coloring

@@ -95,7 +95,6 @@ export default function ApplicationsPage() {
     const [dataLoading, setDataLoading] = useState(true)
     const [selectedApplication, setSelectedApplication] = useState<UserApplication | null>(null)
     const [selectedSaved, setSelectedSaved] = useState<UserApplication | null>(null)
-    const [reflectionText, setReflectionText] = useState("")
     const [reportOpportunity, setReportOpportunity] = useState<UserApplication | null>(null)
     const [reportConcern, setReportConcern] = useState("")
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
@@ -673,7 +672,7 @@ export default function ApplicationsPage() {
                                                     <p className="flex items-center gap-2">
                                                         <span className="text-red-500 font-medium">Location</span>
                                                         <MapPin className="w-3 h-3 text-red-500" />
-                                                        <span className="text-muted-foreground">: {app.location}</span>
+                                                        <span className="text-muted-foreground">: {app.isExternal ? "External" : app.location}</span>
                                                     </p>
                                                     <p className="flex items-center gap-2">
                                                         <span className="text-yellow-600 font-medium">Time</span>
@@ -695,7 +694,7 @@ export default function ApplicationsPage() {
                                             </div>
                                             <div className="flex flex-col items-end gap-2">
                                                 <div className="flex items-center gap-2">
-                                                    {app.status === "completed" && (
+                                                    {app.status === "completed" && app.location !== "External" && !app.isExternal && (
                                                         <button
                                                             onClick={(e) => { e.stopPropagation(); setReportOpportunity(app); setReportConcern(""); }}
                                                             className="p-1.5 rounded-full text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors"
@@ -845,12 +844,12 @@ export default function ApplicationsPage() {
                                 className="object-cover"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-transparent" />
-                            <button
-                                onClick={() => setSelectedApplication(null)}
-                                className="absolute top-4 right-4 w-10 h-10 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center transition-colors shadow-lg border border-white/20"
-                            >
-                                <X className="w-5 h-5 text-white" />
-                            </button>
+<button
+                                        onClick={() => setSelectedApplication(null)}
+                                        className="absolute top-4 right-4 w-11 h-11 bg-white/95 hover:bg-slate-200 rounded-full flex items-center justify-center transition-all duration-150 shadow-lg border border-white hover:border-slate-300 text-slate-800 hover:text-black hover:scale-110 active:scale-95 active:bg-slate-100"
+                                    >
+                                        <X className="w-5 h-5" />
+                                    </button>
 
                             {/* Status Badge */}
                             <div className="absolute top-4 left-4">
@@ -876,24 +875,16 @@ export default function ApplicationsPage() {
                                 <span className={`text-sm px-3 py-1 rounded-full ${categoryColors[selectedApplication.category]?.bg} ${categoryColors[selectedApplication.category]?.text}`}>
                                     {selectedApplication.category}
                                 </span>
-                                <span className="text-sm px-3 py-1 rounded-full bg-blue-100 text-blue-700">
-                                    {selectedApplication.commitment}
-                                </span>
-                                <span className="text-sm px-3 py-1 rounded-full bg-sky-100 text-sky-700">
-                                    {selectedApplication.hours}
-                                </span>
-                            </div>
-
-                            {/* Quick Stats */}
-                            <div className="grid grid-cols-2 gap-4 mb-6">
-                                <div className="bg-sky-50 rounded-xl p-4 border border-sky-100">
-                                    <p className="text-2xl font-bold text-sky-700">{selectedApplication.spotsLeft}</p>
-                                    <p className="text-sm text-slate-600">Spots Remaining</p>
-                                </div>
-                                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                                    <p className="text-2xl font-bold text-slate-700">{selectedApplication.totalSpots}</p>
-                                    <p className="text-sm text-slate-600">Total Capacity</p>
-                                </div>
+                                {selectedApplication.commitment && (
+                                    <span className="text-sm px-3 py-1 rounded-full bg-blue-100 text-blue-700">
+                                        {selectedApplication.commitment}
+                                    </span>
+                                )}
+                                {selectedApplication.hours && (
+                                    <span className="text-sm px-3 py-1 rounded-full bg-sky-100 text-sky-700">
+                                        {selectedApplication.hours}
+                                    </span>
+                                )}
                             </div>
 
                             {/* Event Details */}
@@ -911,28 +902,54 @@ export default function ApplicationsPage() {
                                     <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
                                         <MapPin className="w-5 h-5 text-rose-600" />
                                     </div>
-                                    <span>{selectedApplication.location}</span>
+                                    <span>{selectedApplication.isExternal ? "External" : selectedApplication.location}</span>
                                 </div>
                             </div>
 
-                            {/* Skills */}
+                            {/* Description or Reflection */}
                             <div className="mb-6">
-                                <h3 className="font-semibold text-slate-800 mb-2">Helpful Skills</h3>
-                                <div className="flex flex-wrap gap-2">
-                                    {(selectedApplication.skills || []).map((skill) => (
-                                        <span key={skill} className="text-sm px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
-                                            {skill}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Description */}
-                            <div className="mb-6">
-                                <h3 className="font-semibold text-slate-800 mb-2">About This Opportunity</h3>
-                                <p className="text-slate-600 leading-relaxed">
-                                    {selectedApplication.description || "No description provided."}
-                                </p>
+                                {selectedApplication.status === "completed" ? (
+                                    <>
+                                        <h3 className="font-semibold text-slate-800 mb-2">Reflection</h3>
+                                        {selectedApplication.reflection ? (
+                                            typeof selectedApplication.reflection === "string" ? (
+                                                <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">
+                                                    {selectedApplication.reflection}
+                                                </p>
+                                            ) : (
+                                                <div className="space-y-4 text-slate-600 leading-relaxed">
+                                                    {"orgDescription" in selectedApplication.reflection && selectedApplication.reflection.orgDescription && (
+                                                        <div>
+                                                            <p className="font-medium text-slate-700 mb-1">What does the organization do?</p>
+                                                            <p className="whitespace-pre-wrap">{selectedApplication.reflection.orgDescription}</p>
+                                                        </div>
+                                                    )}
+                                                    {"howHelped" in selectedApplication.reflection && selectedApplication.reflection.howHelped && (
+                                                        <div>
+                                                            <p className="font-medium text-slate-700 mb-1">How did you help?</p>
+                                                            <p className="whitespace-pre-wrap">{selectedApplication.reflection.howHelped}</p>
+                                                        </div>
+                                                    )}
+                                                    {"whatLearned" in selectedApplication.reflection && selectedApplication.reflection.whatLearned && (
+                                                        <div>
+                                                            <p className="font-medium text-slate-700 mb-1">What did you learn?</p>
+                                                            <p className="whitespace-pre-wrap">{selectedApplication.reflection.whatLearned}</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )
+                                        ) : (
+                                            <p className="text-slate-500 italic">No reflection submitted.</p>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        <h3 className="font-semibold text-slate-800 mb-2">About This Opportunity</h3>
+                                        <p className="text-slate-600 leading-relaxed">
+                                            {selectedApplication.description || "No description provided."}
+                                        </p>
+                                    </>
+                                )}
                             </div>
 
                             {/* Application Info */}
@@ -973,24 +990,8 @@ export default function ApplicationsPage() {
                                 </div>
                             )}
 
-                            {selectedApplication.status === 'completed' && (
-                                <div className="mb-6">
-                                    <label htmlFor="reflection" className="block text-sm font-medium text-foreground mb-2">
-                                        Reflection (optional): Reflect on your volunteer experience: What did you do, what impact did you make, and what did you learn?
-                                    </label>
-                                    <textarea
-                                        id="reflection"
-                                        value={reflectionText}
-                                        onChange={(e) => setReflectionText(e.target.value)}
-                                        placeholder="Share your thoughts on this volunteer experience..."
-                                        className="w-full min-h-[100px] px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-y"
-                                        rows={4}
-                                    />
-                                </div>
-                            )}
-
                             {/* Action Buttons */}
-                            <div className="flex gap-3">
+                            <div className="flex gap-3 justify-center">
                                 {selectedApplication.status === 'pending' && (
                                     <Button
                                         variant="outline"
@@ -1010,20 +1011,10 @@ export default function ApplicationsPage() {
                                         Browse Similar Opportunities
                                     </Button>
                                 )}
-                                {selectedApplication.status === 'completed' && (
-                                    <Button
-                                        variant="outline"
-                                        className="flex-1 rounded-full py-6 border-red-300 text-red-600 hover:bg-red-50 gap-2"
-                                        onClick={() => { setReportOpportunity(selectedApplication); setReportConcern(""); }}
-                                    >
-                                        <Flag className="w-4 h-4" />
-                                        Report
-                                    </Button>
-                                )}
                                 <Button
                                     variant="outline"
-                                    className="px-6 rounded-full py-6 border-slate-300 text-slate-700 hover:bg-slate-100"
-                                    onClick={() => { setSelectedApplication(null); setReflectionText(""); }}
+                                    className="px-8 py-7 rounded-full text-base border-slate-400 text-slate-800 font-medium hover:bg-slate-200 hover:text-slate-900 hover:border-slate-500"
+                                    onClick={() => setSelectedApplication(null)}
                                 >
                                     Close
                                 </Button>
@@ -1162,9 +1153,9 @@ export default function ApplicationsPage() {
                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-transparent" />
                             <button
                                 onClick={() => setSelectedSaved(null)}
-                                className="absolute top-4 right-4 w-10 h-10 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center transition-colors shadow-lg border border-white/20"
+                                className="absolute top-4 right-4 w-11 h-11 bg-white/95 hover:bg-slate-200 rounded-full flex items-center justify-center transition-all duration-150 shadow-lg border border-white hover:border-slate-300 text-slate-800 hover:text-black hover:scale-110 active:scale-95 active:bg-slate-100"
                             >
-                                <X className="w-5 h-5 text-white" />
+                                <X className="w-5 h-5" />
                             </button>
 
                             {/* Category Badge */}
@@ -1190,24 +1181,16 @@ export default function ApplicationsPage() {
                                 <span className={`text-sm px-3 py-1 rounded-full ${categoryColors[selectedSaved.category]?.bg} ${categoryColors[selectedSaved.category]?.text}`}>
                                     {selectedSaved.category}
                                 </span>
-                                <span className="text-sm px-3 py-1 rounded-full bg-blue-100 text-blue-700">
-                                    {selectedSaved.commitment}
-                                </span>
-                                <span className="text-sm px-3 py-1 rounded-full bg-sky-100 text-sky-700">
-                                    {selectedSaved.hours}
-                                </span>
-                            </div>
-
-                            {/* Quick Stats */}
-                            <div className="grid grid-cols-2 gap-4 mb-6">
-                                <div className="bg-sky-50 rounded-xl p-4 border border-sky-100">
-                                    <p className="text-2xl font-bold text-sky-700">{selectedSaved.spotsLeft}</p>
-                                    <p className="text-sm text-slate-600">Spots Remaining</p>
-                                </div>
-                                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                                    <p className="text-2xl font-bold text-slate-700">{selectedSaved.totalSpots}</p>
-                                    <p className="text-sm text-slate-600">Total Capacity</p>
-                                </div>
+                                {selectedSaved.commitment && (
+                                    <span className="text-sm px-3 py-1 rounded-full bg-blue-100 text-blue-700">
+                                        {selectedSaved.commitment}
+                                    </span>
+                                )}
+                                {selectedSaved.hours && (
+                                    <span className="text-sm px-3 py-1 rounded-full bg-sky-100 text-sky-700">
+                                        {selectedSaved.hours}
+                                    </span>
+                                )}
                             </div>
 
                             {/* Event Details */}
@@ -1225,19 +1208,7 @@ export default function ApplicationsPage() {
                                     <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
                                         <MapPin className="w-5 h-5 text-rose-600" />
                                     </div>
-                                    <span>{selectedSaved.location}</span>
-                                </div>
-                            </div>
-
-                            {/* Skills */}
-                            <div className="mb-6">
-                                <h3 className="font-semibold text-slate-800 mb-2">Helpful Skills</h3>
-                                <div className="flex flex-wrap gap-2">
-                                    {(selectedSaved.skills || []).map((skill) => (
-                                        <span key={skill} className="text-sm px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
-                                            {skill}
-                                        </span>
-                                    ))}
+                                    <span>{selectedSaved.isExternal ? "External" : selectedSaved.location}</span>
                                 </div>
                             </div>
 
@@ -1266,7 +1237,7 @@ export default function ApplicationsPage() {
                                 </Button>
                                 <Button
                                     variant="outline"
-                                    className="px-6 rounded-full py-6 border-slate-300 text-slate-700 hover:bg-slate-100"
+                                    className="px-8 py-7 rounded-full text-base border-slate-400 text-slate-800 font-medium hover:bg-slate-200 hover:text-slate-900 hover:border-slate-500"
                                     onClick={() => setSelectedSaved(null)}
                                 >
                                     Close

@@ -48,7 +48,7 @@ export function CalendarModal({ children, applications = [] }: CalendarModalProp
             title: app.title,
             date: new Date(app.dateISO),
             time: (app.date || "").split(',').pop()?.trim() || "TBD",
-            location: app.location.split(',')[0],
+            location: app.isExternal ? "External" : app.location?.split(',')[0],
             type: "blue" as const
         }))
 
@@ -63,7 +63,7 @@ export function CalendarModal({ children, applications = [] }: CalendarModalProp
                 title: app.title,
                 date: new Date(app.dateISO),
                 time: (app.date || "").split(',').pop()?.trim() || "TBD",
-                location: app.location.split(',')[0],
+                location: app.isExternal ? "External" : app.location?.split(',')[0],
                 type: "blue" as const
             }))
         setEvents(approvedEvents)
