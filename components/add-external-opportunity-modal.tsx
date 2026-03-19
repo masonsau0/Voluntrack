@@ -167,33 +167,31 @@ export function AddExternalOpportunityModal({
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-slate-700">Category *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="rounded-xl border-slate-200 focus:ring-sky-500">
-                          <SelectValue placeholder="Select a category" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {CATEGORIES.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-            </div>
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-slate-700">Category *</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="rounded-xl border-slate-200 focus:ring-sky-500">
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {CATEGORIES.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
@@ -267,7 +265,7 @@ export function AddExternalOpportunityModal({
                 type="button" 
                 variant="outline" 
                 onClick={() => onOpenChange(false)} 
-                className="rounded-full px-6 border-slate-300 text-slate-700 hover:bg-slate-100"
+                className="rounded-full px-6 border-slate-500 text-slate-900 font-semibold hover:bg-slate-300 hover:text-black hover:border-slate-600"
               >
                 Cancel
               </Button>

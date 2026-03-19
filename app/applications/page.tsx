@@ -847,9 +847,9 @@ export default function ApplicationsPage() {
                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-transparent" />
                             <button
                                 onClick={() => setSelectedApplication(null)}
-                                className="absolute top-4 right-4 w-10 h-10 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full flex items-center justify-center transition-colors shadow-lg"
+                                className="absolute top-4 right-4 w-10 h-10 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center transition-colors shadow-lg border border-white/20"
                             >
-                                <X className="w-5 h-5 text-slate-600" />
+                                <X className="w-5 h-5 text-white" />
                             </button>
 
                             {/* Status Badge */}
@@ -1162,9 +1162,9 @@ export default function ApplicationsPage() {
                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-transparent" />
                             <button
                                 onClick={() => setSelectedSaved(null)}
-                                className="absolute top-4 right-4 w-10 h-10 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full flex items-center justify-center transition-colors shadow-lg"
+                                className="absolute top-4 right-4 w-10 h-10 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center transition-colors shadow-lg border border-white/20"
                             >
-                                <X className="w-5 h-5 text-slate-600" />
+                                <X className="w-5 h-5 text-white" />
                             </button>
 
                             {/* Category Badge */}

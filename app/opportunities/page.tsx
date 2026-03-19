@@ -873,10 +873,10 @@ export default function OpportunitiesPage() {
               <div className={`absolute inset-0 bg-gradient-to-t ${categoryColors[selectedOpportunity.category]?.heroGradient || 'from-slate-900/80 to-transparent'}`} />
               <button
                 onClick={() => setSelectedOpportunity(null)}
-                className="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:scale-110 border border-white/20 group"
+                className="absolute top-4 right-4 w-10 h-10 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:scale-110 border border-white/20 group"
                 aria-label="Close"
               >
-                <X className="w-5 h-5 text-white/80 group-hover:text-white" />
+                <X className="w-5 h-5 text-white" />
               </button>
 
               {/* Featured badge */}
