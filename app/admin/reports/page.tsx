@@ -6,13 +6,21 @@ import { ReportCard } from "@/components/admin/report-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { toast } from "sonner"
 import { getAuth } from "firebase/auth"
+import { Calendar, MapPin, Clock, Users, Tag } from "lucide-react"
 
 export default function AdminReportsPage() {
   const [reports, setReports] = useState<AdminReport[]>([])
   const [loading, setLoading] = useState(true)
   const [editingReport, setEditingReport] = useState<AdminReport | null>(null)
+  const [viewingReport, setViewingReport] = useState<AdminReport | null>(null)
   const [editForm, setEditForm] = useState({ title: "", description: "", location: "", hours: "", spotsLeft: "" })
   const [isActing, setIsActing] = useState(false)
   const hasFetched = useRef(false)
@@ -152,6 +160,7 @@ export default function AdminReportsPage() {
                 onRemove={(id, oppId) => resolve(id, oppId, "remove")}
                 onAllow={(id) => resolve(id, report.opportunityId, "allow")}
                 onEditClick={handleEditClick}
+                onViewOpportunity={setViewingReport}
               />
 
               {editingReport?.id === report.id && (
@@ -237,6 +246,89 @@ export default function AdminReportsPage() {
           ))}
         </div>
       )}
+
+      {/* Opportunity preview dialog */}
+      <Dialog open={!!viewingReport} onOpenChange={(open) => { if (!open) setViewingReport(null) }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold">{viewingReport?.opportunityTitle}</DialogTitle>
+            {viewingReport?.orgName && (
+              <p className="text-sm font-medium text-gray-600 mt-0.5">{viewingReport.orgName}</p>
+            )}
+          </DialogHeader>
+
+          {viewingReport && (
+            <div className="space-y-4 pt-1">
+              {/* Key details */}
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                {viewingReport.date && (
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
+                    <span>{viewingReport.date}</span>
+                  </div>
+                )}
+                {viewingReport.time && (
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <Clock className="w-4 h-4 text-gray-400 shrink-0" />
+                    <span>{viewingReport.time}</span>
+                  </div>
+                )}
+                {viewingReport.location && (
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
+                    <span>{viewingReport.location}</span>
+                  </div>
+                )}
+                {viewingReport.hours > 0 && (
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <Clock className="w-4 h-4 text-gray-400 shrink-0" />
+                    <span>{viewingReport.hours} hrs</span>
+                  </div>
+                )}
+                {viewingReport.totalSpots > 0 && (
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <Users className="w-4 h-4 text-gray-400 shrink-0" />
+                    <span>{viewingReport.spotsLeft} / {viewingReport.totalSpots} spots left</span>
+                  </div>
+                )}
+                {viewingReport.category && (
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <Tag className="w-4 h-4 text-gray-400 shrink-0" />
+                    <span>{viewingReport.category}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Description */}
+              {viewingReport.description && (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1">Description</p>
+                  <p className="text-sm text-gray-700 leading-relaxed">{viewingReport.description}</p>
+                </div>
+              )}
+
+              {/* Skills */}
+              {viewingReport.skills?.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">Skills</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {viewingReport.skills.map((skill) => (
+                      <span key={skill} className="text-xs bg-gray-100 text-gray-700 px-2.5 py-1 rounded-full border border-gray-200">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Commitment */}
+              {viewingReport.commitment && (
+                <p className="text-xs text-gray-500">Commitment: <span className="font-medium text-gray-700">{viewingReport.commitment}</span></p>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

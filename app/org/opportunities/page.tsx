@@ -1097,7 +1097,7 @@ export default function OrgOpportunitiesPage() {
                         category: editForm.category
                     };
                     await updateOpportunity(editingPosting.id, dataToUpdate);
-                    setOpportunities(prev => prev.map(p =>
+                    setBrowseOpportunities(prev => prev.map(p =>
                       p.id === editingPosting.id
                         ? { ...p, ...dataToUpdate }
                         : p

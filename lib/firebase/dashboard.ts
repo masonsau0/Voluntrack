@@ -12,7 +12,9 @@ import {
     serverTimestamp,
     increment,
     addDoc,
-    onSnapshot
+    onSnapshot,
+    limit,
+    Timestamp
 } from "firebase/firestore";
 import { db } from "./config";
 import { Opportunity } from "./opportunities";
@@ -27,6 +29,16 @@ export interface StructuredReflection {
     orgDescription: string;   // "What does the organization do?"
     howHelped: string;         // "How did you help?"
     whatLearned: string;       // "What did you learn?"
+}
+
+export interface FeedEvent {
+    id: string;
+    type: "badge_earned" | "application" | "completion";
+    badgeId?: string;
+    badgeName?: string;
+    opportunityTitle: string;
+    opportunityId?: string;
+    createdAt: Timestamp;
 }
 
 export interface UserApplication {
@@ -51,6 +63,8 @@ export interface UserApplication {
     spotsLeft?: number;
     totalSpots?: number;
     updatedAt: any;
+    lat?: number;
+    lng?: number;
     // External Opportunity Fields
     isExternal?: boolean;
     reflection?: StructuredReflection | string;
@@ -228,6 +242,9 @@ export async function applyToOpportunity(userId: string, opportunity: Opportunit
 
         await setDoc(appRef, appData);
 
+        // Write feed event for application
+        await writeFeedEvent("application", { opportunityTitle: opportunity.title, opportunityId: opportunity.id });
+
         // Check if user has applied to 5 opportunities to award 'active-applicant' badge
         const appsRef = collection(db, "user_applications");
         const q = query(appsRef, where("userId", "==", userId));
@@ -253,6 +270,25 @@ export async function applyToOpportunity(userId: string, opportunity: Opportunit
     } catch (error) {
         console.error("Error applying to opportunity:", error);
         throw error;
+    }
+}
+
+async function writeFeedEvent(
+    type: FeedEvent["type"],
+    payload: { opportunityTitle: string; opportunityId?: string; badgeId?: string; badgeName?: string }
+): Promise<void> {
+    try {
+        await addDoc(collection(db, "feed_events"), {
+            type,
+            opportunityTitle: payload.opportunityTitle,
+            ...(payload.opportunityId != null && { opportunityId: payload.opportunityId }),
+            ...(payload.badgeId != null && { badgeId: payload.badgeId }),
+            ...(payload.badgeName != null && { badgeName: payload.badgeName }),
+            createdAt: serverTimestamp(),
+        });
+    } catch (error) {
+        console.error("Error writing feed event:", error);
+        // Does not rethrow — feed event failure must not surface as an error to the caller
     }
 }
 
@@ -313,6 +349,11 @@ export async function updateApplicationStatus(
 
         // If completed, increment student hours and check for badges in student_profiles
         if (status === "completed" && oldStatus !== "completed") {
+            const opportunityTitle = appDoc.data().title as string;
+            const opportunityId = appDoc.data().opportunityId as string;
+
+            await writeFeedEvent("completion", { opportunityTitle, opportunityId });
+
             const profileRef = doc(db, "student_profiles", userId);
             const profileDoc = await getDoc(profileRef);
             const currentHours = profileDoc.data()?.hoursCompleted || 0;
@@ -321,9 +362,11 @@ export async function updateApplicationStatus(
             const newTotalHours = currentHours + hoursToAdd;
 
             const newBadges = [...currentBadges];
+            const earnedBadges: { id: string; name: string }[] = [];
             BADGE_MILESTONES.forEach(milestone => {
                 if (newTotalHours >= milestone.hours && !newBadges.includes(milestone.id)) {
                     newBadges.push(milestone.id);
+                    earnedBadges.push({ id: milestone.id, name: milestone.name });
                 }
             });
 
@@ -332,6 +375,10 @@ export async function updateApplicationStatus(
                 badges: newBadges,
                 updatedAt: serverTimestamp()
             });
+
+            for (const badge of earnedBadges) {
+                await writeFeedEvent("badge_earned", { opportunityTitle, opportunityId, badgeId: badge.id, badgeName: badge.name });
+            }
         }
     } catch (error) {
         console.error("Error updating application status:", error);
@@ -379,6 +426,9 @@ export async function submitExternalOpportunity(
         contactName: string;
         contactEmail: string;
         contactPhone?: string;
+        location?: string;
+        lat?: number;
+        lng?: number;
     }
 ): Promise<void> {
     try {
@@ -397,7 +447,7 @@ export async function submitExternalOpportunity(
             appliedDate: new Date().toISOString(),
             title: data.title,
             organization: data.organization,
-            location: "External",
+            location: data.location || "External",
             date: dateStr,
             dateISO,
             hours: data.hours,
@@ -410,14 +460,18 @@ export async function submitExternalOpportunity(
             contactName: data.contactName,
             contactEmail: data.contactEmail,
             contactPhone: data.contactPhone,
+            ...(data.lat != null && { lat: data.lat }),
+            ...(data.lng != null && { lng: data.lng }),
         };
 
         await setDoc(appRef, appData);
 
+        await writeFeedEvent("completion", { opportunityTitle: data.title, opportunityId });
+
         // Immediately increment hours and process badges
         const profileRef = doc(db, "student_profiles", userId);
         const profileDoc = await getDoc(profileRef);
-        
+
         if (profileDoc.exists()) {
             const currentHours = profileDoc.data()?.hoursCompleted || 0;
             const currentBadges = profileDoc.data()?.badges || [];
@@ -425,9 +479,11 @@ export async function submitExternalOpportunity(
             const newTotalHours = currentHours + hoursToAdd;
 
             const newBadges = [...currentBadges];
+            const earnedBadges: { id: string; name: string }[] = [];
             BADGE_MILESTONES.forEach(milestone => {
                 if (newTotalHours >= milestone.hours && !newBadges.includes(milestone.id)) {
                     newBadges.push(milestone.id);
+                    earnedBadges.push({ id: milestone.id, name: milestone.name });
                 }
             });
 
@@ -436,6 +492,10 @@ export async function submitExternalOpportunity(
                 badges: newBadges,
                 updatedAt: serverTimestamp()
             });
+
+            for (const badge of earnedBadges) {
+                await writeFeedEvent("badge_earned", { opportunityTitle: data.title, opportunityId, badgeId: badge.id, badgeName: badge.name });
+            }
         }
 
     } catch (error) {
@@ -480,6 +540,24 @@ export async function markNotificationAsRead(notificationId: string): Promise<vo
     } catch (error) {
         console.error("Error marking notification as read:", error);
         throw error;
+    }
+}
+
+/**
+ * Fetch the most recent N feed events ordered by createdAt DESC
+ */
+export async function getFeedEvents(limitN: number): Promise<FeedEvent[]> {
+    try {
+        const q = query(
+            collection(db, "feed_events"),
+            orderBy("createdAt", "desc"),
+            limit(limitN)
+        );
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FeedEvent));
+    } catch (error) {
+        console.error("Error fetching feed events:", error);
+        return [];
     }
 }
 

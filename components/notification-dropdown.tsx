@@ -50,7 +50,7 @@ export function NotificationDropdown({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="relative hidden sm:flex" id="notification-bell">
+          <Button variant="ghost" size="icon" className="relative hidden sm:flex rounded-full" id="notification-bell">
             <Bell className="h-5 w-5" />
             {count > 0 && (
               <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center animate-in fade-in zoom-in">

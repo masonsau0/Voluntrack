@@ -28,6 +28,9 @@ export interface Opportunity {
   skills: string[];
   featured: boolean;
   image: string;
+  lat?: number;
+  lng?: number;
+  applicationDeadline?: string;  // ISO date, e.g. "2026-02-01"
 }
 
 export const ITEMS_PER_PAGE = 9; // Number of items to fetch per chunk
@@ -85,6 +88,9 @@ export async function getOpportunities(
         skills: data.skills || [],
         featured: data.featured || false,
         image: data.image || "/icon.svg",
+        lat: data.lat ?? undefined,
+        lng: data.lng ?? undefined,
+        applicationDeadline: data.applicationDeadline ?? undefined,
       } as Opportunity);
     });
 
@@ -136,6 +142,9 @@ export async function getAllOpportunities(): Promise<Opportunity[]> {
         skills: data.skills || [],
         featured: data.featured || false,
         image: data.image || "/icon.svg",
+        lat: data.lat ?? undefined,
+        lng: data.lng ?? undefined,
+        applicationDeadline: data.applicationDeadline ?? undefined,
       } as Opportunity);
     });
 

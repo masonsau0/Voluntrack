@@ -13,6 +13,18 @@ const BASE_REPORT: AdminReport = {
   text: "",
   createdAt: "2024-03-10T08:00:00.000Z",
   opportunityTitle: "Park Cleanup",
+  orgName: "Green Earth Society",
+  description: "Help clean up the local park.",
+  location: "Central Park",
+  hours: 3,
+  date: "Saturday, Mar 15, 2025",
+  time: "10:00 AM",
+  spotsLeft: 5,
+  totalSpots: 20,
+  category: "Environment",
+  commitment: "One-time",
+  skills: ["Teamwork"],
+  image: "/icon.svg",
 }
 
 const REPORT_WITH_TEXT: AdminReport = {
@@ -25,6 +37,7 @@ describe("ReportCard", () => {
   const onRemove = jest.fn()
   const onAllow = jest.fn()
   const onEditClick = jest.fn()
+  const onViewOpportunity = jest.fn()
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -39,6 +52,7 @@ describe("ReportCard", () => {
         onRemove={onRemove}
         onAllow={onAllow}
         onEditClick={onEditClick}
+        onViewOpportunity={onViewOpportunity}
       />
     )
     expect(screen.getByText("Park Cleanup")).toBeInTheDocument()
@@ -51,6 +65,7 @@ describe("ReportCard", () => {
         onRemove={onRemove}
         onAllow={onAllow}
         onEditClick={onEditClick}
+        onViewOpportunity={onViewOpportunity}
       />
     )
     expect(screen.getByText("Household chores")).toBeInTheDocument()
@@ -63,6 +78,7 @@ describe("ReportCard", () => {
         onRemove={onRemove}
         onAllow={onAllow}
         onEditClick={onEditClick}
+        onViewOpportunity={onViewOpportunity}
       />
     )
     expect(screen.getByText("Pending Review")).toBeInTheDocument()
@@ -75,6 +91,7 @@ describe("ReportCard", () => {
         onRemove={onRemove}
         onAllow={onAllow}
         onEditClick={onEditClick}
+        onViewOpportunity={onViewOpportunity}
       />
     )
     expect(screen.getByText(/Reported/i)).toBeInTheDocument()
@@ -87,6 +104,7 @@ describe("ReportCard", () => {
         onRemove={onRemove}
         onAllow={onAllow}
         onEditClick={onEditClick}
+        onViewOpportunity={onViewOpportunity}
       />
     )
     expect(screen.queryByText(/additional details/i)).not.toBeInTheDocument()
@@ -99,6 +117,7 @@ describe("ReportCard", () => {
         onRemove={onRemove}
         onAllow={onAllow}
         onEditClick={onEditClick}
+        onViewOpportunity={onViewOpportunity}
       />
     )
     expect(screen.getByText(/additional details/i)).toBeInTheDocument()
@@ -107,15 +126,17 @@ describe("ReportCard", () => {
     ).toBeInTheDocument()
   })
 
-  it("renders all three action buttons", () => {
+  it("renders all four action buttons", () => {
     render(
       <ReportCard
         report={BASE_REPORT}
         onRemove={onRemove}
         onAllow={onAllow}
         onEditClick={onEditClick}
+        onViewOpportunity={onViewOpportunity}
       />
     )
+    expect(screen.getByRole("button", { name: /view opportunity/i })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /remove opportunity/i })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /edit opportunity/i })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /allow \/ dismiss/i })).toBeInTheDocument()
@@ -131,6 +152,7 @@ describe("ReportCard", () => {
         onRemove={onRemove}
         onAllow={onAllow}
         onEditClick={onEditClick}
+        onViewOpportunity={onViewOpportunity}
       />
     )
 
@@ -149,6 +171,7 @@ describe("ReportCard", () => {
         onRemove={onRemove}
         onAllow={onAllow}
         onEditClick={onEditClick}
+        onViewOpportunity={onViewOpportunity}
       />
     )
 
@@ -167,6 +190,7 @@ describe("ReportCard", () => {
         onRemove={onRemove}
         onAllow={onAllow}
         onEditClick={onEditClick}
+        onViewOpportunity={onViewOpportunity}
       />
     )
 
@@ -186,6 +210,7 @@ describe("ReportCard", () => {
         onRemove={onRemove}
         onAllow={onAllow}
         onEditClick={onEditClick}
+        onViewOpportunity={onViewOpportunity}
       />
     )
     expect(screen.getByText("Other")).toBeInTheDocument()
@@ -199,13 +224,16 @@ describe("ReportCard", () => {
         onRemove={onRemove}
         onAllow={onAllow}
         onEditClick={onEditClick}
+        onViewOpportunity={onViewOpportunity}
       />
     )
 
+    await user.click(screen.getByRole("button", { name: /view opportunity/i }))
     await user.click(screen.getByRole("button", { name: /remove opportunity/i }))
     await user.click(screen.getByRole("button", { name: /allow \/ dismiss/i }))
     await user.click(screen.getByRole("button", { name: /edit opportunity/i }))
 
+    expect(onViewOpportunity).toHaveBeenCalledTimes(1)
     expect(onRemove).toHaveBeenCalledTimes(1)
     expect(onAllow).toHaveBeenCalledTimes(1)
     expect(onEditClick).toHaveBeenCalledTimes(1)

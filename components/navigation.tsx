@@ -147,7 +147,7 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
                     <ChevronDown className={`h-4 w-4 transition-colors duration-300 ${forceWhite ? 'text-gray-400' : 'text-white/60'}`} />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 z-[150]">
+                <DropdownMenuContent align="end" className="w-48 z-[150] rounded-xl">
                   <DropdownMenuItem asChild>
                     <Link href="/account" className="flex items-center gap-2 cursor-pointer">
                       <UserCircle className="h-4 w-4" />

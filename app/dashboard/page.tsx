@@ -648,7 +648,7 @@ export default function DashboardPage() {
                       <p className="text-muted-foreground text-xs mt-1 mb-3">
                         Start exploring opportunities to make a difference
                       </p>
-                      <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white gap-1">
+                      <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white gap-1 rounded-full">
                         <Plus className="w-3 h-3" />
                         Browse Opportunities
                       </Button>
@@ -677,7 +677,7 @@ export default function DashboardPage() {
                           size="sm"
                           onClick={handleExportPDF}
                           disabled={isGeneratingPDF || completedOpportunities.length === 0}
-                          className="h-8 gap-1 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800"
+                          className="h-8 gap-1 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 rounded-full"
                         >
                           <Download className="w-3.5 h-3.5" />
                           {isGeneratingPDF ? "Exporting..." : "Export PDF"}

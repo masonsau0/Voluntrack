@@ -74,6 +74,51 @@ const sortOptions = [
   { value: "featured", label: "Featured First" },
 ]
 
+// Scoring weights for "For You" algorithm (max 100 pts total)
+const SCORE_WEIGHTS = { interest: 40, format: 30, availability: 20, urgency: 10 } as const
+
+function scoreOpportunity(
+  opp: Opportunity,
+  interests: string[],
+  volunteerFormat: string,
+  availability: string
+): number {
+  let score = 0
+
+  // Factor 1: Category matches student's interests (+40)
+  const interestLabels = interests.map((id: string) => {
+    const match = INTERESTS.find(i => (i as any).id === id)
+    return match ? match.label : ""
+  }).filter((label: string) => label !== "")
+  if ((interestLabels as string[]).includes(opp.category)) score += SCORE_WEIGHTS.interest
+
+  // Factor 2: Format preference — infer remote/in-person from location string (+0–30)
+  const locationLower = opp.location.toLowerCase()
+  const isRemote = locationLower.includes("remote") || locationLower.includes("virtual") || locationLower.includes("online")
+  if (volunteerFormat === "no-preference") {
+    score += Math.round(SCORE_WEIGHTS.format * 0.5)          // +15 neutral
+  } else if (volunteerFormat === "hybrid") {
+    score += Math.round(SCORE_WEIGHTS.format * 0.67)         // +20 partial
+  } else if ((volunteerFormat === "remote" && isRemote) || (volunteerFormat === "in-person" && !isRemote)) {
+    score += SCORE_WEIGHTS.format                            // +30 exact match
+  }
+
+  // Factor 3: Availability — day-of-week vs. weekends/weekdays preference (+0–20)
+  const day = new Date(opp.dateISO + "T12:00:00").getDay()
+  const isWeekend = day === 0 || day === 6
+  if (availability === "any-time") {
+    score += Math.round(SCORE_WEIGHTS.availability * 0.5)    // +10 neutral
+  } else if ((availability === "weekends" && isWeekend) || (availability === "weekdays" && !isWeekend)) {
+    score += SCORE_WEIGHTS.availability                      // +20 exact match
+  }
+
+  // Factor 4: Urgency / scarcity bonus (+0–10)
+  if (opp.spotsLeft > 0 && opp.spotsLeft <= 5) score += SCORE_WEIGHTS.urgency
+  else if (opp.spotsLeft <= 10) score += Math.round(SCORE_WEIGHTS.urgency * 0.5)
+
+  return score
+}
+
 // export default function OpportunitiesPage() {
 export default function OpportunitiesPage() {
   const { userProfile } = useAuth()
@@ -88,6 +133,9 @@ export default function OpportunitiesPage() {
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set())
   const [studentInterests, setStudentInterests] = useState<string[]>([])
+  const [studentVolunteerFormat, setStudentVolunteerFormat] = useState<string>("no-preference")
+  const [studentAvailability, setStudentAvailability] = useState<string>("any-time")
+  const [forYouActive, setForYouActive] = useState(false)
   const [reportTarget, setReportTarget] = useState<Opportunity | null>(null)
 
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0)
@@ -147,6 +195,8 @@ export default function OpportunitiesPage() {
         setSavedIds(new Set(saved.map(s => s.opportunityId)))
         setHiddenIds(hidden)
         setStudentInterests(studentProfile?.interests ?? [])
+        setStudentVolunteerFormat(studentProfile?.volunteerFormat ?? "no-preference")
+        setStudentAvailability(studentProfile?.availability ?? "any-time")
       } catch (err) {
         console.error("Error fetching user data:", err)
       }
@@ -333,6 +383,38 @@ export default function OpportunitiesPage() {
       .filter(opp => (interestLabels as string[]).includes(opp.category))
   }, [opportunities, hiddenIds, studentInterests])
 
+  // Scored + ranked list for "For You" tab
+  const scoredForYou = useMemo(() => {
+    if (studentInterests.length === 0) return []
+
+    let list = opportunities.filter(o => !hiddenIds.has(o.id))
+
+    if (selectedCommitments.length > 0) {
+      list = list.filter(opp => selectedCommitments.includes(opp.commitment))
+    }
+    if (selectedHours.length > 0) {
+      list = list.filter(opp =>
+        selectedHours.some(h => h === "8+" ? opp.hours >= 8 : opp.hours <= parseInt(h, 10))
+      )
+    }
+    if (selectedDateRange?.from) {
+      const rangeStart = new Date(selectedDateRange.from)
+      rangeStart.setHours(0, 0, 0, 0)
+      const rangeEnd = selectedDateRange.to ? new Date(selectedDateRange.to) : new Date(selectedDateRange.from)
+      rangeEnd.setHours(23, 59, 59, 999)
+      list = list.filter(opp => {
+        const d = new Date(opp.dateISO)
+        d.setHours(12, 0, 0, 0)
+        return d >= rangeStart && d <= rangeEnd
+      })
+    }
+
+    return list
+      .map(opp => ({ opp, score: scoreOpportunity(opp, studentInterests, studentVolunteerFormat, studentAvailability) }))
+      .filter(item => item.score > 0)
+      .sort((a, b) => b.score - a.score)
+  }, [opportunities, hiddenIds, studentInterests, studentVolunteerFormat, studentAvailability, selectedCommitments, selectedHours, selectedDateRange])
+
   // Group by category
   const groupedByCategory = useMemo(() => {
     const groups: { [key: string]: Opportunity[] } = {}
@@ -392,7 +474,7 @@ export default function OpportunitiesPage() {
   const hasActiveFilters = selectedCategories.length > 0 || selectedCommitments.length > 0 || selectedHours.length > 0 || !!selectedDateRange?.from || searchQuery
 
   // Opportunity Card - memoized to prevent re-renders from parent state changes
-  const OpportunityCard = React.memo(({ opportunity }: { opportunity: Opportunity }) => {
+  const OpportunityCard = React.memo(({ opportunity, matchScore }: { opportunity: Opportunity, matchScore?: number }) => {
     const [isHovered, setIsHovered] = useState(false)
     const categoryColor = categoryColors[opportunity.category] || defaultCategoryColor
 
@@ -433,6 +515,12 @@ export default function OpportunitiesPage() {
                 <div className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full text-white text-[10px] font-bold shadow-lg">
                   <Star className="w-2.5 h-2.5 fill-current" />
                   Featured
+                </div>
+              )}
+              {matchScore !== undefined && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-violet-500 to-indigo-600 rounded-full text-white text-[10px] font-bold shadow-lg">
+                  <Sparkles className="w-2.5 h-2.5" />
+                  {matchScore}% match
                 </div>
               )}
             </div>
@@ -641,6 +729,21 @@ export default function OpportunitiesPage() {
               {/* Top Row: Categories + Search (Right Aligned) */}
               <div className="flex items-center gap-4 py-1">
                 <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide flex-1">
+                  {/* For You tab — only when logged in with interests */}
+                  {studentInterests.length > 0 && (
+                    <button
+                      onClick={() => { setForYouActive(true); setSelectedCategories([]); setSearchQuery(""); }}
+                      className={`relative px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-1.5 ${
+                        forYouActive ? "text-gray-900" : "text-gray-400 hover:text-gray-700"
+                      }`}
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      For You
+                      {forYouActive && (
+                        <span className="absolute bottom-0 left-0 right-0 h-1 bg-rose-600 z-10" />
+                      )}
+                    </button>
+                  )}
                   {/* All tab */}
                   <button
                     onClick={() => { setSelectedCategories([]); setSearchQuery(''); setSelectedCommitments([]); setSelectedHours([]); setSelectedDateRange(undefined); }}
@@ -651,7 +754,7 @@ export default function OpportunitiesPage() {
                     }`}
                   >
                     All
-                    {selectedCategories.length === 0 && !searchQuery && (
+                    {!forYouActive && selectedCategories.length === 0 && !searchQuery && (
                       <span className="absolute bottom-0 left-0 right-0 h-1 bg-rose-600 z-10" />
                     )}
                   </button>
@@ -666,7 +769,7 @@ export default function OpportunitiesPage() {
                       }`}
                     >
                       {category}
-                      {selectedCategories.length === 1 && selectedCategories[0] === category && (
+                      {!forYouActive && selectedCategories.length === 1 && selectedCategories[0] === category && (
                         <span className="absolute bottom-0 left-0 right-0 h-1 bg-rose-600 z-10" />
                       )}
                     </button>
@@ -812,8 +915,36 @@ export default function OpportunitiesPage() {
             </div>
           )}
 
+          {/* For You — scored and ranked by student preferences */}
+          {forYouActive && (
+            <div className="mb-12">
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900 tracking-tight flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-violet-500" />
+                    Matched for You
+                  </h2>
+                  <p className="text-xs text-gray-400 mt-0.5">Ranked by interests · availability · format preference · urgency</p>
+                </div>
+                <span className="text-sm text-gray-400">{scoredForYou.length} matches</span>
+              </div>
+              {scoredForYou.length === 0 ? (
+                <div className="text-center py-20 text-gray-400">
+                  <Sparkles className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                  <p className="text-sm">No matches yet — set interests and preferences during sign-up to see personalized picks.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
+                  {scoredForYou.map(({ opp, score }) => (
+                    <OpportunityCard key={opp.id} opportunity={opp} matchScore={score} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Experiences for You - horizontal scroll row */}
-          {personalizedOpportunities.length > 0 && !hasActiveFilters && (
+          {!forYouActive && personalizedOpportunities.length > 0 && !hasActiveFilters && (
             <div className="mb-12">
               <h2 className="text-lg font-bold text-gray-900 mb-5 tracking-tight">Experiences for You</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
@@ -825,27 +956,29 @@ export default function OpportunitiesPage() {
           )}
 
           {/* All Opportunities - 4 per row grid with hover expand */}
-          <div className="mb-12">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-bold text-gray-900 tracking-tight">
-                {hasActiveFilters ? `Results (${filteredOpportunities.length})` : 'All Opportunities'}
-              </h2>
-              <span className="text-sm text-gray-400">{(hasActiveFilters ? filteredOpportunities : opportunities).length} total</span>
+          {!forYouActive && (
+            <div className="mb-12">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-lg font-bold text-gray-900 tracking-tight">
+                  {hasActiveFilters ? `Results (${filteredOpportunities.length})` : "All Opportunities"}
+                </h2>
+                <span className="text-sm text-gray-400">{(hasActiveFilters ? filteredOpportunities : opportunities).length} total</span>
+              </div>
+              {(hasActiveFilters ? filteredOpportunities : opportunities).length === 0 && loading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="h-[340px] bg-white rounded-xl animate-pulse shadow-md shadow-gray-200/60" />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
+                  {(hasActiveFilters ? filteredOpportunities : opportunities).map((opp) => (
+                    <OpportunityCard key={opp.id} opportunity={opp} />
+                  ))}
+                </div>
+              )}
             </div>
-            {(hasActiveFilters ? filteredOpportunities : opportunities).length === 0 && loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="h-[340px] bg-white rounded-xl animate-pulse shadow-md shadow-gray-200/60" />
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
-                {(hasActiveFilters ? filteredOpportunities : opportunities).map((opp) => (
-                  <OpportunityCard key={opp.id} opportunity={opp} />
-                ))}
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </main>
 

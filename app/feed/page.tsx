@@ -1,201 +1,346 @@
 "use client"
 
+import { useState, useEffect, useCallback } from "react"
+import dynamic from "next/dynamic"
 import Link from "next/link"
-import Image from "next/image"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Calendar, MapPin, Clock, Sparkles, ChevronRight } from "lucide-react"
+import { Calendar, MapPin, Clock, Trophy, Activity, Star } from "lucide-react"
+import { useAuth } from "@/contexts/AuthContext"
+import { getAllOpportunities, type Opportunity } from "@/lib/firebase/opportunities"
+import { getStudentProfile } from "@/lib/firebase/student-profiles"
+import { getFeedEvents, type FeedEvent } from "@/lib/firebase/feed"
+import { getOpportunitiesForMap, getOrgCompletedCounts } from "@/lib/firebase/feed"
+import { scoreOpportunity } from "@/lib/scoring"
+import { formatDistanceToNow } from "date-fns"
+import { InfoWindow, Marker } from "@react-google-maps/api"
+
+const GoogleMapComponent = dynamic(
+  () => import("@react-google-maps/api").then(mod => {
+    const { GoogleMap, useJsApiLoader } = mod
+    function MapWrapper({
+      opportunities,
+      orgCounts,
+      allOpportunities,
+    }: {
+      opportunities: Opportunity[]
+      orgCounts: Record<string, number>
+      allOpportunities: Opportunity[]
+    }) {
+      const { isLoaded } = useJsApiLoader({
+        googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
+      })
+      const [selected, setSelected] = useState<Opportunity | null>(null)
+
+      if (!isLoaded) {
+        return (
+          <div className="w-full h-[350px] rounded-2xl bg-muted flex items-center justify-center">
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        )
+      }
+
+      const center = opportunities.length > 0
+        ? { lat: opportunities[0].lat!, lng: opportunities[0].lng! }
+        : { lat: 43.6532, lng: -79.3832 } // Toronto default
+
+      const sameLocOpps = selected
+        ? allOpportunities.filter(o =>
+            Math.abs((o.lat ?? 0) - (selected.lat ?? 0)) < 0.0001 &&
+            Math.abs((o.lng ?? 0) - (selected.lng ?? 0)) < 0.0001 &&
+            o.spotsLeft > 0
+          )
+        : []
+
+      return (
+        <GoogleMap
+          mapContainerStyle={{ width: "100%", height: "350px" }}
+          center={center}
+          zoom={11}
+          options={{ disableDefaultUI: false, zoomControl: true, streetViewControl: false, mapTypeControl: false }}
+        >
+          {opportunities.map(opp => (
+            <Marker
+              key={opp.id}
+              position={{ lat: opp.lat!, lng: opp.lng! }}
+              title={opp.title}
+              onClick={() => setSelected(opp)}
+            />
+          ))}
+          {selected && selected.lat != null && selected.lng != null && (
+            <InfoWindow
+              position={{ lat: selected.lat, lng: selected.lng }}
+              onCloseClick={() => setSelected(null)}
+            >
+              <div className="max-w-[220px]">
+                <p className="font-semibold text-sm text-slate-800">{selected.organization}</p>
+                <p className="text-xs text-slate-500 mb-1">
+                  {orgCounts[selected.organization] ?? 0} completions
+                </p>
+                {sameLocOpps.length > 0 && (
+                  <>
+                    <p className="text-xs font-medium text-slate-700 mt-2 mb-1">Open opportunities:</p>
+                    <ul className="space-y-0.5">
+                      {sameLocOpps.slice(0, 3).map(o => (
+                        <li key={o.id} className="text-xs text-slate-600">• {o.title}</li>
+                      ))}
+                      {sameLocOpps.length > 3 && (
+                        <li className="text-xs text-slate-400">+{sameLocOpps.length - 3} more</li>
+                      )}
+                    </ul>
+                  </>
+                )}
+              </div>
+            </InfoWindow>
+          )}
+        </GoogleMap>
+      )
+    }
+    return MapWrapper
+  }),
+  { ssr: false }
+)
 
 export default function FeedPage() {
-  const achievementPosts: Array<{
-    id: string
-    name: string
-    hours: number
-    timeAgo: string
-    cheers: number
-    avatarInitials: string
-  }> = []
-  const activityPosts: Array<{
-    id: string
-    name: string
-    timeAgo: string
-    text: string
-    image: string | null
-    imageAlt: string | null
-  }> = []
-  const featuredOpportunities: Array<{
-    id: string
-    title: string
-    organization: string
-    hours: number
-    date: string
-    location: string
-    description: string
-    spotsLeft: number
-    totalSpots: number
-  }> = []
+  const { userProfile } = useAuth()
+  const [mapOpportunities, setMapOpportunities] = useState<Opportunity[]>([])
+  const [allOpportunities, setAllOpportunities] = useState<Opportunity[]>([])
+  const [orgCounts, setOrgCounts] = useState<Record<string, number>>({})
+  const [feedEvents, setFeedEvents] = useState<FeedEvent[]>([])
+  const [studentInterests, setStudentInterests] = useState<string[]>([])
+  const [studentVolunteerFormat, setStudentVolunteerFormat] = useState("no-preference")
+  const [studentAvailability, setStudentAvailability] = useState("any-time")
+  const [loading, setLoading] = useState(true)
+
+  const uid = userProfile?.uid
+
+  useEffect(() => {
+    async function load() {
+      setLoading(true)
+      try {
+        const [mapOpps, allOpps, counts, events] = await Promise.all([
+          getOpportunitiesForMap(),
+          getAllOpportunities(),
+          getOrgCompletedCounts(),
+          getFeedEvents(30),
+        ])
+        setMapOpportunities(mapOpps)
+        setAllOpportunities(allOpps)
+        setOrgCounts(counts)
+        setFeedEvents(events)
+
+        if (uid) {
+          const profile = await getStudentProfile(uid)
+          if (profile) {
+            setStudentInterests(profile.interests ?? [])
+            setStudentVolunteerFormat(profile.volunteerFormat ?? "no-preference")
+            setStudentAvailability(profile.availability ?? "any-time")
+          }
+        }
+      } catch (err) {
+        console.error("Feed load error:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [uid])
+
+  // Compute featured opportunities
+  const featuredOpportunities = (() => {
+    if (allOpportunities.length === 0) return []
+    if (!uid) {
+      // Non-logged-in: featured flag first, then soonest date
+      return [...allOpportunities]
+        .sort((a, b) => {
+          if (a.featured && !b.featured) return -1
+          if (!a.featured && b.featured) return 1
+          return a.dateISO.localeCompare(b.dateISO)
+        })
+        .slice(0, 10)
+    }
+    return [...allOpportunities]
+      .map(opp => ({
+        opp,
+        score: scoreOpportunity(opp, studentInterests, studentVolunteerFormat, studentAvailability),
+      }))
+      .sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score
+        // Tie-break: closer applicationDeadline first, then dateISO
+        const deadlineA = a.opp.applicationDeadline ?? a.opp.dateISO
+        const deadlineB = b.opp.applicationDeadline ?? b.opp.dateISO
+        return deadlineA.localeCompare(deadlineB)
+      })
+      .slice(0, 10)
+      .map(({ opp }) => opp)
+  })()
+
+  const accomplishments = feedEvents.filter(e => e.type === "badge_earned")
+  const activity = feedEvents.filter(e => e.type === "application" || e.type === "completion")
+
+  function relativeTime(event: FeedEvent): string {
+    try {
+      const ts = event.createdAt
+      const date = ts?.toDate ? ts.toDate() : new Date((ts as any).seconds * 1000)
+      return formatDistanceToNow(date, { addSuffix: true })
+    } catch {
+      return ""
+    }
+  }
+
   return (
     <div className="min-h-screen bg-muted/30">
       <Navigation />
 
       <main className="pt-24 pb-16">
-        <section className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-1 tracking-tight">
-              Feed
-            </h1>
-            <p className="text-muted-foreground">
-              Volunteer activity and updates from your community
-            </p>
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          <div className="mb-2">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-1 tracking-tight">Feed</h1>
+            <p className="text-muted-foreground">Volunteer activity and updates from your community</p>
           </div>
 
-          {/* Achievement posts */}
-          {achievementPosts.length === 0 && (
-            <p className="text-sm text-muted-foreground py-4">No achievements to show yet.</p>
-          )}
-          {achievementPosts.map((post) => (
-            <Card key={post.id} className="overflow-hidden shadow-sm">
-              <CardContent className="p-0">
-                <div className="p-4 flex gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Avatar className="h-9 w-9">
-                        <AvatarImage src="" />
-                        <AvatarFallback className="bg-primary/10 text-primary text-sm">
-                          {post.avatarInitials}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="font-medium text-foreground">{post.name}</span>
-                      <span className="text-muted-foreground text-sm">+</span>
-                      <span className="text-muted-foreground text-sm">{post.timeAgo}</span>
-                    </div>
-                    <p className="text-sm text-foreground mb-3">
-                      completed <strong>{post.hours} hours</strong> of volunteering!
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <div className="flex -space-x-2">
-                        {[1, 2, 3].map((i) => (
-                          <Avatar key={i} className="h-5 w-5 border-2 border-background">
-                            <AvatarFallback className="bg-muted text-muted-foreground text-[10px]" />
-                          </Avatar>
-                        ))}
+          {/* Community Map */}
+          <section>
+            <h2 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-primary" />
+              Community Map
+            </h2>
+            <div className="rounded-2xl overflow-hidden border shadow-sm">
+              {loading ? (
+                <div className="w-full h-[350px] bg-muted flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : (
+                <GoogleMapComponent
+                  opportunities={mapOpportunities}
+                  orgCounts={orgCounts}
+                  allOpportunities={allOpportunities}
+                />
+              )}
+            </div>
+            {!loading && mapOpportunities.length === 0 && (
+              <p className="text-sm text-muted-foreground mt-2">No mapped opportunities yet.</p>
+            )}
+          </section>
+
+          {/* Accomplishments */}
+          <section>
+            <h2 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-amber-500" />
+              Accomplishments
+            </h2>
+            {loading ? (
+              <p className="text-sm text-muted-foreground">Loading…</p>
+            ) : accomplishments.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No accomplishments yet.</p>
+            ) : (
+              <div className="space-y-3">
+                {accomplishments.map(event => (
+                  <Card key={event.id} className="shadow-sm">
+                    <CardContent className="p-4">
+                      <p className="text-sm text-foreground">
+                        A student earned the{" "}
+                        <strong>{event.badgeName ?? event.badgeId}</strong> badge completing{" "}
+                        <strong>{event.opportunityTitle}</strong>
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">{relativeTime(event)}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Activity */}
+          <section>
+            <h2 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Activity className="h-5 w-5 text-primary" />
+              Activity
+            </h2>
+            {loading ? (
+              <p className="text-sm text-muted-foreground">Loading…</p>
+            ) : activity.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No activity yet.</p>
+            ) : (
+              <div className="space-y-3">
+                {activity.map(event => (
+                  <Card key={event.id} className="shadow-sm">
+                    <CardContent className="p-4">
+                      <p className="text-sm text-foreground">
+                        {event.type === "application" ? (
+                          <>A student applied to <strong>{event.opportunityTitle}</strong></>
+                        ) : (
+                          <>A student just completed <strong>{event.opportunityTitle}</strong></>
+                        )}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">{relativeTime(event)}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Featured Opportunities */}
+          <section>
+            <h2 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Star className="h-5 w-5 text-amber-500" />
+              Featured Opportunities
+            </h2>
+            {loading ? (
+              <p className="text-sm text-muted-foreground">Loading…</p>
+            ) : featuredOpportunities.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No featured opportunities right now.</p>
+            ) : (
+              <div className="space-y-4">
+                {featuredOpportunities.map(opp => (
+                  <Card key={opp.id} className="overflow-hidden shadow-sm">
+                    <CardContent className="p-0">
+                      <div className="relative">
+                        <div className="absolute top-0 left-0 z-10 bg-amber-500 text-white text-xs font-semibold px-3 py-1.5 rounded-br-md">
+                          Featured
+                        </div>
+                        <div className="p-4 pt-8">
+                          <h3 className="text-lg font-bold text-primary mb-1">{opp.title}</h3>
+                          <p className="text-sm text-muted-foreground mb-3">by {opp.organization}</p>
+                          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-3">
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              {opp.hours} hrs
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-4 w-4" />
+                              {opp.date}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <MapPin className="h-4 w-4" />
+                              {opp.location}
+                            </span>
+                          </div>
+                          {opp.applicationDeadline && (
+                            <p className="text-xs text-muted-foreground mb-3">
+                              Deadline: {new Date(opp.applicationDeadline + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                            </p>
+                          )}
+                          <p className="text-sm text-foreground mb-4 line-clamp-2">{opp.description}</p>
+                          <div className="flex flex-wrap items-center gap-3">
+                            <Link href="/opportunities">
+                              <Button size="sm" className="rounded-full">Apply Now</Button>
+                            </Link>
+                            <span className="text-sm font-medium text-foreground">
+                              {opp.spotsLeft} spots remaining
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        +{post.cheers} others cheered
-                      </span>
-                    </div>
-                  </div>
-                  <div className="relative flex flex-col items-center shrink-0">
-                    <div className="relative w-20 h-20 rounded-full bg-gradient-to-b from-amber-200 to-amber-400 flex items-center justify-center border-4 border-amber-300 shadow-md">
-                      <span className="text-2xl font-bold text-amber-900">{post.hours}</span>
-                      <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-6 h-3 bg-primary rounded-t-full" />
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="mt-2 text-primary border-primary hover:bg-primary/10 gap-1"
-                    >
-                      <Sparkles className="h-3.5 w-3.5" />
-                      Cheer! <ChevronRight className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-
-          {/* Activity posts */}
-          {activityPosts.length === 0 && (
-            <p className="text-sm text-muted-foreground py-4">No activity to show yet.</p>
-          )}
-          {activityPosts.map((post) => (
-            <Card key={post.id} className="overflow-hidden shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Avatar className="h-9 w-9">
-                    <AvatarFallback className="bg-primary/10 text-primary text-sm">
-                      {post.name.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="font-medium text-foreground">{post.name}</span>
-                  <span className="text-muted-foreground text-sm">{post.timeAgo}</span>
-                </div>
-                <div className="flex gap-4">
-                  <p className="text-sm text-foreground flex-1 [&_strong]:font-semibold">
-                    {post.text.split("**").map((part, i) =>
-                      i % 2 === 1 ? <strong key={i}>{part}</strong> : part
-                    )}
-                  </p>
-                  {post.image && (
-                    <div className="relative w-28 h-28 shrink-0 rounded-lg overflow-hidden bg-muted">
-                      <Image
-                        src={post.image}
-                        alt={post.imageAlt || ""}
-                        fill
-                        className="object-cover"
-                        sizes="112px"
-                      />
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-
-          {/* Featured opportunity cards */}
-          {featuredOpportunities.length === 0 && (
-            <p className="text-sm text-muted-foreground py-4">No featured opportunities right now.</p>
-          )}
-          {featuredOpportunities.map((opp) => (
-            <Card key={opp.id} className="overflow-hidden shadow-sm">
-              <CardContent className="p-0">
-                <div className="relative">
-                  <div className="absolute top-0 left-0 z-10 bg-amber-500 text-white text-xs font-semibold px-3 py-1.5 rounded-br-md">
-                    Featured
-                  </div>
-                  <div className="p-4 pt-8">
-                    <h2 className="text-lg font-bold text-primary mb-1">{opp.title}</h2>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      by {opp.organization}
-                    </p>
-                    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-4">
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        {opp.hours} hours
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        {opp.date}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        {opp.location}
-                      </span>
-                    </div>
-                    <p className="text-sm text-foreground mb-4 line-clamp-3">
-                      {opp.description}
-                    </p>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <Link href="/opportunities">
-                        <Button size="sm" className="rounded-full">
-                          Apply Now
-                        </Button>
-                      </Link>
-                      <Button size="sm" variant="outline" className="rounded-full">
-                        Details
-                      </Button>
-                      <span className="text-sm font-medium text-foreground">
-                        {opp.spotsLeft} spots remaining
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </section>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
       </main>
     </div>
   )
