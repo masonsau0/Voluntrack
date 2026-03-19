@@ -346,11 +346,11 @@ export function AddExternalOpportunityModal({
             </div>
 
             <div className="flex justify-end pt-5 gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                className="rounded-full px-6 border-slate-300 text-slate-700 hover:bg-slate-100"
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => onOpenChange(false)} 
+                className="rounded-full px-6 border-slate-500 text-slate-900 font-semibold hover:bg-slate-300 hover:text-black hover:border-slate-600"
               >
                 Cancel
               </Button>
