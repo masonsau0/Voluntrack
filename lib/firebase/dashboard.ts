@@ -181,6 +181,24 @@ export async function toggleSaveOpportunity(userId: string, opportunity: Opportu
                 updatedAt: serverTimestamp()
             };
             await setDoc(docRef, savedData);
+
+            // Award "team-player" (Bookworm / Save an Opportunity) badge on first save
+            try {
+                const profileRef = doc(db, "student_profiles", userId);
+                const profileDoc = await getDoc(profileRef);
+                if (profileDoc.exists()) {
+                    const currentBadges = profileDoc.data()?.badges || [];
+                    if (!currentBadges.includes("team-player")) {
+                        await updateDoc(profileRef, {
+                            badges: [...currentBadges, "team-player"],
+                            updatedAt: serverTimestamp()
+                        });
+                    }
+                }
+            } catch (badgeError) {
+                console.error("Error awarding save badge:", badgeError);
+            }
+
             return true; // Added
         }
     } catch (error) {

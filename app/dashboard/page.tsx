@@ -42,6 +42,7 @@ import {
   Clock3,
   Flag,
   Download,
+  Bookmark,
 } from "lucide-react"
 import {
   getUserApplications,
@@ -101,9 +102,9 @@ const badges = [
   { id: "goal-setter", name: "Goal Setter", description: "Reach 40 hours", icon: Target, color: "bg-blue-500" },
   {
     id: "team-player",
-    name: "Team Player",
-    description: "Join a group event",
-    icon: Award,
+    name: "Bookworm",
+    description: "Save an opportunity",
+    icon: Bookmark,
     color: "bg-teal-500",
   },
   {
