@@ -17,7 +17,7 @@ interface HorizontalProgressTrackerProps {
 export function HorizontalProgressTracker({ completedHours, goalHours }: HorizontalProgressTrackerProps) {
   const [animatedProgress, setAnimatedProgress] = useState(0)
   const progress = Math.min((completedHours / goalHours) * 100, 100)
-  const remainingHours = goalHours - completedHours
+  const remainingHours = Math.max(0, goalHours - completedHours)
 
   // Calculate level based on hours (just a simple mock logic for engagement)
   const currentLevel = Math.floor(completedHours / 10) + 1

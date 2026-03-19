@@ -141,5 +141,26 @@ service cloud.firestore {
     match /report_resolutions/{resolutionId} {
       allow read, write: if false;
     }
+
+    // 14. Feed Events Collection
+    // Public read so all users see the community feed.
+    // Any authenticated user can create (badge/application/completion events).
+    // No updates or deletes — immutable event log.
+    match /feed_events/{eventId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    // 15. Notifications Collection
+    // Users can only read their own notifications.
+    // Any authenticated user can create (orgs send decision notifications to students).
+    // Only the recipient can mark as read (update); no deletes.
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && resource.data.recipientId == request.auth.uid;
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && resource.data.recipientId == request.auth.uid;
+      allow delete: if false;
+    }
   }
 }
