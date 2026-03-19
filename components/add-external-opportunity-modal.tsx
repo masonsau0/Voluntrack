@@ -1,4 +1,5 @@
 import React from "react"
+import dynamic from "next/dynamic"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -33,6 +34,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+const LocationMapPreview = dynamic(() => import("@/components/LocationMapPreview"), { ssr: false })
+
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   organization: z.string().min(1, "Organization is required"),
@@ -43,6 +46,7 @@ const formSchema = z.object({
   contactName: z.string().min(1, "Contact Name is required"),
   contactEmail: z.string().email("Invalid email address"),
   contactPhone: z.string().optional(),
+  location: z.string().optional(),
 })
 
 type ExternalOpportunityFormValues = z.infer<typeof formSchema>
@@ -60,6 +64,9 @@ export function AddExternalOpportunityModal({
 }: AddExternalOpportunityModalProps) {
   const { user } = useAuth()
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [locationStatus, setLocationStatus] = React.useState<"idle" | "loading" | "valid" | "invalid">("idle")
+  const [mapPreview, setMapPreview] = React.useState<{ lat: number; lng: number; displayName: string; isValid: boolean } | null>(null)
+  const locationTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const form = useForm<ExternalOpportunityFormValues>({
     resolver: zodResolver(formSchema),
@@ -73,8 +80,41 @@ export function AddExternalOpportunityModal({
       contactName: "",
       contactEmail: "",
       contactPhone: "",
+      location: "",
     },
   })
+
+  const handleLocationChange = (value: string) => {
+    form.setValue("location", value)
+    if (locationTimerRef.current) clearTimeout(locationTimerRef.current)
+    if (value.trim().length < 5) {
+      setMapPreview(null)
+      setLocationStatus("idle")
+      return
+    }
+    setLocationStatus("loading")
+    setMapPreview(null)
+    locationTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/validate-location", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address: value }),
+        })
+        const data = await res.json()
+        if (data.lat != null && data.lng != null) {
+          setMapPreview({ lat: data.lat, lng: data.lng, displayName: data.displayName ?? value, isValid: data.valid })
+          setLocationStatus(data.valid ? "valid" : "invalid")
+        } else {
+          setMapPreview(null)
+          setLocationStatus("invalid")
+        }
+      } catch {
+        setMapPreview(null)
+        setLocationStatus("idle")
+      }
+    }, 500)
+  }
 
   async function onSubmit(values: ExternalOpportunityFormValues) {
     if (!user?.uid) {
@@ -84,9 +124,16 @@ export function AddExternalOpportunityModal({
 
     setIsSubmitting(true)
     try {
-      await submitExternalOpportunity(user.uid, values)
+      await submitExternalOpportunity(user.uid, {
+        ...values,
+        location: values.location || undefined,
+        lat: mapPreview?.isValid ? mapPreview.lat : undefined,
+        lng: mapPreview?.isValid ? mapPreview.lng : undefined,
+      })
       toast.success("External opportunity logged successfully!")
       form.reset()
+      setMapPreview(null)
+      setLocationStatus("idle")
       onOpenChange(false)
       onSuccess?.()
     } catch (error) {
@@ -192,8 +239,44 @@ export function AddExternalOpportunityModal({
                   </FormItem>
                 )}
               />
-
             </div>
+
+            {/* Optional location field */}
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-slate-700">Location (Optional)</FormLabel>
+                  <FormControl>
+                    <Input
+                      className="rounded-xl border-slate-200 focus-visible:ring-sky-500"
+                      placeholder="e.g. 123 Main St, Toronto, ON"
+                      {...field}
+                      onChange={(e) => handleLocationChange(e.target.value)}
+                    />
+                  </FormControl>
+                  {locationStatus === "loading" && (
+                    <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
+                      <div className="w-3 h-3 border-2 border-sky-400 border-t-transparent rounded-full animate-spin" />
+                      Locating address…
+                    </div>
+                  )}
+                  {locationStatus === "valid" && (
+                    <p className="text-xs text-emerald-600 font-medium mt-1">Address confirmed in Ontario</p>
+                  )}
+                  {mapPreview && (
+                    <LocationMapPreview
+                      lat={mapPreview.lat}
+                      lng={mapPreview.lng}
+                      displayName={mapPreview.displayName}
+                      isValid={mapPreview.isValid}
+                    />
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
@@ -202,10 +285,10 @@ export function AddExternalOpportunityModal({
                 <FormItem>
                   <FormLabel className="text-slate-700">Reflection *</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="What did you do? What did you learn?" 
+                    <Textarea
+                      placeholder="What did you do? What did you learn?"
                       className="resize-none rounded-xl border-slate-200 focus-visible:ring-sky-500 min-h-[100px]"
-                      {...field} 
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -263,16 +346,16 @@ export function AddExternalOpportunityModal({
             </div>
 
             <div className="flex justify-end pt-5 gap-3">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => onOpenChange(false)} 
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
                 className="rounded-full px-6 border-slate-300 text-slate-700 hover:bg-slate-100"
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={isSubmitting}
                 className="rounded-full px-6 bg-sky-600 hover:bg-sky-700 text-white shadow-md shadow-sky-200 transition-all hover:scale-[1.02]"
               >

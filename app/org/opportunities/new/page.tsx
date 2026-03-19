@@ -264,7 +264,10 @@ export default function PostOpportunityPage() {
                 commitment: "One-time",
                 skills: form.requirements,
                 featured: false,
-                image: "/event-park-cleanup.png"
+                image: "/event-park-cleanup.png",
+                ...(mapPreview?.lat != null && { lat: mapPreview.lat }),
+                ...(mapPreview?.lng != null && { lng: mapPreview.lng }),
+                ...(form.applicationDeadline && { applicationDeadline: form.applicationDeadline }),
             })
             
             toast.success("Opportunity posted successfully!")
