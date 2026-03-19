@@ -746,9 +746,9 @@ export default function OpportunitiesPage() {
                   )}
                   {/* All tab */}
                   <button
-                    onClick={() => { setSelectedCategories([]); setSearchQuery(''); setSelectedCommitments([]); setSelectedHours([]); setSelectedDateRange(undefined); }}
+                    onClick={() => { setForYouActive(false); setSelectedCategories([]); setSearchQuery(''); setSelectedCommitments([]); setSelectedHours([]); setSelectedDateRange(undefined); }}
                     className={`relative px-5 py-3 text-sm font-medium whitespace-nowrap rounded-lg transition-all duration-200 ${
-                      selectedCategories.length === 0 && !searchQuery
+                      !forYouActive && selectedCategories.length === 0 && !searchQuery
                         ? 'text-gray-900'
                         : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
                     }`}
@@ -761,9 +761,9 @@ export default function OpportunitiesPage() {
                   {allCategories.map(category => (
                     <button
                       key={category}
-                      onClick={() => setSelectedCategories([category])}
+                      onClick={() => { setForYouActive(false); setSelectedCategories([category]); }}
                       className={`relative px-5 py-3 text-sm font-medium whitespace-nowrap rounded-lg transition-all duration-200 ${
-                        selectedCategories.length === 1 && selectedCategories[0] === category
+                        !forYouActive && selectedCategories.length === 1 && selectedCategories[0] === category
                           ? 'text-gray-900'
                           : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
                       }`}
