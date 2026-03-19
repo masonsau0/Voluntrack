@@ -48,6 +48,7 @@ import {
   getUserSaved,
   toggleSaveOpportunity,
   updateApplicationStatus,
+  withdrawApplication,
   UserApplication
 } from "@/lib/firebase/dashboard"
 import { submitReport } from "@/lib/firebase/reports"
@@ -152,6 +153,8 @@ export default function DashboardPage() {
   const [reportOpportunity, setReportOpportunity] = useState<UserApplication | null>(null)
   const [reportConcern, setReportConcern] = useState("")
   const [reportSubmitting, setReportSubmitting] = useState(false)
+  const [withdrawConfirmApp, setWithdrawConfirmApp] = useState<UserApplication | null>(null)
+  const [withdrawing, setWithdrawing] = useState(false)
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
   const completedOpportunitiesRef = useRef<HTMLDivElement>(null)
   const [studentHours, setStudentHours] = useState(0)
@@ -980,7 +983,11 @@ export default function DashboardPage() {
                 {/* Action Buttons */}
                 <div className="flex gap-3">
                   {selectedApplication.status === 'pending' && (
-                    <Button variant="outline" className="flex-1 rounded-full py-6 border-red-300 text-red-600 hover:bg-red-50">
+                    <Button
+                      variant="outline"
+                      className="flex-1 rounded-full py-6 border-red-300 text-red-600 hover:bg-red-50"
+                      onClick={() => setWithdrawConfirmApp(selectedApplication)}
+                    >
                       Withdraw Application
                     </Button>
                   )}
@@ -1080,6 +1087,62 @@ export default function DashboardPage() {
           </div>
         )
       }
+
+      {/* Withdraw Confirmation Modal */}
+      {withdrawConfirmApp && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 pt-24"
+          onClick={() => { if (!withdrawing) setWithdrawConfirmApp(null) }}
+        >
+          <div
+            className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                <X className="w-5 h-5 text-red-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold">Withdraw Application</h2>
+                <p className="text-sm text-muted-foreground">{withdrawConfirmApp.title}</p>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground mb-6">
+              Are you sure you want to withdraw this application? This action cannot be undone and you will need to re-apply if you change your mind.
+            </p>
+            <div className="flex gap-3">
+              <Button
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                disabled={withdrawing}
+                onClick={async () => {
+                  if (!user?.uid || !withdrawConfirmApp) return
+                  setWithdrawing(true)
+                  try {
+                    await withdrawApplication(user.uid, withdrawConfirmApp.opportunityId)
+                    toast.success("Application withdrawn successfully.")
+                    setWithdrawConfirmApp(null)
+                    setSelectedApplication(null)
+                    fetchData()
+                  } catch (error: any) {
+                    toast.error(error.message || "Failed to withdraw application.")
+                  } finally {
+                    setWithdrawing(false)
+                  }
+                }}
+              >
+                {withdrawing ? "Withdrawing..." : "Yes, Withdraw"}
+              </Button>
+              <Button
+                variant="outline"
+                disabled={withdrawing}
+                onClick={() => setWithdrawConfirmApp(null)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Saved Opportunity Detail Modal */}
       {
