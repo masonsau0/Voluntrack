@@ -365,6 +365,12 @@ export default function OpportunitiesPage() {
         break
     }
 
+    // When hours filter is active and not already sorting by hours, sort by hours descending
+    // so opportunities closest to the selected max appear first
+    if (selectedHours.length > 0 && sortBy !== "hours") {
+      filtered.sort((a, b) => b.hours - a.hours)
+    }
+
     return filtered
   }, [opportunities, hiddenIds, searchQuery, selectedCategories, selectedCommitments, selectedHours, selectedDateRange, sortBy])
 
