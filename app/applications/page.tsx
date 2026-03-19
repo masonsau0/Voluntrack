@@ -994,7 +994,7 @@ export default function ApplicationsPage() {
                                 {selectedApplication.status === 'pending' && (
                                     <Button
                                         variant="outline"
-                                        className="flex-1 rounded-full py-6 border-red-300 text-red-600 hover:bg-red-50"
+                                        className="flex-1 rounded-full py-6 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
                                         onClick={() => setWithdrawConfirmApp(selectedApplication)}
                                     >
                                         Withdraw Application
