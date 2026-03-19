@@ -59,7 +59,7 @@ export function NotificationDropdown({
             )}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-80 p-0 rounded-xl shadow-xl border-slate-200 z-[200]">
+        <DropdownMenuContent align="end" sideOffset={16} className="w-80 p-0 rounded-xl shadow-xl border-slate-200 z-[110]">
           {/* Header */}
           <div className="px-4 py-3 border-b border-slate-100">
             <h3 className="font-semibold text-sm text-slate-800">Notifications</h3>

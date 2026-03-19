@@ -65,7 +65,7 @@ export function LoginForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden bg-sky-50/80 backdrop-blur-sm border border-sky-200/50">
+      <Card className="overflow-hidden rounded-2xl bg-sky-50/80 backdrop-blur-sm border border-sky-200/50">
         <CardContent className="p-0">
           <form className="p-6 md:p-8 font-serif" onSubmit={handleSubmit} data-testid="login-form">
             <div className="flex flex-col gap-6">
@@ -133,7 +133,7 @@ export function LoginForm({
                   </Label>
                 </div>
               </div>
-              <Button type="submit" className="w-full font-serif" disabled={isLoading}>
+              <Button type="submit" className="w-full rounded-xl font-serif" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

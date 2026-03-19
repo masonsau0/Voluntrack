@@ -32,21 +32,21 @@ export default function StudentLoginPage() {
                 {/* RIGHT COLUMN: Aligned to start at the Login Card height */}
                 {/* mt-[152px] accounts for the height of your header + gap */}
                 <div className="hidden lg:flex flex-col gap-4 lg:mt-[152px]">
-                    <div className="rounded-xl overflow-hidden shadow-lg border-2 border-white/50">
+                    <div className="rounded-2xl overflow-hidden shadow-lg border-2 border-white/50">
                         <img
                             src="/student-volunteers-outdoor-park-clear-sky.jpg"
                             alt="Volunteers"
                             className="w-full h-40 object-cover"
                         />
                     </div>
-                    <div className="rounded-xl overflow-hidden shadow-lg border-2 border-white/50">
+                    <div className="rounded-2xl overflow-hidden shadow-lg border-2 border-white/50">
                         <img
                             src="/images/volunteers-tutoring.jpg"
                             alt="Tutoring"
                             className="w-full h-40 object-cover"
                         />
                     </div>
-                    <div className="rounded-xl overflow-hidden shadow-lg border-2 border-white/50">
+                    <div className="rounded-2xl overflow-hidden shadow-lg border-2 border-white/50">
                         <img
                             src="/images/volunteers-healthcare.jpg"
                             alt="Healthcare"

@@ -387,6 +387,31 @@ export async function updateApplicationStatus(
 }
 
 /**
+ * Withdraw a pending application (deletes the document from Firestore)
+ */
+export async function withdrawApplication(
+    userId: string,
+    opportunityId: string
+): Promise<void> {
+    try {
+        const appRef = doc(db, "user_applications", `${userId}_${opportunityId}`);
+        const appDoc = await getDoc(appRef);
+
+        if (!appDoc.exists()) throw new Error("Application not found.");
+
+        const status = appDoc.data().status;
+        if (status !== "pending") {
+            throw new Error("Only pending applications can be withdrawn.");
+        }
+
+        await deleteDoc(appRef);
+    } catch (error) {
+        console.error("Error withdrawing application:", error);
+        throw error;
+    }
+}
+
+/**
  * Submit an external opportunity
  */
 export async function submitExternalOpportunity(

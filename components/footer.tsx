@@ -49,7 +49,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground" suppressHydrationWarning>
             © {new Date().getFullYear()}{" "}
             <span className="font-logo font-bold text-primary">Volun</span>
             <span className="font-logo font-bold text-orange-500">Track</span>{" "}

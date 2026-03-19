@@ -48,6 +48,7 @@ import {
   Plus,
   SlidersHorizontal,
   CheckCircle2,
+  Flag,
 } from "lucide-react"
 import { CATEGORIES, INTERESTS } from "@/lib/preferences"
 import { getAllOpportunities, type Opportunity } from "@/lib/firebase/opportunities"
@@ -745,11 +746,11 @@ export default function OpportunitiesPage() {
                   )}
                   {/* All tab */}
                   <button
-                    onClick={() => { setForYouActive(false); setSelectedCategories([]); setSearchQuery(""); }}
-                    className={`relative px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
-                      !forYouActive && selectedCategories.length === 0 && !searchQuery
-                        ? "text-gray-900"
-                        : "text-gray-400 hover:text-gray-700"
+                    onClick={() => { setSelectedCategories([]); setSearchQuery(''); setSelectedCommitments([]); setSelectedHours([]); setSelectedDateRange(undefined); }}
+                    className={`relative px-5 py-3 text-sm font-medium whitespace-nowrap rounded-lg transition-all duration-200 ${
+                      selectedCategories.length === 0 && !searchQuery
+                        ? 'text-gray-900'
+                        : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
                     }`}
                   >
                     All
@@ -760,11 +761,11 @@ export default function OpportunitiesPage() {
                   {allCategories.map(category => (
                     <button
                       key={category}
-                      onClick={() => { setForYouActive(false); setSelectedCategories([category]); }}
-                      className={`relative px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
-                        !forYouActive && selectedCategories.length === 1 && selectedCategories[0] === category
-                          ? "text-gray-900"
-                          : "text-gray-400 hover:text-gray-700"
+                      onClick={() => setSelectedCategories([category])}
+                      className={`relative px-5 py-3 text-sm font-medium whitespace-nowrap rounded-lg transition-all duration-200 ${
+                        selectedCategories.length === 1 && selectedCategories[0] === category
+                          ? 'text-gray-900'
+                          : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
                       }`}
                     >
                       {category}
@@ -796,15 +797,15 @@ export default function OpportunitiesPage() {
               <div className="py-3 flex flex-wrap items-center gap-x-8 gap-y-3">
                 {/* Commitment filters */}
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Commitment</span>
+                  <span className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">Commitment</span>
                   <div className="flex gap-1.5">
                     {commitmentTypes.map(commitment => (
                       <button
                         key={commitment}
                         onClick={() => toggleCommitment(commitment)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${selectedCommitments.includes(commitment)
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${selectedCommitments.includes(commitment)
                           ? 'bg-rose-500 text-white shadow-md'
-                          : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-300 hover:text-gray-900 hover:shadow-sm'
                         }`}
                       >
                         {commitment}
@@ -815,13 +816,13 @@ export default function OpportunitiesPage() {
 
                 {/* Hours filter */}
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Hours</span>
+                  <span className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">Hours</span>
                   <div className="flex gap-1.5 overflow-x-auto scrollbar-hide py-1 max-w-[400px]">
                     <button
                       onClick={() => setSelectedHours([])}
-                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all flex-shrink-0 ${selectedHours.length === 0
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 flex-shrink-0 ${selectedHours.length === 0
                         ? 'bg-rose-500 text-white shadow-md'
-                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-300 hover:text-gray-900 hover:shadow-sm'
                       }`}
                     >
                       Any
@@ -830,9 +831,9 @@ export default function OpportunitiesPage() {
                       <button
                         key={hours}
                         onClick={() => toggleHours(hours)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium transition-all flex-shrink-0 ${selectedHours.includes(hours)
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 flex-shrink-0 ${selectedHours.includes(hours)
                           ? 'bg-rose-500 text-white shadow-md'
-                          : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-300 hover:text-gray-900 hover:shadow-sm'
                         }`}
                       >
                         {hours === '8+' ? '8h+' : `${hours}h`}
@@ -843,13 +844,13 @@ export default function OpportunitiesPage() {
 
                 {/* Date range picker - integrated next to hours */}
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Date</span>
+                  <span className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">Date</span>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         size="sm"
-                        className={`rounded-full h-8 text-xs gap-2 border-gray-200 hover:bg-gray-50 ${selectedDateRange?.from ? 'border-rose-300 text-rose-600 bg-rose-50' : 'text-gray-500'}`}
+                        className={`rounded-full h-8 text-xs gap-2 border-gray-200 transition-all duration-200 ${selectedDateRange?.from ? 'border-rose-300 text-rose-600 bg-rose-50 hover:bg-rose-200 hover:text-rose-800 hover:border-rose-400' : 'text-gray-600 hover:bg-gray-200 hover:text-gray-900 hover:border-gray-300'}`}
                       >
                         <Calendar className="w-3.5 h-3.5" />
                         {selectedDateRange?.from ? (
@@ -883,7 +884,7 @@ export default function OpportunitiesPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="rounded-full gap-1.5 text-xs border-gray-300 text-gray-600 hover:bg-gray-100"
+                    className="rounded-full gap-1.5 text-xs border-gray-300 text-gray-600 hover:bg-gray-200 hover:text-gray-900 hover:border-gray-400 transition-all duration-200"
                     onClick={() => setShowExternalOppModal(true)}
                   >
                     <Plus className="w-3.5 h-3.5" />
@@ -893,7 +894,7 @@ export default function OpportunitiesPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-gray-400 hover:text-gray-700 gap-1 text-xs"
+                      className="text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg px-2 py-1 gap-1 text-xs transition-all duration-200"
                       onClick={clearFilters}
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
@@ -1119,8 +1120,8 @@ export default function OpportunitiesPage() {
                 <Button
                   variant="outline"
                   className={`flex-1 rounded-full py-6 text-base font-medium transition-all hover:scale-[1.02] ${savedIds.has(selectedOpportunity.id)
-                    ? "bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100"
-                    : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                    ? "bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100 hover:text-amber-800"
+                    : "border-gray-300 text-gray-800 hover:bg-gray-100 hover:border-gray-400 hover:text-gray-900"
                     }`}
                   onClick={() => handleSave(selectedOpportunity)}
                   disabled={actionLoading === `save-${selectedOpportunity.id}`}
@@ -1129,12 +1130,13 @@ export default function OpportunitiesPage() {
                 </Button>
               </div>
               <button
-                className="w-full mt-3 text-xs text-gray-400 hover:text-red-500 transition-colors text-center"
+                className="w-full mt-3 text-xs text-red-600 hover:text-red-700 transition-colors text-center flex items-center justify-center gap-1.5 font-medium"
                 onClick={() => {
                   setReportTarget(selectedOpportunity)
                   setSelectedOpportunity(null)
                 }}
               >
+                <Flag className="w-3.5 h-3.5" />
                 Report this opportunity
               </button>
             </div>

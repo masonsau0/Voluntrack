@@ -31,7 +31,7 @@ export default function OrganizationLoginPage() {
 
                 {/* RIGHT COLUMN: Aligned to start at the Login Card */}
                 <div className="hidden lg:flex lg:mt-[200px]">
-                    <div className="rounded-xl overflow-hidden shadow-lg border-2 border-white/50">
+                    <div className="rounded-2xl overflow-hidden shadow-lg border-2 border-white/50">
                         <img
                             src="/volunteers.jpg"
                             alt="Volunteers"
