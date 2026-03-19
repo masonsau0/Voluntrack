@@ -14,8 +14,8 @@ const mockCollection = jest.fn((db: any, name: string) => `col:${name}`)
 const mockDoc = jest.fn((_db: any, col: string, id: string) => `doc:${col}/${id}`)
 
 jest.mock("firebase/firestore", () => ({
-  collection: (...args: any[]) => mockCollection(...args),
-  doc: (...args: any[]) => mockDoc(...args),
+  collection: (db: any, name: string) => mockCollection(db, name),
+  doc: (db: any, col: string, id: string) => mockDoc(db, col, id),
   addDoc: (...args: any[]) => mockAddDoc(...args),
   setDoc: (...args: any[]) => mockSetDoc(...args),
   updateDoc: (...args: any[]) => mockUpdateDoc(...args),

@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Navigation } from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Calendar, MapPin, Clock, Trophy, Activity, Star } from "lucide-react"
+import { Calendar, MapPin, Clock, Trophy, Activity, Star, Sparkles } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { getAllOpportunities, type Opportunity } from "@/lib/firebase/opportunities"
 import { getStudentProfile } from "@/lib/firebase/student-profiles"
@@ -147,11 +147,10 @@ export default function FeedPage() {
     load()
   }, [uid])
 
-  // Compute featured opportunities
-  const featuredOpportunities = (() => {
+  // Compute featured opportunities — keep score so cards can display it
+  const featuredOpportunities: { opp: Opportunity; score?: number }[] = (() => {
     if (allOpportunities.length === 0) return []
     if (!uid) {
-      // Non-logged-in: featured flag first, then soonest date
       return [...allOpportunities]
         .sort((a, b) => {
           if (a.featured && !b.featured) return -1
@@ -159,6 +158,7 @@ export default function FeedPage() {
           return a.dateISO.localeCompare(b.dateISO)
         })
         .slice(0, 10)
+        .map(opp => ({ opp }))
     }
     return [...allOpportunities]
       .map(opp => ({
@@ -167,13 +167,11 @@ export default function FeedPage() {
       }))
       .sort((a, b) => {
         if (b.score !== a.score) return b.score - a.score
-        // Tie-break: closer applicationDeadline first, then dateISO
         const deadlineA = a.opp.applicationDeadline ?? a.opp.dateISO
         const deadlineB = b.opp.applicationDeadline ?? b.opp.dateISO
         return deadlineA.localeCompare(deadlineB)
       })
       .slice(0, 10)
-      .map(({ opp }) => opp)
   })()
 
   const accomplishments = feedEvents.filter(e => e.type === "badge_earned")
@@ -294,44 +292,53 @@ export default function FeedPage() {
               <p className="text-sm text-muted-foreground">No featured opportunities right now.</p>
             ) : (
               <div className="space-y-4">
-                {featuredOpportunities.map(opp => (
+                {featuredOpportunities.map(({ opp, score }) => (
                   <Card key={opp.id} className="overflow-hidden shadow-sm">
                     <CardContent className="p-0">
-                      <div className="relative">
-                        <div className="absolute top-0 left-0 z-10 bg-amber-500 text-white text-xs font-semibold px-3 py-1.5 rounded-br-md">
-                          Featured
-                        </div>
-                        <div className="p-4 pt-8">
-                          <h3 className="text-lg font-bold text-primary mb-1">{opp.title}</h3>
-                          <p className="text-sm text-muted-foreground mb-3">by {opp.organization}</p>
-                          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-3">
-                            <span className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              {opp.hours} hrs
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />
-                              {opp.date}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <MapPin className="h-4 w-4" />
-                              {opp.location}
-                            </span>
-                          </div>
-                          {opp.applicationDeadline && (
-                            <p className="text-xs text-muted-foreground mb-3">
-                              Deadline: {new Date(opp.applicationDeadline + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                            </p>
+                      <div className="p-4">
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                          {opp.featured && (
+                            <div className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full text-white text-[10px] font-bold shadow-lg">
+                              <Star className="w-2.5 h-2.5 fill-current" />
+                              Featured
+                            </div>
                           )}
-                          <p className="text-sm text-foreground mb-4 line-clamp-2">{opp.description}</p>
-                          <div className="flex flex-wrap items-center gap-3">
-                            <Link href="/opportunities">
-                              <Button size="sm" className="rounded-full">Apply Now</Button>
-                            </Link>
-                            <span className="text-sm font-medium text-foreground">
-                              {opp.spotsLeft} spots remaining
-                            </span>
-                          </div>
+                          {score !== undefined && (
+                            <div className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-violet-500 to-indigo-600 rounded-full text-white text-[10px] font-bold shadow-lg">
+                              <Sparkles className="w-2.5 h-2.5" />
+                              {score}% match
+                            </div>
+                          )}
+                        </div>
+                        <h3 className="text-lg font-bold text-primary mb-1">{opp.title}</h3>
+                        <p className="text-sm text-muted-foreground mb-3">by {opp.organization}</p>
+                        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-3">
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            {opp.hours} hrs
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4" />
+                            {opp.date}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <MapPin className="h-4 w-4" />
+                            {opp.location}
+                          </span>
+                        </div>
+                        {opp.applicationDeadline && (
+                          <p className="text-xs text-muted-foreground mb-3">
+                            Deadline: {new Date(opp.applicationDeadline + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                          </p>
+                        )}
+                        <p className="text-sm text-foreground mb-4 line-clamp-2">{opp.description}</p>
+                        <div className="flex flex-wrap items-center gap-3">
+                          <Link href="/opportunities">
+                            <Button size="sm" className="rounded-full">Apply Now</Button>
+                          </Link>
+                          <span className="text-sm font-medium text-foreground">
+                            {opp.spotsLeft} spots remaining
+                          </span>
                         </div>
                       </div>
                     </CardContent>
