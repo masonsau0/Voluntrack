@@ -12,6 +12,54 @@ export async function getOpportunitiesForMap(): Promise<Opportunity[]> {
 }
 
 /**
+ * Fetch external completed opportunities that have lat/lng for map display.
+ * External opportunities are stored in user_applications (not in opportunities),
+ * so getOpportunitiesForMap() misses them.
+ */
+export async function getCompletedExternalLocations(): Promise<Opportunity[]> {
+    try {
+        const q = query(
+            collection(db, "user_applications"),
+            where("status", "==", "completed"),
+            where("isExternal", "==", true)
+        );
+        const snapshot = await getDocs(q);
+        const seen = new Set<string>();
+        const results: Opportunity[] = [];
+        snapshot.docs.forEach(doc => {
+            const d = doc.data();
+            if (d.lat == null || d.lng == null) return;
+            if (seen.has(d.opportunityId)) return;
+            seen.add(d.opportunityId);
+            results.push({
+                id: d.opportunityId,
+                title: d.title,
+                organization: d.organization,
+                description: "",
+                date: d.date || "",
+                dateISO: d.dateISO || "",
+                time: "",
+                location: d.location || "",
+                hours: d.hours || 0,
+                spotsLeft: 0,
+                totalSpots: 0,
+                category: d.category || "",
+                commitment: "",
+                skills: [],
+                featured: false,
+                image: "/icon.svg",
+                lat: d.lat,
+                lng: d.lng,
+            } as Opportunity);
+        });
+        return results;
+    } catch (error) {
+        console.error("Error fetching completed external locations:", error);
+        return [];
+    }
+}
+
+/**
  * Count completed applications grouped by organization name
  */
 export async function getOrgCompletedCounts(): Promise<Record<string, number>> {

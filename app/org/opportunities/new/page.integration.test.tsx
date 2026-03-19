@@ -80,6 +80,13 @@ jest.mock("@/lib/opportunityValidation", () => ({
     validateOpportunityContent: jest.fn(() => ({ valid: true, errors: [] })),
 }))
 
+jest.mock("firebase/firestore", () => ({
+    doc: jest.fn(),
+    getDoc: jest.fn().mockResolvedValue({ exists: () => false }),
+}))
+
+jest.mock("@/lib/firebase/config", () => ({ db: {} }))
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function setupFetch(locationResponse: object) {
     global.fetch = jest.fn().mockImplementation((url: string) => {

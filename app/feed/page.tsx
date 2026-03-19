@@ -11,7 +11,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { getAllOpportunities, type Opportunity } from "@/lib/firebase/opportunities"
 import { getStudentProfile } from "@/lib/firebase/student-profiles"
 import { getFeedEvents, type FeedEvent } from "@/lib/firebase/feed"
-import { getOpportunitiesForMap, getOrgCompletedCounts } from "@/lib/firebase/feed"
+import { getOpportunitiesForMap, getOrgCompletedCounts, getCompletedExternalLocations } from "@/lib/firebase/feed"
 import { scoreOpportunity } from "@/lib/scoring"
 import { formatDistanceToNow } from "date-fns"
 import { InfoWindow, Marker } from "@react-google-maps/api"
@@ -119,13 +119,16 @@ export default function FeedPage() {
     async function load() {
       setLoading(true)
       try {
-        const [mapOpps, allOpps, counts, events] = await Promise.all([
+        const [mapOpps, allOpps, counts, events, completedExternal] = await Promise.all([
           getOpportunitiesForMap(),
           getAllOpportunities(),
           getOrgCompletedCounts(),
           getFeedEvents(30),
+          getCompletedExternalLocations(),
         ])
-        setMapOpportunities(mapOpps)
+        const existingIds = new Set(mapOpps.map(o => o.id))
+        const mergedMapOpps = [...mapOpps, ...completedExternal.filter(o => !existingIds.has(o.id))]
+        setMapOpportunities(mergedMapOpps)
         setAllOpportunities(allOpps)
         setOrgCounts(counts)
         setFeedEvents(events)

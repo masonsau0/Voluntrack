@@ -23,6 +23,11 @@ jest.mock("@/lib/firebase/org", () => ({
     deleteOpportunity: jest.fn(),
 }))
 
+// Mock Firebase opportunities (prevents real Firebase config from loading)
+jest.mock("@/lib/firebase/opportunities", () => ({
+    getAllOpportunities: jest.fn().mockResolvedValue([]),
+}))
+
 // Mock Navigation component (unrelated to core logic)
 jest.mock("@/components/navigation", () => ({
     Navigation: () => <div data-testid="mock-nav" />,
