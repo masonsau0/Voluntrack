@@ -82,3 +82,43 @@ export async function getOrgCompletedCounts(): Promise<Record<string, number>> {
         return {};
     }
 }
+/**
+ * Fetch global community stats for the feed header
+ */
+export async function getFeedGlobalStats(): Promise<{ 
+    studentVolunteers: number, 
+    activeOpportunities: number, 
+    totalImpactHours: number, 
+    completedHours: number 
+}> {
+    try {
+        const [studentsSnap, oppsSnap, appsSnap] = await Promise.all([
+            getDocs(collection(db, "student_profiles")),
+            getDocs(collection(db, "opportunities")),
+            getDocs(query(collection(db, "user_applications"), where("status", "==", "completed")))
+        ]);
+
+        const studentVolunteers = studentsSnap.size;
+        const activeOpportunities = oppsSnap.size;
+        
+        let totalImpactHours = 0;
+        oppsSnap.docs.forEach(doc => {
+            totalImpactHours += (doc.data().hours || 0);
+        });
+
+        let completedHours = 0;
+        appsSnap.docs.forEach(doc => {
+            completedHours += (doc.data().hours || 0);
+        });
+
+        return {
+            studentVolunteers,
+            activeOpportunities,
+            totalImpactHours,
+            completedHours
+        };
+    } catch (error) {
+        console.error("Error fetching global feed stats:", error);
+        return { studentVolunteers: 0, activeOpportunities: 0, totalImpactHours: 0, completedHours: 0 };
+    }
+}
