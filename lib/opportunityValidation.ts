@@ -3,13 +3,29 @@ export interface ValidationResult {
   errors: string[]
 }
 
+// Conservative safety patterns — only terms with no legitimate use in a volunteer listing.
+// The LLM layer handles nuanced cases; this catches obvious submissions instantly.
+// Patterns use prefix matching (no trailing boundary) to catch inflected forms.
+const SAFETY_PATTERNS: RegExp[] = [
+  /\bfuck/i,
+  /\bshit/i,
+  /\bn+i+g+g+[ae]+r/i,
+  /\bf+a+g+g+o+t/i,
+  /\bcunt\b/i,
+  /\bchink\b/i,
+  /\bspic\b/i,
+  /\bkike\b/i,
+  /\bretard/i,
+  /\b(kill|rape|molest).{0,20}(volunteer|kids?|children|students?)\b/i,
+]
+
 const INELIGIBLE_PATTERNS: { pattern: RegExp; category: string }[] = [
   {
     pattern: /household chores|housework|doing chores|house chores/i,
     category: "household chores",
   },
   {
-    pattern: /babysit(ting)?|nanny|mow.{0,10}lawn|cut.{0,10}grass|grass cutting|lawn mowing/i,
+    pattern: /babysit(ting)?|nanny|mow.{0,10}lawn|cut.{0,10}grass|grass cutting|lawn mowing|\bjobs?\b/i,
     category: "normally-paid work",
   },
   {
@@ -37,6 +53,15 @@ export function validateOpportunityContent(
   }
 
   const combined = `${title} ${description}`.toLowerCase()
+
+  for (const pattern of SAFETY_PATTERNS) {
+    if (pattern.test(combined)) {
+      errors.push(
+        "This opportunity contains inappropriate or harmful content and cannot be submitted."
+      )
+      return { valid: false, errors }
+    }
+  }
 
   for (const { pattern, category } of INELIGIBLE_PATTERNS) {
     if (pattern.test(combined)) {
