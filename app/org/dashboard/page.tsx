@@ -96,7 +96,7 @@ export default function OrgDashboardPage() {
         : []
 
     return (
-        <div className="min-h-screen flex flex-col bg-gradient-to-b from-sky-50 via-white to-sky-50">
+        <div className="min-h-screen flex flex-col bg-white">
             <Navigation />
 
             <main className="flex-1 pt-20 md:pt-24 pb-12 px-4 sm:px-6 lg:px-8">

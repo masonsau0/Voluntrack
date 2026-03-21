@@ -272,7 +272,7 @@ export default function ApplicantsPage() {
                                                                 <Button
                                                                     size="sm"
                                                                     variant="outline"
-                                                                    className="rounded-lg h-8 px-3 border-red-300 text-red-700 hover:bg-red-50 text-xs"
+                                                                    className="rounded-lg h-8 px-3 border-red-300 text-red-700 hover:bg-red-100 hover:text-red-900 hover:border-red-400 text-xs transition-colors"
                                                                     onClick={(e) => { e.stopPropagation(); openDecision(applicant, "denied") }}
                                                                 >
                                                                     <XCircle className="w-3.5 h-3.5 mr-1" />
@@ -283,7 +283,7 @@ export default function ApplicantsPage() {
                                                         <Button
                                                             size="sm"
                                                             variant="outline"
-                                                            className="rounded-lg h-8 px-3 border-slate-200 text-slate-600 hover:bg-slate-50 text-xs"
+                                                            className="rounded-lg h-8 px-3 border-slate-200 text-slate-600 hover:bg-slate-200 hover:text-slate-900 hover:border-slate-300 text-xs transition-colors"
                                                             onClick={(e) => { e.stopPropagation(); setSelectedApplicant(applicant) }}
                                                         >
                                                             <Eye className="w-3.5 h-3.5 mr-1" />
@@ -402,7 +402,7 @@ export default function ApplicantsPage() {
                                     </Button>
                                     <Button
                                         variant="outline"
-                                        className="flex-1 rounded-xl border-red-300 text-red-700 hover:bg-red-50"
+                                        className="flex-1 rounded-xl border-red-300 text-red-700 hover:bg-red-100 hover:text-red-900 hover:border-red-400 transition-colors"
                                         onClick={() => openDecision(selectedApplicant, "denied")}
                                     >
                                         <XCircle className="w-4 h-4 mr-2" />

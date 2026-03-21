@@ -27,6 +27,7 @@ export const CATEGORIES = [
   "Senior Care",
   "Mental Health",
   "Animal Welfare",
+  "Other",
 ] as const
 
 export type Category = (typeof CATEGORIES)[number]

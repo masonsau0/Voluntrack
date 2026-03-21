@@ -1054,13 +1054,13 @@ export default function OpportunitiesPage() {
                 </Button>
               </div>
               <button
-                className="w-full mt-3 text-xs text-red-600 hover:text-red-700 transition-colors text-center flex items-center justify-center gap-1.5 font-medium"
+                className="w-full mt-4 py-3 px-4 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 rounded-full transition-colors flex items-center justify-center gap-2 font-semibold"
                 onClick={() => {
                   setReportTarget(selectedOpportunity)
                   setSelectedOpportunity(null)
                 }}
               >
-                <Flag className="w-3.5 h-3.5" />
+                <Flag className="w-4 h-4 shrink-0" />
                 Report this opportunity
               </button>
             </div>
