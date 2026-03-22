@@ -138,6 +138,9 @@ export default function OpportunitiesPage() {
   const [studentAvailability, setStudentAvailability] = useState<string>("any-time")
   const [forYouActive, setForYouActive] = useState(false)
   const [reportTarget, setReportTarget] = useState<Opportunity | null>(null)
+  const [applyTarget, setApplyTarget] = useState<Opportunity | null>(null)
+  const [applyMessage, setApplyMessage] = useState("")
+  const [applyChecks, setApplyChecks] = useState({ hadSimilarWork: false, hadWorkedWithOrg: false, hadFieldExperience: false })
 
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0)
   const [searchQuery, setSearchQuery] = useState("")
@@ -205,7 +208,10 @@ export default function OpportunitiesPage() {
     fetchUserData()
   }, [user?.uid])
 
-  const handleApply = async (opportunity: Opportunity) => {
+  const handleApply = async (
+    opportunity: Opportunity,
+    applicationData?: { message?: string; hadSimilarWork?: boolean; hadWorkedWithOrg?: boolean; hadFieldExperience?: boolean }
+  ) => {
     if (!user?.uid) {
       toast.error("Please sign in to apply.")
       return
@@ -214,8 +220,9 @@ export default function OpportunitiesPage() {
 
     setActionLoading(opportunity.id)
     try {
-      await applyToOpportunity(user.uid, opportunity)
+      await applyToOpportunity(user.uid, opportunity, applicationData)
       setAppliedIds(prev => new Set([...Array.from(prev), opportunity.id]))
+      setApplyTarget(null)
       toast.success("Application submitted successfully!")
     } catch (err: any) {
       toast.error(err.message || "Failed to apply.")
@@ -1024,7 +1031,13 @@ export default function OpportunitiesPage() {
                     ? "bg-green-500 hover:bg-green-600 text-white cursor-default"
                     : "bg-gray-900 hover:bg-gray-800 text-white shadow-lg"
                     }`}
-                  onClick={() => handleApply(selectedOpportunity)}
+                  onClick={() => {
+                    if (!appliedIds.has(selectedOpportunity.id)) {
+                      setApplyTarget(selectedOpportunity)
+                      setApplyMessage("")
+                      setApplyChecks({ hadSimilarWork: false, hadWorkedWithOrg: false, hadFieldExperience: false })
+                    }
+                  }}
                   disabled={actionLoading === selectedOpportunity.id || appliedIds.has(selectedOpportunity.id)}
                 >
                   {actionLoading === selectedOpportunity.id ? (
@@ -1087,6 +1100,96 @@ export default function OpportunitiesPage() {
             setReportTarget(null)
           }}
         />
+      )}
+
+      {/* Apply Form Modal */}
+      {applyTarget && (
+        <div
+          className="fixed inset-0 z-[70] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => !actionLoading && setApplyTarget(null)}
+        >
+          <div
+            className="bg-white rounded-2xl max-w-md w-full shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-slate-100">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900 tracking-tight">Apply for Opportunity</h2>
+                <p className="text-sm text-slate-500 mt-0.5 line-clamp-1">{applyTarget.title}</p>
+              </div>
+              <button
+                onClick={() => !actionLoading && setApplyTarget(null)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center"
+              >
+                <X className="w-4 h-4 text-slate-600" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              {/* Message textarea */}
+              <div>
+                <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                  Message <span className="normal-case text-slate-400">(optional)</span>
+                </label>
+                <textarea
+                  value={applyMessage}
+                  onChange={(e) => setApplyMessage(e.target.value)}
+                  placeholder="Tell this organization why you'd like to volunteer..."
+                  className="mt-1.5 w-full min-h-[90px] px-3 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none"
+                  rows={3}
+                />
+              </div>
+
+              {/* Checkboxes */}
+              <div>
+                <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">About You</label>
+                <div className="mt-2 space-y-2.5">
+                  {[
+                    { key: "hadSimilarWork" as const, label: "I have done similar work before" },
+                    { key: "hadWorkedWithOrg" as const, label: "I have worked with this organization before" },
+                    { key: "hadFieldExperience" as const, label: "I have experience in this field" },
+                  ].map(({ key, label }) => (
+                    <label key={key} className="flex items-center gap-3 cursor-pointer group">
+                      <Checkbox
+                        checked={applyChecks[key]}
+                        onCheckedChange={(checked) =>
+                          setApplyChecks((prev) => ({ ...prev, [key]: !!checked }))
+                        }
+                        className="rounded"
+                      />
+                      <span className="text-sm text-slate-700 group-hover:text-slate-900 transition-colors">{label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 p-6 border-t border-slate-100">
+              <Button
+                variant="outline"
+                className="flex-1 rounded-xl"
+                onClick={() => setApplyTarget(null)}
+                disabled={!!actionLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1 rounded-xl bg-gray-900 hover:bg-gray-800 text-white"
+                onClick={() => handleApply(applyTarget, {
+                  message: applyMessage.trim() || undefined,
+                  hadSimilarWork: applyChecks.hadSimilarWork || undefined,
+                  hadWorkedWithOrg: applyChecks.hadWorkedWithOrg || undefined,
+                  hadFieldExperience: applyChecks.hadFieldExperience || undefined,
+                })}
+                disabled={!!actionLoading}
+              >
+                {actionLoading === applyTarget.id ? "Submitting..." : "Submit Application"}
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
 
       <style jsx>{`

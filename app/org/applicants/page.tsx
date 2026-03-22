@@ -385,9 +385,37 @@ export default function ApplicantsPage() {
                                 <div>
                                     <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Application Message</label>
                                     <div className="mt-1.5 p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                        <p className="text-sm text-slate-700 leading-relaxed">{selectedApplicant.message}</p>
+                                        {selectedApplicant.message ? (
+                                            <p className="text-sm text-slate-700 leading-relaxed">{selectedApplicant.message}</p>
+                                        ) : (
+                                            <p className="text-sm text-slate-400 italic">No message provided</p>
+                                        )}
                                     </div>
                                 </div>
+
+                                {/* Self-reported experience */}
+                                {(selectedApplicant.hadSimilarWork || selectedApplicant.hadWorkedWithOrg || selectedApplicant.hadFieldExperience) && (
+                                    <div>
+                                        <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Self-Reported Experience</label>
+                                        <div className="flex flex-wrap gap-2 mt-1.5">
+                                            {selectedApplicant.hadSimilarWork && (
+                                                <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
+                                                    Done similar work
+                                                </span>
+                                            )}
+                                            {selectedApplicant.hadWorkedWithOrg && (
+                                                <span className="text-xs px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200 font-medium">
+                                                    Worked with org before
+                                                </span>
+                                            )}
+                                            {selectedApplicant.hadFieldExperience && (
+                                                <span className="text-xs px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 font-medium">
+                                                    Field experience
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Actions */}
