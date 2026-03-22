@@ -32,6 +32,7 @@ export interface Opportunity {
   lng?: number;
   applicationDeadline?: string;  // ISO date, e.g. "2026-02-01"
   totalHours?: number;           // Total hours across all sessions (recurring only)
+  orgId?: string;                // Auth UID of the org that owns this opportunity
 }
 
 export const ITEMS_PER_PAGE = 9; // Number of items to fetch per chunk
@@ -92,6 +93,7 @@ export async function getOpportunities(
         lat: data.lat ?? undefined,
         lng: data.lng ?? undefined,
         applicationDeadline: data.applicationDeadline ?? undefined,
+        orgId: data.orgId ?? undefined,
       } as Opportunity);
     });
 
@@ -146,6 +148,7 @@ export async function getAllOpportunities(): Promise<Opportunity[]> {
         lat: data.lat ?? undefined,
         lng: data.lng ?? undefined,
         applicationDeadline: data.applicationDeadline ?? undefined,
+        orgId: data.orgId ?? undefined,
       } as Opportunity);
     });
 

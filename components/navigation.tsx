@@ -120,7 +120,7 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
           </div>
 
           <div className="flex items-center gap-4">
-            {isAuthenticated && !isOrgView && (
+            {isAuthenticated && (
               <NotificationDropdown
                 notifications={notifications}
                 count={count}

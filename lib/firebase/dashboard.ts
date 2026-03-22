@@ -86,12 +86,12 @@ export interface UserApplication {
 export interface FirestoreNotification {
     id: string;
     recipientId: string;
-    type: "decision";
+    type: "decision" | "new_applicant";
     unread: boolean;
     message: string;
     timestamp: any;           // Firestore Timestamp
     opportunityTitle: string; // Snapshot to avoid re-querying
-    status: "approved" | "denied";
+    status?: "approved" | "denied";
 }
 
 export interface SavedOpportunity {
@@ -273,6 +273,11 @@ export async function applyToOpportunity(
 
         await setDoc(appRef, appData);
 
+        // Notify the org that a new applicant has applied
+        if (opportunity.orgId) {
+            await writeApplicantNotification(opportunity.orgId, opportunity.title);
+        }
+
         // Write feed event for application
         await writeFeedEvent("application", { opportunityTitle: opportunity.title, opportunityId: opportunity.id });
 
@@ -379,6 +384,22 @@ async function writeDecisionNotification(
     } catch (error) {
         console.error("Error writing decision notification:", error);
         // Does not rethrow — notification failure must not surface as an error to the org user
+    }
+}
+
+async function writeApplicantNotification(orgId: string, opportunityTitle: string): Promise<void> {
+    try {
+        await addDoc(collection(db, "notifications"), {
+            recipientId: orgId,
+            type: "new_applicant",
+            unread: true,
+            message: `A new applicant has applied to your opportunity: ${opportunityTitle}.`,
+            timestamp: serverTimestamp(),
+            opportunityTitle,
+        });
+    } catch (error) {
+        console.error("Error writing applicant notification:", error);
+        // Does not rethrow — notification failure must not surface as an error to the student
     }
 }
 

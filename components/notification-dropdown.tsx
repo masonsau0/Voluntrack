@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { Bell, PenLine, Calendar, Building2, Sparkles, CheckCircle, XCircle } from "lucide-react"
+import { Bell, PenLine, Calendar, Building2, Sparkles, CheckCircle, XCircle, UserPlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ReflectionModal } from "@/components/reflection-modal"
-import { NotificationItem, ReflectionDueNotification, DecisionNotification } from "@/hooks/use-notifications"
+import { NotificationItem, ReflectionDueNotification, DecisionNotification, NewApplicantNotification } from "@/hooks/use-notifications"
 
 interface NotificationDropdownProps {
   notifications: NotificationItem[]
@@ -38,11 +38,14 @@ export function NotificationDropdown({
 
   const decisionItems = notifications.filter((n): n is DecisionNotification => n.type === "decision")
   const reflectionItems = notifications.filter((n): n is ReflectionDueNotification => n.type === "reflection_due")
+  const applicantItems = notifications.filter((n): n is NewApplicantNotification => n.type === "new_applicant")
   const unreadCount = decisionItems.filter(n => n.unread).length
+  const unreadApplicantCount = applicantItems.filter(n => n.unread).length
   const reflectionCount = reflectionItems.length
 
   const subtitle = [
     unreadCount > 0 && `${unreadCount} new decision${unreadCount !== 1 ? "s" : ""}`,
+    unreadApplicantCount > 0 && `${unreadApplicantCount} new applicant${unreadApplicantCount !== 1 ? "s" : ""}`,
     reflectionCount > 0 && `${reflectionCount} reflection${reflectionCount !== 1 ? "s" : ""} due`
   ].filter(Boolean).join(" · ")
 
@@ -117,6 +120,28 @@ export function NotificationDropdown({
                           ? <CheckCircle className="w-4 h-4 text-emerald-500" />
                           : <XCircle className="w-4 h-4 text-red-500" />
                         }
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-slate-800">
+                          {notification.message}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {formatTimestamp(notification.timestamp)}
+                        </p>
+                      </div>
+                    </button>
+                  )
+                }
+
+                if (notification.type === "new_applicant") {
+                  return (
+                    <button
+                      key={notification.id}
+                      className={`w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-b-0 flex items-start gap-3 ${notification.unread ? "bg-slate-50/70" : ""}`}
+                      onClick={() => { if (notification.unread) onMarkRead(notification.notificationId) }}
+                    >
+                      <div className="w-9 h-9 rounded-full bg-violet-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <UserPlus className="w-4 h-4 text-violet-500" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-slate-800">
