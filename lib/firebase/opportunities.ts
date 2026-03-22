@@ -31,6 +31,7 @@ export interface Opportunity {
   lat?: number;
   lng?: number;
   applicationDeadline?: string;  // ISO date, e.g. "2026-02-01"
+  orgId?: string;
 }
 
 export const ITEMS_PER_PAGE = 9; // Number of items to fetch per chunk
@@ -91,6 +92,7 @@ export async function getOpportunities(
         lat: data.lat ?? undefined,
         lng: data.lng ?? undefined,
         applicationDeadline: data.applicationDeadline ?? undefined,
+        orgId: data.orgId ?? undefined,
       } as Opportunity);
     });
 
@@ -145,6 +147,7 @@ export async function getAllOpportunities(): Promise<Opportunity[]> {
         lat: data.lat ?? undefined,
         lng: data.lng ?? undefined,
         applicationDeadline: data.applicationDeadline ?? undefined,
+        orgId: data.orgId ?? undefined,
       } as Opportunity);
     });
 
