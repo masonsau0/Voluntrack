@@ -103,6 +103,39 @@ describe("validateOpportunityContent", () => {
     ).toBe(true)
   })
 
+  it("fails when content contains explicit sexual terms", () => {
+    const result = validateOpportunityContent(
+      "Adult content volunteer opportunity available now",
+      "Volunteers will help produce pornography and adult sexual content for our online platform throughout the week."
+    )
+    expect(result.valid).toBe(false)
+    expect(
+      result.errors.some((e) => e.includes("inappropriate or harmful content"))
+    ).toBe(true)
+  })
+
+  it("fails when content involves nudity", () => {
+    const result = validateOpportunityContent(
+      "Volunteer art model opportunity at our studio",
+      "We are looking for volunteers willing to pose nude and naked for our fine art photography sessions held at the downtown studio."
+    )
+    expect(result.valid).toBe(false)
+    expect(
+      result.errors.some((e) => e.includes("inappropriate or harmful content"))
+    ).toBe(true)
+  })
+
+  it("fails when content involves grooming or soliciting minors", () => {
+    const result = validateOpportunityContent(
+      "Youth outreach volunteer position open for teens",
+      "Volunteers will help groom and solicit teens and kids in the community to participate in private meetings off-site."
+    )
+    expect(result.valid).toBe(false)
+    expect(
+      result.errors.some((e) => e.includes("inappropriate or harmful content"))
+    ).toBe(true)
+  })
+
   it("fails when content describes selling drugs", () => {
     const result = validateOpportunityContent(
       "Selling drugs at the park volunteer event",

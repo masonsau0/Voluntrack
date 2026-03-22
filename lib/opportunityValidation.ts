@@ -19,6 +19,16 @@ const SAFETY_PATTERNS: RegExp[] = [
   /\b(kill|rape|molest).{0,20}(volunteer|kids?|children|students?)\b/i,
   /\b(sell|selling|deal|dealing|distribut).{0,15}(drugs?|narcotics?|weed|marijuana|meth|cocaine|heroin|fentanyl|crack|opioids?)\b/i,
   /\b(buy|buying|purchas).{0,15}(drugs?|narcotics?|weed|meth|cocaine|heroin|fentanyl)\b/i,
+  // Sexual content — no legitimate use in a volunteer listing
+  /\bporn(ography)?\b/i,
+  /\bsex(ual)?\s+(act|service|content|favor|encounter|contact)\b/i,
+  /\b(nude|naked|nudity)\b/i,
+  /\b(prostitut|escort\s+service|sex\s+work)\b/i,
+  /\b(grope|fondle|molest|assault).{0,30}(minors?|kids?|children|teens?|students?|youth)\b/i,
+  /\bchild\s*(porn|sex|exploit|abuse|lure|groom)\b/i,
+  /\b(lure|groom|solicit).{0,30}(minors?|kids?|children|teens?|youth)\b/i,
+  /\bsend\s*(me\s*)?(nude|pic|photo|image)s?\b/i,
+  /\bonly\s*fans\b/i,
 ]
 
 const INELIGIBLE_PATTERNS: { pattern: RegExp; category: string }[] = [
