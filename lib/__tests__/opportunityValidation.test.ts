@@ -80,4 +80,37 @@ describe("validateOpportunityContent", () => {
       )
     ).toBe(true)
   })
+
+  it("fails immediately when content contains a racial slur", () => {
+    const result = validateOpportunityContent(
+      "Help us build a community garden this summer",
+      "We are looking for volunteers to help plant and maintain our garden. nigger welcome to join our team and make a difference in the neighbourhood."
+    )
+    expect(result.valid).toBe(false)
+    expect(
+      result.errors.some((e) => e.includes("inappropriate or harmful content"))
+    ).toBe(true)
+  })
+
+  it("fails immediately when content contains an explicit slur in title", () => {
+    const result = validateOpportunityContent(
+      "Volunteer with us you fucking retard today",
+      "Join our wonderful team of volunteers at the local food bank. We welcome everyone who wants to contribute to the community and help those in need."
+    )
+    expect(result.valid).toBe(false)
+    expect(
+      result.errors.some((e) => e.includes("inappropriate or harmful content"))
+    ).toBe(true)
+  })
+
+  it("does not double-report safety and ineligibility errors", () => {
+    const result = validateOpportunityContent(
+      "Help us cut the fucking grass at the park today",
+      "We need volunteers to come out and cut the grass and trim hedges around the community park grounds near downtown."
+    )
+    expect(result.valid).toBe(false)
+    // Should only return the safety error, not the ineligibility error
+    expect(result.errors).toHaveLength(1)
+    expect(result.errors[0]).toContain("inappropriate or harmful content")
+  })
 })

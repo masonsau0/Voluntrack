@@ -50,8 +50,8 @@ export default function PostOpportunityPage() {
     const [showSuccess, setShowSuccess] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
+    const [orgName, setOrgName] = useState("")
     const [form, setForm] = useState({
-        organizationName: "",
         title: "",
         description: "",
         location: "",
@@ -70,6 +70,7 @@ export default function PostOpportunityPage() {
     })
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({})
+    const [contentWarning, setContentWarning] = useState<string | null>(null)
     const [locationStatus, setLocationStatus] = useState<"idle" | "loading" | "valid" | "invalid">("idle")
     const [mapPreview, setMapPreview] = useState<{ lat: number; lng: number; displayName: string; isValid: boolean } | null>(null)
 
@@ -84,7 +85,7 @@ export default function PostOpportunityPage() {
             const orgSnap = await getDoc(doc(db, "volunteer_orgs", orgId))
             if (!orgSnap.exists()) return
             const { name } = orgSnap.data()
-            if (name) setForm((prev) => ({ ...prev, organizationName: name }))
+            if (name) setOrgName(name)
         }
         fetchOrgName()
     }, [user, userProfile])
@@ -93,6 +94,9 @@ export default function PostOpportunityPage() {
         setForm((prev) => ({ ...prev, [field]: value }))
         if (errors[field]) {
             setErrors((prev) => ({ ...prev, [field]: "" }))
+        }
+        if ((field === "title" || field === "description") && contentWarning) {
+            setContentWarning(null)
         }
     }
 
@@ -192,13 +196,13 @@ export default function PostOpportunityPage() {
 
     const handleContentBlur = () => {
         const result = validateOpportunityContent(form.title, form.description)
-        if (!result.valid) {
-            const contentErrors = result.errors.filter(
-                (e) => !e.includes("Title must be") && !e.includes("Description must be")
-            )
-            if (contentErrors.length > 0) {
-                setErrors((prev) => ({ ...prev, description: contentErrors.join(" ") }))
-            }
+        const contentErrors = result.errors.filter(
+            (e) => !e.includes("Title must be") && !e.includes("Description must be")
+        )
+        if (contentErrors.length > 0) {
+            setContentWarning(contentErrors.join(" "))
+        } else {
+            setContentWarning(null)
         }
     }
 
@@ -212,8 +216,12 @@ export default function PostOpportunityPage() {
 
         // Layer 1: keyword check
         const keywordCheck = validateOpportunityContent(form.title, form.description)
-        if (!keywordCheck.valid) {
-            setErrors({ description: keywordCheck.errors.join(" ") })
+        const keywordContentErrors = keywordCheck.errors.filter(
+            (e) => !e.includes("Title must be") && !e.includes("Description must be")
+        )
+        if (keywordContentErrors.length > 0) {
+            setContentWarning(keywordContentErrors.join(" "))
+            setIsSubmitting(false)
             return
         }
 
@@ -228,9 +236,11 @@ export default function PostOpportunityPage() {
             })
             const check = await res.json()
             if (!check.valid) {
-                setErrors({
-                    description: check.reason ?? "This opportunity does not appear to be eligible.",
-                })
+                const message =
+                    check.flagType === "unsafe"
+                        ? "This opportunity contains inappropriate or harmful content and cannot be submitted."
+                        : check.reason ?? "This opportunity does not appear to be eligible."
+                setContentWarning(message)
                 setIsSubmitting(false)
                 return
             }
@@ -268,7 +278,7 @@ export default function PostOpportunityPage() {
 
             await createOpportunity(uid, {
                 title: form.title,
-                organization: form.organizationName,
+                organization: orgName,
                 description: form.description,
                 location: form.location,
                 date: displayDate,
@@ -354,16 +364,12 @@ export default function PostOpportunityPage() {
 
                         <CardContent className="p-6 sm:p-8">
                             <form onSubmit={handleSubmit} className="space-y-6">
-                                {/* Organization Name */}
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-semibold text-slate-700">
-                                        Organization Name
-                                    </Label>
-                                    <div className="flex items-center h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700">
-                                        {form.organizationName || <span className="text-slate-400">Loading...</span>}
+                                {contentWarning && (
+                                    <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                                        <span className="mt-0.5 shrink-0">⚠️</span>
+                                        <span>{contentWarning}</span>
                                     </div>
-                                </div>
-
+                                )}
                                 {/* Opportunity Title */}
                                 <div className="space-y-2">
                                     <Label htmlFor="title" className="text-sm font-semibold text-slate-700">
@@ -375,7 +381,7 @@ export default function PostOpportunityPage() {
                                         value={form.title}
                                         onChange={(e) => updateField("title", e.target.value)}
                                         onBlur={handleContentBlur}
-                                        className={`bg-sky-50/50 border-sky-200 rounded-xl h-11 ${errors.title ? "border-red-400 bg-red-50" : ""}`}
+                                        className={`bg-sky-50/50 border-sky-200 rounded-xl h-11 ${errors.title || contentWarning ? "border-red-400 bg-red-50" : ""}`}
                                     />
                                     {errors.title && <p className="text-xs text-red-500">{errors.title}</p>}
                                 </div>
@@ -392,7 +398,7 @@ export default function PostOpportunityPage() {
                                         onChange={(e) => updateField("description", e.target.value)}
                                         onBlur={handleContentBlur}
                                         rows={4}
-                                        className={`w-full rounded-xl border bg-sky-50/50 border-sky-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 resize-none ${errors.description ? "border-red-400 bg-red-50" : ""}`}
+                                        className={`w-full rounded-xl border bg-sky-50/50 border-sky-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 resize-none ${errors.description || contentWarning ? "border-red-400 bg-red-50" : ""}`}
                                     />
                                     {errors.description && <p className="text-xs text-red-500">{errors.description}</p>}
                                 </div>

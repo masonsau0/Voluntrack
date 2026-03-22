@@ -76,6 +76,11 @@ export interface UserApplication {
     orgContactName?: string;
     orgContactEmail?: string;
     orgContactPhone?: string;
+    // Application form data (submitted by student at apply time)
+    message?: string;
+    hadSimilarWork?: boolean;
+    hadWorkedWithOrg?: boolean;
+    hadFieldExperience?: boolean;
 }
 
 export interface FirestoreNotification {
@@ -224,7 +229,11 @@ export async function isOpportunitySaved(userId: string, opportunityId: string):
 /**
  * Apply to an opportunity
  */
-export async function applyToOpportunity(userId: string, opportunity: Opportunity): Promise<void> {
+export async function applyToOpportunity(
+    userId: string,
+    opportunity: Opportunity,
+    applicationData?: { message?: string; hadSimilarWork?: boolean; hadWorkedWithOrg?: boolean; hadFieldExperience?: boolean }
+): Promise<void> {
     try {
         const appRef = doc(db, "user_applications", `${userId}_${opportunity.id}`);
         const appDoc = await getDoc(appRef);
@@ -255,7 +264,11 @@ export async function applyToOpportunity(userId: string, opportunity: Opportunit
             commitment: opportunity.commitment,
             spotsLeft: opportunity.spotsLeft,
             totalSpots: opportunity.totalSpots,
-            updatedAt: serverTimestamp()
+            updatedAt: serverTimestamp(),
+            ...(applicationData?.message ? { message: applicationData.message } : {}),
+            ...(applicationData?.hadSimilarWork ? { hadSimilarWork: true } : {}),
+            ...(applicationData?.hadWorkedWithOrg ? { hadWorkedWithOrg: true } : {}),
+            ...(applicationData?.hadFieldExperience ? { hadFieldExperience: true } : {}),
         };
 
         await setDoc(appRef, appData);
