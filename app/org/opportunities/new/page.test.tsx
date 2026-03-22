@@ -123,7 +123,7 @@ describe("PostOpportunityPage", () => {
         await user.type(screen.getByLabelText(/description/i), "This is a long enough description that explains the volunteer opportunity in sufficient detail.");
         await user.type(screen.getByLabelText(/location/i), "123 King St W, Toronto, ON");
         await user.type(screen.getByLabelText(/number of openings/i), opts.openings ?? "20");
-        await user.type(screen.getByLabelText(/start date/i), "2026-04-01");
+        await user.type(screen.getByLabelText(/^date$/i), "2026-04-01");
         await user.type(screen.getByLabelText(/start time/i), opts.startTime ?? "09:00");
         await user.type(screen.getByLabelText(/end time/i), opts.endTime ?? "12:00");
         await user.type(screen.getByLabelText(/contact name/i), "Jane Doe");
@@ -195,7 +195,7 @@ describe("PostOpportunityPage", () => {
         await user.type(screen.getByLabelText(/description/i), "This is a long enough description that explains the volunteer opportunity in sufficient detail.");
         await user.type(screen.getByLabelText(/location/i), "123 King St W, Toronto, ON");
         // deliberately skip numberOfOpenings
-        await user.type(screen.getByLabelText(/start date/i), "2026-04-01");
+        await user.type(screen.getByLabelText(/^date$/i), "2026-04-01");
         await user.type(screen.getByLabelText(/start time/i), "09:00");
         await user.type(screen.getByLabelText(/end time/i), "12:00");
         await user.type(screen.getByLabelText(/contact name/i), "Jane Doe");

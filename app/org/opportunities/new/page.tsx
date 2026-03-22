@@ -24,6 +24,8 @@ import {
     Phone,
     CheckCircle,
     X,
+    Repeat,
+    CalendarDays,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -56,12 +58,14 @@ export default function PostOpportunityPage() {
         description: "",
         location: "",
         numberOfOpenings: "",
+        commitment: "One-time" as "One-time" | "Weekly" | "Monthly",
         startDate: "",
         endDate: "",
         startTime: "",
         endTime: "",
         applicationDeadline: "",
         volunteerHours: "",
+        totalVolunteerHours: "",
         category: "",
         requirements: [] as string[],
         contactName: "",
@@ -130,6 +134,24 @@ export default function PostOpportunityPage() {
         setErrors((prev) => ({ ...prev, volunteerHours: "" }))
     }, [form.startTime, form.endTime])
 
+    // Auto-calculate total volunteer hours for recurring opportunities
+    useEffect(() => {
+        if (form.commitment === "One-time") {
+            setForm((prev) => ({ ...prev, totalVolunteerHours: "" }))
+            return
+        }
+        if (!form.volunteerHours || !form.startDate || !form.endDate) return
+        const start = new Date(form.startDate)
+        const end = new Date(form.endDate)
+        if (isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) return
+        const diffDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+        const sessionCount = form.commitment === "Weekly"
+            ? Math.floor(diffDays / 7) + 1
+            : Math.floor(diffDays / 30) + 1
+        const total = Math.round(sessionCount * Number(form.volunteerHours) * 2) / 2
+        setForm((prev) => ({ ...prev, totalVolunteerHours: String(total) }))
+    }, [form.commitment, form.volunteerHours, form.startDate, form.endDate])
+
     useEffect(() => {
         if (form.location.trim().length < 5) {
             setMapPreview(null)
@@ -167,6 +189,8 @@ export default function PostOpportunityPage() {
         return () => clearTimeout(timer)
     }, [form.location])
 
+    const isRecurring = form.commitment !== "One-time"
+
     const validate = () => {
         const newErrors: { [key: string]: string } = {}
         if (!form.title) newErrors.title = "Required"
@@ -174,6 +198,10 @@ export default function PostOpportunityPage() {
         if (!form.location) newErrors.location = "Required"
         if (!form.numberOfOpenings || Number(form.numberOfOpenings) < 1) newErrors.numberOfOpenings = "Required"
         if (!form.startDate) newErrors.startDate = "Required"
+        if (isRecurring && !form.endDate) newErrors.endDate = "Required for recurring opportunities"
+        if (isRecurring && form.startDate && form.endDate && form.endDate <= form.startDate) {
+            newErrors.endDate = "End date must be after start date"
+        }
         if (!form.startTime) newErrors.startTime = "Required"
         if (!form.endTime) newErrors.endTime = "Required"
         if (!form.category) newErrors.category = "Required"
@@ -285,10 +313,11 @@ export default function PostOpportunityPage() {
                 dateISO: form.startDate,
                 time: `${form.startTime} - ${form.endTime}`,
                 hours: Number(form.volunteerHours) || 0,
+                ...(form.commitment !== "One-time" && form.totalVolunteerHours && { totalHours: Number(form.totalVolunteerHours) }),
                 spotsLeft: Number(form.numberOfOpenings),
                 totalSpots: Number(form.numberOfOpenings),
                 category: form.category,
-                commitment: "One-time",
+                commitment: form.commitment,
                 skills: form.requirements,
                 featured: false,
                 image: "/event-park-cleanup.png",
@@ -459,11 +488,102 @@ export default function PostOpportunityPage() {
                                     {errors.numberOfOpenings && <p className="text-xs text-red-500">{errors.numberOfOpenings}</p>}
                                 </div>
 
+                                {/* Commitment Type Toggle */}
+                                <div className="space-y-3">
+                                    <Label className="text-sm font-semibold text-slate-700">
+                                        Experience Type
+                                    </Label>
+                                    <div className="flex gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setForm(prev => ({ ...prev, commitment: "One-time", endDate: "" }))
+                                                setErrors(prev => ({ ...prev, endDate: "" }))
+                                            }}
+                                            className={`flex-1 flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl border-2 text-sm font-semibold transition-all duration-200 ${
+                                                !isRecurring
+                                                    ? "bg-sky-50 border-sky-400 text-sky-700 shadow-sm ring-1 ring-sky-200"
+                                                    : "bg-white border-slate-200 text-slate-600 hover:border-sky-200 hover:bg-sky-50/50"
+                                            }`}
+                                        >
+                                            <CalendarDays className="w-4.5 h-4.5" />
+                                            One-Time
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setForm(prev => ({ ...prev, commitment: "Weekly" }))}
+                                            className={`flex-1 flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl border-2 text-sm font-semibold transition-all duration-200 ${
+                                                isRecurring
+                                                    ? "bg-indigo-50 border-indigo-400 text-indigo-700 shadow-sm ring-1 ring-indigo-200"
+                                                    : "bg-white border-slate-200 text-slate-600 hover:border-indigo-200 hover:bg-indigo-50/50"
+                                            }`}
+                                        >
+                                            <Repeat className="w-4.5 h-4.5" />
+                                            Recurring
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Recurring Frequency Selector */}
+                                {isRecurring && (
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-semibold text-slate-700">
+                                            Frequency
+                                        </Label>
+                                        <div className="flex gap-2">
+                                            {(["Weekly", "Monthly"] as const).map((freq) => (
+                                                <button
+                                                    key={freq}
+                                                    type="button"
+                                                    onClick={() => setForm(prev => ({ ...prev, commitment: freq }))}
+                                                    className={`px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200 ${
+                                                        form.commitment === freq
+                                                            ? "bg-indigo-100 border-indigo-400 text-indigo-700 shadow-sm"
+                                                            : "bg-white border-slate-200 text-slate-600 hover:border-indigo-300 hover:bg-indigo-50"
+                                                    }`}
+                                                >
+                                                    {form.commitment === freq && <span className="mr-1">✓</span>}
+                                                    {freq}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Date Fields */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {isRecurring ? (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="start-date" className="text-sm font-semibold text-slate-700">
+                                                Start Date
+                                            </Label>
+                                            <Input
+                                                id="start-date"
+                                                type="date"
+                                                value={form.startDate}
+                                                onChange={(e) => updateField("startDate", e.target.value)}
+                                                className={`bg-sky-50/50 border-sky-200 rounded-xl h-11 ${errors.startDate ? "border-red-400 bg-red-50" : ""}`}
+                                            />
+                                            {errors.startDate && <p className="text-xs text-red-500">{errors.startDate}</p>}
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="end-date" className="text-sm font-semibold text-slate-700">
+                                                End Date
+                                            </Label>
+                                            <Input
+                                                id="end-date"
+                                                type="date"
+                                                value={form.endDate}
+                                                onChange={(e) => updateField("endDate", e.target.value)}
+                                                className={`bg-sky-50/50 border-sky-200 rounded-xl h-11 ${errors.endDate ? "border-red-400 bg-red-50" : ""}`}
+                                            />
+                                            {errors.endDate && <p className="text-xs text-red-500">{errors.endDate}</p>}
+                                        </div>
+                                    </div>
+                                ) : (
                                     <div className="space-y-2">
                                         <Label htmlFor="start-date" className="text-sm font-semibold text-slate-700">
-                                            Start Date
+                                            Date
                                         </Label>
                                         <Input
                                             id="start-date"
@@ -474,19 +594,7 @@ export default function PostOpportunityPage() {
                                         />
                                         {errors.startDate && <p className="text-xs text-red-500">{errors.startDate}</p>}
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="end-date" className="text-sm font-semibold text-slate-700">
-                                            End Date
-                                        </Label>
-                                        <Input
-                                            id="end-date"
-                                            type="date"
-                                            value={form.endDate}
-                                            onChange={(e) => updateField("endDate", e.target.value)}
-                                            className="bg-sky-50/50 border-sky-200 rounded-xl h-11"
-                                        />
-                                    </div>
-                                </div>
+                                )}
 
                                 {/* Time Fields */}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -519,7 +627,7 @@ export default function PostOpportunityPage() {
                                 </div>
 
                                 {/* Deadline & Hours */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className={`grid grid-cols-1 ${isRecurring ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-4`}>
                                     <div className="space-y-2">
                                         <Label htmlFor="deadline" className="text-sm font-semibold text-slate-700">
                                             Application Deadline
@@ -534,7 +642,7 @@ export default function PostOpportunityPage() {
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="hours" className="text-sm font-semibold text-slate-700">
-                                            Volunteer Hours
+                                            {isRecurring ? "Hours Per Session" : "Volunteer Hours"}
                                         </Label>
                                         <Input
                                             id="hours"
@@ -548,6 +656,28 @@ export default function PostOpportunityPage() {
                                         />
                                         {errors.volunteerHours && <p className="text-xs text-red-500">{errors.volunteerHours}</p>}
                                     </div>
+                                    {isRecurring && (
+                                        <div className="space-y-2">
+                                            <Label htmlFor="total-hours" className="text-sm font-semibold text-slate-700">
+                                                Total Volunteer Hours
+                                            </Label>
+                                            <Input
+                                                id="total-hours"
+                                                type="number"
+                                                min="0"
+                                                step="0.5"
+                                                placeholder="Auto-calculated"
+                                                value={form.totalVolunteerHours}
+                                                onChange={(e) => updateField("totalVolunteerHours", e.target.value)}
+                                                className="bg-sky-50/50 border-sky-200 rounded-xl h-11"
+                                            />
+                                            {form.volunteerHours && form.startDate && form.endDate && form.totalVolunteerHours && (
+                                                <p className="text-xs text-slate-500">
+                                                    ≈ {Math.round(Number(form.totalVolunteerHours) / Number(form.volunteerHours))} sessions × {form.volunteerHours} hrs
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Category & Requirements */}
