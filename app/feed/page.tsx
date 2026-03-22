@@ -32,7 +32,7 @@ import {
   MapPin,
   Clock,
   Trophy,
-  Activity as ActivityIcon,
+  HandHelping,
   Star,
   Sparkles,
   ArrowRight,
@@ -427,11 +427,11 @@ export default function FeedPage() {
         </div>
 
         {/* 3-COLUMN CONTENT SECTION */}
-        <div className="max-w-none px-12 md:px-20 py-16">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+        <div className="max-w-none px-6 md:px-12 lg:px-16 py-16">
+          <div className="grid grid-cols-1 gap-16">
             
-            {/* COLUMN 1: FEATURED OPPORTUNITIES (Wide - 5/12) */}
-            <div className="lg:col-span-5">
+            {/* COLUMN 1: FEATURED OPPORTUNITIES */}
+            <div>
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h2 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
@@ -449,13 +449,8 @@ export default function FeedPage() {
               </div>
             </div>
 
-            {/* VERTICAL DIVIDER */}
-            <div className="hidden lg:block lg:col-span-1 justify-self-center">
-              <div className="w-px h-full bg-slate-200" />
-            </div>
-
-            {/* COLUMN 2: ACCOMPLISHMENTS (Narrow - 3/12) */}
-            <div className="lg:col-span-3">
+            {/* COLUMN 2: ACCOMPLISHMENTS */}
+            <div>
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-100 border border-emerald-400">
                   <Trophy className="w-5 h-5" />
@@ -469,18 +464,18 @@ export default function FeedPage() {
               <div className="space-y-4">
                 {accomplishments.length > 0 ? (
                   accomplishments.slice(0, 10).map((event, idx) => (
-                    <div key={idx} className="group h-[88px] p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-100 transition-all duration-300 overflow-hidden">
+                    <div key={idx} className="group min-h-[88px] py-4 px-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-100 transition-all duration-300">
                       <div className="flex gap-4">
-                        <div className="mt-1 w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors shrink-0">
+                        <div className="mt-1 w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-500 group-hover:bg-amber-100 group-hover:text-amber-600 transition-colors shrink-0">
                           <Trophy className="w-5 h-5" />
                         </div>
                         <div className="flex-1">
-                          <p className="text-[13px] text-slate-900 font-bold group-hover:text-emerald-600 transition-colors leading-snug line-clamp-2">
-                            <span className="text-slate-400 font-medium italic">A community member earned </span>
+                          <p className="text-[15px] text-slate-900 font-bold group-hover:text-emerald-600 transition-colors leading-snug line-clamp-2">
+                            <span className="text-slate-500 font-medium italic">A community member earned </span>
                             <span className="inline-block font-black text-slate-900">{event.badgeName ?? event.badgeId}</span>
                           </p>
-                          <p className="text-[10px] text-slate-400 mt-2 flex items-center gap-1.5 font-bold uppercase tracking-widest">
-                            <Clock className="w-3.5 h-3.5" />
+                          <p className="text-xs text-slate-500 mt-2 flex items-center gap-1.5 font-semibold uppercase tracking-widest">
+                            <Clock className="w-4 h-4" />
                             {relativeTime(event)}
                           </p>
                         </div>
@@ -495,11 +490,11 @@ export default function FeedPage() {
               </div>
             </div>
 
-            {/* COLUMN 3: ACTIVITY FEED (Narrow - 2.5/12) */}
-            <div className="lg:col-span-3">
+            {/* COLUMN 3: ACTIVITY FEED */}
+            <div>
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-10 h-10 rounded-2xl bg-indigo-500 flex items-center justify-center text-white shadow-lg shadow-indigo-100 border border-indigo-400">
-                  <ActivityIcon className="w-5 h-5" />
+                  <HandHelping className="w-5 h-5" />
                 </div>
                 <div>
                   <h2 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] leading-none mb-1">Activity Feed</h2>
@@ -508,36 +503,40 @@ export default function FeedPage() {
               </div>
 
               <div className="space-y-4">
-                {activity.slice(0, 10).map((item, idx) => (
+                {activity.slice(0, 10).map((item, idx) => {
+                  const opp = allOpportunities.find(o => o.id === item.opportunityId)
+                  const imgSrc = opp?.image || "/icon.svg"
+                  return (
                   <button
                     key={idx}
-                    className="w-full text-left group h-[88px] p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-indigo-100 transition-all duration-300 overflow-hidden"
+                    className="w-full text-left group min-h-[96px] py-5 px-5 bg-white rounded-2xl border border-slate-100 shadow-md hover:shadow-xl hover:border-indigo-100 transition-all duration-300 overflow-hidden"
                     onClick={() => {
-                      const opp = allOpportunities.find(o => o.id === item.opportunityId)
                       if (opp) setSelectedOpportunity(opp)
                     }}
                   >
-                    <div className="flex gap-4">
-                      <div className="mt-1 w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-colors shrink-0">
-                        {item.type === "application" ? (
-                          <Bookmark className="w-5 h-5" />
-                        ) : (
-                          <CheckCircle2 className="w-5 h-5" />
-                        )}
+                    <div className="flex gap-4 items-center">
+                      <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-slate-100 shrink-0 flex-shrink-0">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={imgSrc}
+                          alt={item.opportunityTitle}
+                          className="w-full h-full object-cover"
+                          onError={(e) => { e.currentTarget.src = "/icon.svg" }}
+                        />
                       </div>
-                      <div className="flex-1">
-                        <p className="text-[13px] text-slate-900 font-bold transition-colors leading-snug line-clamp-2">
-                          <span className="text-slate-400 font-medium italic">A student </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[15px] text-slate-900 font-bold transition-colors leading-snug line-clamp-2">
+                          <span className="text-slate-500 font-medium italic">A student </span>
                           {item.type === 'completion' ? 'finished' : 'applied for'} <span className="inline-block font-black text-slate-900">{item.opportunityTitle}</span>
                         </p>
-                        <p className="text-[10px] text-slate-400 mt-2 flex items-center gap-1.5 font-bold uppercase tracking-widest">
-                          <Clock className="w-3.5 h-3.5" />
+                        <p className="text-xs text-slate-500 mt-2 flex items-center gap-1.5 font-semibold uppercase tracking-widest">
+                          <Clock className="w-4 h-4 shrink-0" />
                           {relativeTime(item)}
                         </p>
                       </div>
                     </div>
                   </button>
-                ))}
+                )})}
 
                 {activity.length === 0 && (
                   <div className="py-12 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200">

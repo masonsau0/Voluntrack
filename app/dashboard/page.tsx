@@ -286,7 +286,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
       <Navigation />
 
       <main className="flex-1 pt-20">
