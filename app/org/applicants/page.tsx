@@ -74,6 +74,7 @@ export default function ApplicantsPage() {
     const totalApplicants = applicants.length
     const pendingCount = applicants.filter(a => a.status === "pending").length
     const approvedCount = applicants.filter(a => a.status === "approved").length
+    const completedCount = applicants.filter(a => a.status === "completed").length
     const declinedCount = applicants.filter(a => a.status === "denied").length
 
     // Filtered applicants
@@ -147,23 +148,29 @@ export default function ApplicantsPage() {
                 <div className="max-w-7xl mx-auto">
 
                     {/* Stats Row */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
                         <Card className="bg-white border-0 shadow-md">
                             <CardContent className="p-4 text-center">
                                 <p className="text-2xl font-bold text-slate-900">{totalApplicants}</p>
-                                <p className="text-xs text-slate-500 mt-0.5">Total Applicants</p>
+                                <p className="text-xs text-slate-500 mt-0.5">Total</p>
                             </CardContent>
                         </Card>
-                        <Card className="bg-amber-50 border border-amber-200 shadow-sm">
+                        <Card className="bg-teal-50 border border-teal-200 shadow-sm">
                             <CardContent className="p-4 text-center">
-                                <p className="text-2xl font-bold text-amber-700">{pendingCount}</p>
-                                <p className="text-xs text-amber-600 mt-0.5">Pending Review</p>
+                                <p className="text-2xl font-bold text-teal-700">{completedCount}</p>
+                                <p className="text-xs text-teal-600 mt-0.5">Completed</p>
                             </CardContent>
                         </Card>
                         <Card className="bg-emerald-50 border border-emerald-200 shadow-sm">
                             <CardContent className="p-4 text-center">
                                 <p className="text-2xl font-bold text-emerald-700">{approvedCount}</p>
                                 <p className="text-xs text-emerald-600 mt-0.5">Approved</p>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-amber-50 border border-amber-200 shadow-sm">
+                            <CardContent className="p-4 text-center">
+                                <p className="text-2xl font-bold text-amber-700">{pendingCount}</p>
+                                <p className="text-xs text-amber-600 mt-0.5">Pending</p>
                             </CardContent>
                         </Card>
                         <Card className="bg-red-50 border border-red-200 shadow-sm">
@@ -182,17 +189,18 @@ export default function ApplicantsPage() {
                                 placeholder="Search applicants by name, email, or opportunity..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 bg-white border-slate-200 rounded-xl h-11"
+                                className="pl-10 bg-white border-slate-200 rounded-full h-11"
                             />
                         </div>
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="h-11 rounded-xl border border-slate-200 px-4 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                            className="h-11 rounded-full border border-slate-200 px-4 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                         >
                             <option value="all">All Status</option>
                             <option value="pending">Pending</option>
                             <option value="approved">Approved</option>
+                            <option value="completed">Completed</option>
                             <option value="denied">Declined</option>
                         </select>
                     </div>
@@ -263,7 +271,7 @@ export default function ApplicantsPage() {
                                                             <>
                                                                 <Button
                                                                     size="sm"
-                                                                    className="rounded-lg h-8 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
+                                                                    className="rounded-full h-8 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
                                                                     onClick={(e) => { e.stopPropagation(); openDecision(applicant, "approved") }}
                                                                 >
                                                                     <CheckCircle className="w-3.5 h-3.5 mr-1" />
@@ -272,7 +280,7 @@ export default function ApplicantsPage() {
                                                                 <Button
                                                                     size="sm"
                                                                     variant="outline"
-                                                                    className="rounded-lg h-8 px-3 border-red-300 text-red-700 hover:bg-red-100 hover:text-red-900 hover:border-red-400 text-xs transition-colors"
+                                                                    className="rounded-full h-8 px-3 border-red-300 text-red-700 hover:bg-red-100 hover:text-red-900 hover:border-red-400 text-xs transition-colors"
                                                                     onClick={(e) => { e.stopPropagation(); openDecision(applicant, "denied") }}
                                                                 >
                                                                     <XCircle className="w-3.5 h-3.5 mr-1" />
@@ -283,7 +291,7 @@ export default function ApplicantsPage() {
                                                         <Button
                                                             size="sm"
                                                             variant="outline"
-                                                            className="rounded-lg h-8 px-3 border-slate-200 text-slate-600 hover:bg-slate-200 hover:text-slate-900 hover:border-slate-300 text-xs transition-colors"
+                                                            className="rounded-full h-8 px-3 border-slate-200 text-slate-600 hover:bg-slate-200 hover:text-slate-900 hover:border-slate-300 text-xs transition-colors"
                                                             onClick={(e) => { e.stopPropagation(); setSelectedApplicant(applicant) }}
                                                         >
                                                             <Eye className="w-3.5 h-3.5 mr-1" />
@@ -307,11 +315,11 @@ export default function ApplicantsPage() {
                 const StatusIcon = status.icon
                 return (
                     <div
-                        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+                        className="fixed inset-0 z-[110] bg-black/50 backdrop-blur-sm flex items-start justify-center p-4 pt-24"
                         onClick={() => setSelectedApplicant(null)}
                     >
                         <div
-                            className="bg-white rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+                            className="bg-white rounded-2xl max-w-lg w-full max-h-[calc(100vh-160px)] overflow-y-auto shadow-2xl"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Header */}
@@ -422,7 +430,7 @@ export default function ApplicantsPage() {
                             {selectedApplicant.status === "pending" && (
                                 <div className="flex items-center gap-3 p-6 border-t border-slate-100">
                                     <Button
-                                        className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl"
+                                        className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full"
                                         onClick={() => openDecision(selectedApplicant, "approved")}
                                     >
                                         <CheckCircle className="w-4 h-4 mr-2" />
@@ -430,7 +438,7 @@ export default function ApplicantsPage() {
                                     </Button>
                                     <Button
                                         variant="outline"
-                                        className="flex-1 rounded-xl border-red-300 text-red-700 hover:bg-red-100 hover:text-red-900 hover:border-red-400 transition-colors"
+                                        className="flex-1 rounded-full border-red-300 text-red-700 hover:bg-red-100 hover:text-red-900 hover:border-red-400 transition-colors"
                                         onClick={() => openDecision(selectedApplicant, "denied")}
                                     >
                                         <XCircle className="w-4 h-4 mr-2" />
@@ -445,9 +453,12 @@ export default function ApplicantsPage() {
 
             {/* Decision Dialog */}
             {decisionPending && (
-                <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+                <div className="fixed inset-0 z-[120] bg-black/50 backdrop-blur-sm flex items-start justify-center p-4 pt-24"
                      onClick={() => !submitting && setDecisionPending(null)}>
-                    <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+                    <div 
+                        className="bg-white rounded-2xl max-w-md w-full max-h-[calc(100vh-160px)] overflow-y-auto shadow-2xl" 
+                        onClick={e => e.stopPropagation()}
+                    >
                         {/* Header */}
                         <div className="flex items-center justify-between p-6 border-b border-slate-100">
                             <h2 className="text-lg font-bold text-slate-900">
@@ -484,27 +495,27 @@ export default function ApplicantsPage() {
                                     </p>
                                     <input value={contactName} onChange={e => setContactName(e.target.value)}
                                         placeholder="Coordinator name"
-                                        className="w-full h-10 px-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500" />
+                                        className="w-full h-10 px-3 text-sm rounded-full border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500" />
                                     <input value={contactEmail} onChange={e => setContactEmail(e.target.value)}
                                         placeholder="Coordinator email"
                                         type="email"
-                                        className="w-full h-10 px-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500" />
+                                        className="w-full h-10 px-3 text-sm rounded-full border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500" />
                                     <input value={contactPhone} onChange={e => setContactPhone(e.target.value)}
                                         placeholder="Phone number (optional)"
                                         type="tel"
-                                        className="w-full h-10 px-3 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500" />
+                                        className="w-full h-10 px-3 text-sm rounded-full border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500" />
                                 </div>
                             )}
                         </div>
 
                         {/* Actions */}
                         <div className="flex gap-3 p-6 border-t border-slate-100">
-                            <Button variant="outline" className="flex-1 rounded-xl"
+                            <Button variant="outline" className="flex-1 rounded-full"
                                     onClick={() => setDecisionPending(null)} disabled={submitting}>
                                 Cancel
                             </Button>
                             <Button
-                                className={`flex-1 rounded-xl text-white ${decisionPending.intent === "approved" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-red-600 hover:bg-red-700"}`}
+                                className={`flex-1 rounded-full text-white ${decisionPending.intent === "approved" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-red-600 hover:bg-red-700"}`}
                                 onClick={confirmDecision} disabled={submitting}>
                                 {submitting ? "Saving..." : decisionPending.intent === "approved" ? "Confirm Approval" : "Confirm Decline"}
                             </Button>
