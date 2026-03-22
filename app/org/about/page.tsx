@@ -1,13 +1,21 @@
 "use client"
 
+import { useState, useEffect, useRef } from "react"
 import { Navigation } from "@/components/navigation"
 import { Search, ClipboardCheck, Users, Zap, Heart, GraduationCap, ChevronDown, Sparkles, Building2, BookOpen } from "lucide-react"
 import { motion, useScroll, useTransform, Variants } from "framer-motion"
-import { useRef } from "react"
 import Image from "next/image"
 
 export default function OrgAboutPage() {
   const containerRef = useRef(null)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 100)
+    window.addEventListener("scroll", handleScroll)
+    handleScroll()
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -34,7 +42,7 @@ export default function OrgAboutPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col overflow-hidden" ref={containerRef}>
-      <Navigation />
+      <Navigation forceWhite={scrolled} />
 
       <main className="flex-1">
         {/* Dynamic Hero Section */}
@@ -265,8 +273,8 @@ export default function OrgAboutPage() {
                 icon: Users, 
                 title: "Connected Community", 
                 desc: "A collaborative interface designed to bridge communication gaps between students, schools, and partners in real-time.",
-                color: "bg-rose-100 text-rose-600",
-                shadow: "shadow-rose-200/50"
+                color: "bg-blue-100 text-blue-600",
+                shadow: "shadow-blue-200/50"
               },
               { 
                 icon: Zap, 

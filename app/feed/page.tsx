@@ -223,8 +223,16 @@ export default function FeedPage() {
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set())
   const [reportTarget, setReportTarget] = useState<Opportunity | null>(null)
+  const [scrolled, setScrolled] = useState(false)
 
   const uid = userProfile?.uid
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 100)
+    window.addEventListener("scroll", handleScroll)
+    handleScroll()
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   useEffect(() => {
     async function load() {
@@ -377,7 +385,7 @@ export default function FeedPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
-      <Navigation />
+      <Navigation forceWhite={scrolled} />
 
       <main className="flex-1 pb-20">
         {/* HERO MAP SECTION */}
