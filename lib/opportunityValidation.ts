@@ -17,6 +17,8 @@ const SAFETY_PATTERNS: RegExp[] = [
   /\bkike\b/i,
   /\bretard/i,
   /\b(kill|rape|molest).{0,20}(volunteer|kids?|children|students?)\b/i,
+  /\b(sell|selling|deal|dealing|distribut).{0,15}(drugs?|narcotics?|weed|marijuana|meth|cocaine|heroin|fentanyl|crack|opioids?)\b/i,
+  /\b(buy|buying|purchas).{0,15}(drugs?|narcotics?|weed|meth|cocaine|heroin|fentanyl)\b/i,
 ]
 
 const INELIGIBLE_PATTERNS: { pattern: RegExp; category: string }[] = [
