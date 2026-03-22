@@ -158,6 +158,24 @@ describe("validateOpportunityContent", () => {
     ).toBe(true)
   })
 
+  it("fails on 'money laundering'", () => {
+    const result = validateOpportunityContent(
+      "Money laundering volunteer opportunity downtown",
+      "Join our team of volunteers helping with money laundering operations at the financial district. Great way to earn community service hours this semester."
+    )
+    expect(result.valid).toBe(false)
+    expect(result.errors.some((e) => e.includes("inappropriate or harmful content"))).toBe(true)
+  })
+
+  it("fails on 'scamming old people for money'", () => {
+    const result = validateOpportunityContent(
+      "Community outreach volunteer event this weekend",
+      "Volunteers will be scamming old people for money at the community centre. Fun and rewarding experience for all participants who want to help out."
+    )
+    expect(result.valid).toBe(false)
+    expect(result.errors.some((e) => e.includes("inappropriate or harmful content"))).toBe(true)
+  })
+
   it("fails when content describes selling drugs", () => {
     const result = validateOpportunityContent(
       "Selling drugs at the park volunteer event",

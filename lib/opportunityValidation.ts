@@ -44,6 +44,15 @@ const BLOCKED_WORDS: string[] = [
   // Drugs — illegal substances have no legitimate place in a volunteer listing
   "cocaine", "heroin", "meth", "methamphetamine", "fentanyl",
   "crack", "narcotics", "drugs", "weed", "marijuana",
+
+  // Financial crimes — these words describe criminal acts, not volunteer work
+  "laundering",   // money laundering
+  "extortion", "extorting",
+  "blackmail", "blackmailing",
+  "bribery", "bribing",
+  "embezzlement", "embezzling",
+  "racketeering",
+  "trafficking",  // covers human trafficking, drug trafficking
 ]
 
 // ─── Blocked patterns ─────────────────────────────────────────────────────────
@@ -86,6 +95,13 @@ const BLOCKED_PATTERNS: RegExp[] = [
   // Drug activity (catches "selling weed", "buy cocaine", etc.
   // even if the substance name somehow evaded the word list)
   /\b(sell|deal|distribut|buy|purchas).{0,20}(drugs?|narcotics?|weed|marijuana|cocaine|heroin|meth|fentanyl|crack)\b/i,
+
+  // Financial crimes and scams — contextual patterns to avoid blocking
+  // legitimate "fraud prevention" or "anti-scam" volunteer programs
+  /\bmoney\s+launder/i,
+  /\b(scamm?(ing|ed)|swindl(ing|ed)|defraud(ing|ed)|steal(ing)?|rob(bing)?).{0,40}(people|seniors?|elderly|old\s+people|victims?|person|kids?|children|anyone|women|men)\b/i,
+  /\bscamm?(ing|er)s?\b/i,   // "scamming", "scammer" — the act itself, not awareness about it
+  /\b(steal|rob|mug|burglariz).{0,20}(people|person|seniors?|elderly|kids?|children|homes?|houses?)\b/i,
 ]
 
 // ─── Ineligible activity patterns ─────────────────────────────────────────────
