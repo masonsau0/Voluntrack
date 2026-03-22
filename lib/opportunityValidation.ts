@@ -3,67 +3,92 @@ export interface ValidationResult {
   errors: string[]
 }
 
-// Conservative safety patterns — only terms with no legitimate use in a volunteer listing.
-// The LLM layer handles nuanced cases; this catches obvious submissions instantly.
-// Patterns use prefix matching (no trailing boundary) to catch inflected forms.
-const SAFETY_PATTERNS: RegExp[] = [
-  /\bfuck/i,
-  /\bshit/i,
-  /\bn+i+g+g+[ae]+r/i,
-  /\bf+a+g+g+o+t/i,
-  /\bcunt\b/i,
-  /\bchink\b/i,
-  /\bspic\b/i,
-  /\bkike\b/i,
-  /\bretard/i,
-  /\b(kill|rape|molest).{0,20}(volunteer|kids?|children|students?)\b/i,
-  /\b(sell|selling|deal|dealing|distribut).{0,15}(drugs?|narcotics?|weed|marijuana|meth|cocaine|heroin|fentanyl|crack|opioids?)\b/i,
-  /\b(buy|buying|purchas).{0,15}(drugs?|narcotics?|weed|meth|cocaine|heroin|fentanyl)\b/i,
+// ─── Blocked word list ────────────────────────────────────────────────────────
+// Each entry is matched as a whole word (\b boundary on both sides).
+// If ANY of these appear in the title or description the submission is rejected
+// immediately — before the LLM call. Add new terms here; no regex required.
 
-  // Sexual acts and solicitation phrases
-  /\bhave\s+sex\b/i,
-  /\b(let'?s|wanna|want\s+to|gonna|going\s+to|would\s+you)\s+(have|do|get|make)\s+sex\b/i,
-  /\b(blow\s*job|hand\s*job|foot\s*job|rim\s*job|tit\s*fuck|fist\s*fuck|finger\s*fuck|finger\s*bang)\b/i,
-  /\b(cunnilingus|fellatio|anilingus|felch|feltch|deepthroat|deep\s+throat)\b/i,
-  /\b(gang\s*bang|threesome|orgy|menage\s+a\s+trois)\b/i,
-  /\bmasturbat/i,
-  /\b(jack\s+off|jerk\s+off|jerk\s*ing\s+off)\b/i,
-  /\b(doggystyle|doggy\s+style|reverse\s+cowgirl)\b/i,
-  /\b(rimming|tea\s*bagging|scissoring|frotting|dry\s*hump)\b/i,
-  /\b(golden\s+shower|watersport\s+fetish|urophilia)\b/i,
-  /\b(bdsm|bondage|dominatrix|femdom|sadism)\b/i,
-  /\b(dildo|vibrator|strap\s*on|ball\s+gag)\b/i,
-  /\b(hentai|ecchi|futanari|zoophilia|bestiality|beastiality)\b/i,
-  /\b(incest|date\s+rape)\b/i,
+const BLOCKED_WORDS: string[] = [
+  // Profanity
+  "fuck", "shit", "cunt", "bitch", "bastard", "asshole", "dickhead", "motherfucker",
 
-  // Sexual body parts (slang) — zero legitimate use in a volunteer listing
-  /\b(cock|dick|schlong|dong|boner)\b/i,
-  /\b(pussy|vagina|vulva|clitoris|clit|snatch|muff|quim|poontang|poon)\b/i,
-  /\b(tits|titties|boobs|nipples?|areola)\b/i,
-  /\b(cum|jizz|spunk|semen|ejaculat|cumshot|creampie|skeet|splooge)\b/i,
-  /\borgasm\b/i,
-  /\b(erotic|intercourse|coitus)\b/i,
-  /\b(anus|rectum|bunghole|cornhole)\b/i,
-  /\b(scrotum|testicles?|pubes|pubic\s+hair)\b/i,
+  // Racial / ethnic / identity slurs
+  "nigger", "nigga", "faggot", "chink", "spic", "kike", "gook", "wetback", "tranny",
 
-  // Nudity and pornographic content
-  /\bporn(ography|o)?\b/i,
-  /\b(nude|naked|nudity)\b/i,
-  /\b(prostitut|escort\s+service|sex\s+work|sex\s+traffick)\b/i,
-  /\b(sex\s*cam|cam\s*girl|cam\s*whore|cam\s*slut|only\s*fans|sexting)\b/i,
+  // Sexual — the word alone has no place in a volunteer listing
+  "sex", "porn", "porno", "pornography",
+  "nude", "nudes", "naked", "nudity",
+  "erotic", "intercourse", "orgasm", "fetish",
 
-  // Solicitation and grooming
-  /\bsend\s+(me\s+)?(nudes?|naked|sexy\s+pics?|pics?\s+of\s+you)\b/i,
-  /\b(show|take\s+off|remove)\s+(your|ur)\s+(clothes?|shirt|pants|underwear|top|bra)\b/i,
-  /\b(grope|fondle|molest|assault).{0,30}(minors?|kids?|children|teens?|students?|youth)\b/i,
-  /\b(lure|groom|solicit).{0,30}(minors?|kids?|children|teens?|youth)\b/i,
-  /\bchild\s*(porn|sex|exploit|abuse|lure|groom)\b/i,
+  // Sexual body parts — clinical and slang
+  "penis", "vagina", "vulva", "clitoris", "clit", "labia",
+  "cock", "dick", "schlong", "dong", "boner",
+  "pussy", "snatch", "muff", "quim", "twat",
+  "tits", "titties", "boobs", "nipple", "nipples",
+  "anus", "rectum", "bunghole", "scrotum", "testicles", "ballsack",
+  "semen", "cum", "jizz", "spunk", "cumshot", "creampie",
 
-  // CSAM terms
-  /\b(jailbait|jail\s+bait|barely\s+legal|underage\s+sex|teen\s+porn)\b/i,
-  /\b(pthc|shota|loli(ta)?|nambla|pedobear|pedophile|paedophile)\b/i,
+  // Sexual acts
+  "rape", "incest", "gangbang", "threesome", "orgy",
+  "masturbate", "masturbation", "masturbating",
+  "blowjob", "handjob", "rimjob", "footjob",
+  "dildo", "vibrator", "bondage", "bdsm", "hentai",
+  "voyeur", "exhibitionist",
+
+  // Adult platforms / behaviours
+  "sexting", "onlyfans",
+
+  // CSAM / child exploitation terms
+  "pedophile", "paedophile", "jailbait", "pthc", "shota", "nambla",
+
+  // Drugs — illegal substances have no legitimate place in a volunteer listing
+  "cocaine", "heroin", "meth", "methamphetamine", "fentanyl",
+  "crack", "narcotics", "drugs", "weed", "marijuana",
 ]
 
+// ─── Blocked patterns ─────────────────────────────────────────────────────────
+// Used only for terms that need prefix matching (inflected forms), spacing
+// variants, or multi-word phrases that can't be caught by whole-word lookup.
+
+const BLOCKED_PATTERNS: RegExp[] = [
+  // Profanity prefixes — catches fucking, shitting, retarded, etc.
+  /\bfuck/i,
+  /\bshit/i,
+  /\bretard/i,
+
+  // Slur leet-speak variants
+  /\bn+i+g+g+[ae]+r/i,
+  /\bf+a+g+g+o+t/i,
+
+  // Sexual act inflections / prefixes
+  /\bmasturbat/i,   // masturbate / masturbating / masturbation
+  /\bejaculat/i,    // ejaculate / ejaculation
+  /\bprostitut/i,   // prostitute / prostitution / prostituting
+
+  // Spaced or hyphenated sexual term variants
+  /\bgang\s*bang\b/i,
+  /\bonly\s*fans\b/i,
+  /\bjail\s*bait\b/i,
+  /\bbarely\s+legal\b/i,
+  /\bdeep\s*throat\b/i,
+  /\bdate\s*rape\b/i,
+  /\b(blow|hand|foot|rim|tit|fist|finger)\s*(job|fuck|bang)\b/i,
+  /\bgolden\s+shower\b/i,
+  /\bsex\s*(cam|work|traffick|offend)\b/i,
+  /\b(cam\s*girl|cam\s*whore|cam\s*slut)\b/i,
+  /\bloli(ta)?\b/i,
+
+  // CSAM / grooming / exploitation of minors
+  /\b(child|teen|minor|underage)\s*(porn|sex|exploit|abuse)\b/i,
+  /\b(lure|groom|solicit).{0,30}(minors?|kids?|children|teens?|youth)\b/i,
+  /\b(grope|fondle|molest|assault).{0,30}(minors?|kids?|children|teens?|youth)\b/i,
+
+  // Drug activity (catches "selling weed", "buy cocaine", etc.
+  // even if the substance name somehow evaded the word list)
+  /\b(sell|deal|distribut|buy|purchas).{0,20}(drugs?|narcotics?|weed|marijuana|cocaine|heroin|meth|fentanyl|crack)\b/i,
+]
+
+// ─── Ineligible activity patterns ─────────────────────────────────────────────
 const INELIGIBLE_PATTERNS: { pattern: RegExp; category: string }[] = [
   {
     pattern: /household chores|housework|doing chores|house chores/i,
@@ -83,6 +108,17 @@ const INELIGIBLE_PATTERNS: { pattern: RegExp; category: string }[] = [
   },
 ]
 
+// ─── Validation ────────────────────────────────────────────────────────────────
+function isBlocked(text: string): boolean {
+  for (const word of BLOCKED_WORDS) {
+    if (new RegExp(`\\b${word}\\b`, "i").test(text)) return true
+  }
+  for (const pattern of BLOCKED_PATTERNS) {
+    if (pattern.test(text)) return true
+  }
+  return false
+}
+
 export function validateOpportunityContent(
   title: string,
   description: string
@@ -97,15 +133,13 @@ export function validateOpportunityContent(
     errors.push("Description must be at least 50 characters.")
   }
 
-  const combined = `${title} ${description}`.toLowerCase()
+  const combined = `${title} ${description}`
 
-  for (const pattern of SAFETY_PATTERNS) {
-    if (pattern.test(combined)) {
-      errors.push(
-        "This opportunity contains inappropriate or harmful content and cannot be submitted."
-      )
-      return { valid: false, errors }
-    }
+  if (isBlocked(combined)) {
+    errors.push(
+      "This opportunity contains inappropriate or harmful content and cannot be submitted."
+    )
+    return { valid: false, errors }
   }
 
   for (const { pattern, category } of INELIGIBLE_PATTERNS) {

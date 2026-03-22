@@ -103,6 +103,17 @@ describe("validateOpportunityContent", () => {
     ).toBe(true)
   })
 
+  it("fails on 'Sex and drugs at the park'", () => {
+    const result = validateOpportunityContent(
+      "Sex and drugs at the park event",
+      "Join us at the park for sex and drugs. This is a community event open to all volunteers who want to participate in the afternoon activities."
+    )
+    expect(result.valid).toBe(false)
+    expect(
+      result.errors.some((e) => e.includes("inappropriate or harmful content"))
+    ).toBe(true)
+  })
+
   it("fails when content contains solicitation phrases like 'let's have sex'", () => {
     const result = validateOpportunityContent(
       "Community volunteer opportunity at the local park",
