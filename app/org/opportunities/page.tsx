@@ -116,6 +116,7 @@ export default function OrgOpportunitiesPage() {
   const [selectedDateRange, setSelectedDateRange] = useState<DateRange | undefined>(undefined)
   const [sortBy, setSortBy] = useState("featured")
   const [showFilters, setShowFilters] = useState(false)
+  const [showOwnOnly, setShowOwnOnly] = useState(false)
 
 
 
@@ -159,16 +160,23 @@ export default function OrgOpportunitiesPage() {
       rangeEnd.setHours(23, 59, 59, 999)
 
       filtered = filtered.filter(opp => {
-        const oppDate = new Date(opp.dateISO)
-        oppDate.setHours(12, 0, 0, 0)
+        const oppDate = new Date(opp.dateISO || opp.date)
         return oppDate >= rangeStart && oppDate <= rangeEnd
       })
+    }
+
+    // Own only filter
+    if (showOwnOnly) {
+      const uid = userProfile?.uid ?? user?.uid;
+      if (uid) {
+        filtered = filtered.filter(opp => opp.orgId === uid)
+      }
     }
 
     // Sort
     switch (sortBy) {
       case "date":
-        filtered.sort((a, b) => new Date(a.dateISO).getTime() - new Date(b.dateISO).getTime())
+        filtered.sort((a, b) => new Date(a.dateISO || a.date).getTime() - new Date(b.dateISO || b.date).getTime())
         break
       case "spots":
         filtered.sort((a, b) => b.spotsLeft - a.spotsLeft)
@@ -182,7 +190,7 @@ export default function OrgOpportunitiesPage() {
     }
 
     return filtered
-  }, [browseOpportunities, searchQuery, selectedCategories, selectedCommitments, selectedHours, selectedDateRange, sortBy])
+  }, [browseOpportunities, searchQuery, selectedCategories, selectedCommitments, selectedHours, selectedDateRange, sortBy, showOwnOnly, userProfile?.uid, user?.uid])
 
   // Group by category
   const groupedByCategory = useMemo(() => {
@@ -232,6 +240,7 @@ export default function OrgOpportunitiesPage() {
     setSelectedDateRange(undefined)
     setSearchQuery("")
     setSortBy("featured")
+    setShowOwnOnly(false)
   }
 
   // Handle sort change
@@ -239,7 +248,7 @@ export default function OrgOpportunitiesPage() {
     setSortBy(e.target.value)
   }
 
-  const hasActiveFilters = selectedCategories.length > 0 || selectedCommitments.length > 0 || selectedHours.length > 0 || !!selectedDateRange?.from || searchQuery
+  const hasActiveFilters = selectedCategories.length > 0 || selectedCommitments.length > 0 || selectedHours.length > 0 || !!selectedDateRange?.from || searchQuery || showOwnOnly
 
   // Manage view helpers
   const filteredManagePostings = manageOpportunities.filter(
@@ -512,7 +521,7 @@ export default function OrgOpportunitiesPage() {
                   placeholder="Search postings..."
                   value={manageSearch}
                   onChange={(e) => setManageSearch(e.target.value)}
-                  className="pl-10 bg-white border-slate-200 rounded-xl h-11"
+                  className="pl-10 bg-white border-slate-200 rounded-full h-11"
                 />
               </div>
             </div>
@@ -539,7 +548,7 @@ export default function OrgOpportunitiesPage() {
                     </p>
                     {!manageSearch && (
                       <Link href="/org/opportunities/new">
-                        <Button className="mt-4 bg-sky-600 hover:bg-sky-700 rounded-xl">
+                        <Button className="mt-4 bg-sky-600 hover:bg-sky-700 rounded-full">
                           <Plus className="w-4 h-4 mr-2" />
                           Post Opportunity
                         </Button>
@@ -567,7 +576,7 @@ export default function OrgOpportunitiesPage() {
                                   <h3 className="text-lg font-bold text-slate-900 tracking-tight">{posting.organization}</h3>
                                   <p className="text-sm text-slate-600 mt-0.5">Title: {posting.title}</p>
                                 </div>
-                                <div className={`flex items-center gap-2 ${spotsColors} border px-3 py-1.5 rounded-lg flex-shrink-0`}>
+                                <div className={`flex items-center gap-2 ${spotsColors} border px-3 py-1.5 rounded-full flex-shrink-0`}>
                                   <span className="text-sm font-bold">
                                     Spots: {posting.spotsLeft}/{posting.totalSpots}
                                   </span>
@@ -599,12 +608,12 @@ export default function OrgOpportunitiesPage() {
                             {deleteConfirm === posting.id ? (
                               <div className="flex items-center gap-2">
                                 <span className="text-sm text-red-600 font-medium">Confirm Delete?</span>
-                                <Button size="sm" variant="destructive" className="rounded-lg h-9 px-4" onClick={() => handleDelete(posting.id)}>Yes, Delete</Button>
-                                <Button size="sm" variant="outline" className="rounded-lg h-9 px-4" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+                                <Button size="sm" variant="destructive" className="rounded-full h-9 px-4" onClick={() => handleDelete(posting.id)}>Yes, Delete</Button>
+                                <Button size="sm" variant="outline" className="rounded-full h-9 px-4" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
                               </div>
                             ) : (
                               <>
-                                <Button size="sm" variant="outline" className="rounded-lg h-9 px-5 border-sky-300 bg-sky-50 text-sky-700 hover:bg-sky-100 hover:text-sky-800 transition-colors" onClick={() => {
+                                <Button size="sm" variant="outline" className="rounded-full h-9 px-5 border-sky-300 bg-sky-50 text-sky-700 hover:bg-sky-100 hover:text-sky-800 transition-colors" onClick={() => {
                                   setEditingPosting(posting)
                                   setEditForm({
                                     title: posting.title,
@@ -619,7 +628,7 @@ export default function OrgOpportunitiesPage() {
                                   <Pencil className="w-3.5 h-3.5 mr-1.5" />
                                   Edit
                                 </Button>
-                                <Button size="sm" variant="outline" className="rounded-lg h-9 px-5 border-red-300 bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800 transition-colors" onClick={() => setDeleteConfirm(posting.id)}>
+                                <Button size="sm" variant="outline" className="rounded-full h-9 px-5 border-red-300 bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800 transition-colors" onClick={() => setDeleteConfirm(posting.id)}>
                                   <Trash2 className="w-3.5 h-3.5 mr-1.5" />
                                   Delete
                                 </Button>
@@ -664,6 +673,15 @@ export default function OrgOpportunitiesPage() {
                   {hasActiveFilters && (
                     <span className="w-2 h-2 bg-orange-500 rounded-full" />
                   )}
+                </Button>
+
+                <Button
+                  variant={showOwnOnly ? "default" : "outline"}
+                  className={`rounded-full gap-2 ${showOwnOnly ? 'bg-indigo-600 text-white shadow-md' : 'border-slate-300'}`}
+                  onClick={() => setShowOwnOnly(!showOwnOnly)}
+                >
+                  <Building2 className="w-4 h-4" />
+                  My Postings
                 </Button>
 
                 {/* Clear filters */}
@@ -864,11 +882,11 @@ export default function OrgOpportunitiesPage() {
       {/* Opportunity Detail Modal */}
       {selectedOpportunity && (
         <div
-          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-[110] bg-black/50 backdrop-blur-sm flex items-start justify-center p-4 pt-24"
           onClick={() => setSelectedOpportunity(null)}
         >
           <div
-            className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+            className="bg-white rounded-2xl max-w-2xl w-full max-h-[calc(100vh-160px)] overflow-y-auto shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header with Image */}
@@ -986,11 +1004,11 @@ export default function OrgOpportunitiesPage() {
       {/* Edit Posting Modal */}
       {editingPosting && (
         <div
-          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-[110] bg-black/50 backdrop-blur-sm flex items-start justify-center p-4 pt-24"
           onClick={() => setEditingPosting(null)}
         >
           <div
-            className="bg-white rounded-2xl max-w-xl w-full max-h-[85vh] overflow-y-auto shadow-2xl"
+            className="bg-white rounded-2xl max-w-xl w-full max-h-[calc(100vh-160px)] overflow-y-auto shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
@@ -1079,11 +1097,11 @@ export default function OrgOpportunitiesPage() {
 
             {/* Actions */}
             <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-100">
-              <Button variant="outline" className="rounded-xl px-5" onClick={() => setEditingPosting(null)}>
+              <Button variant="outline" className="rounded-full px-5" onClick={() => setEditingPosting(null)}>
                 Cancel
               </Button>
               <Button
-                className="bg-sky-600 hover:bg-sky-700 text-white rounded-xl px-6"
+                className="bg-sky-600 hover:bg-sky-700 text-white rounded-full px-6"
                 onClick={async () => {
                   if (!editingPosting) return;
                   try {
