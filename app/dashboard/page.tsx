@@ -159,6 +159,14 @@ export default function DashboardPage() {
   const completedOpportunitiesRef = useRef<HTMLDivElement>(null)
   const [studentHours, setStudentHours] = useState(0)
   const [studentBadges, setStudentBadges] = useState<string[]>([])
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50)
+    window.addEventListener("scroll", handleScroll)
+    handleScroll()
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   const fetchData = async () => {
     if (!user?.uid) return
@@ -287,7 +295,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
-      <Navigation />
+      <Navigation forceWhite={scrolled} />
 
       <main className="flex-1 pt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -585,7 +593,7 @@ export default function DashboardPage() {
                             <div className="flex-1 min-w-0">
                               <h3 className="font-medium text-foreground text-sm truncate">{app.title}</h3>
                               <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5 flex-wrap">
-                                <MapPin className="w-3 h-3 shrink-0 text-red-500" />
+                                <MapPin className="w-3 h-3 shrink-0 text-blue-600" />
                                 <span className="truncate">{app.isExternal ? "External" : app.location?.split(",")[0]}</span>
                                 <span>•</span>
                                 <span>{app.hours}</span>
@@ -677,7 +685,7 @@ export default function DashboardPage() {
                           size="sm"
                           onClick={handleExportPDF}
                           disabled={isGeneratingPDF || completedOpportunities.length === 0}
-                          className="h-8 gap-1 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 rounded-full"
+                          className="h-8 gap-1 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-600 rounded-full"
                         >
                           <Download className="w-3.5 h-3.5" />
                           {isGeneratingPDF ? "Exporting..." : "Export PDF"}
@@ -704,7 +712,7 @@ export default function DashboardPage() {
                               <div className="flex-1 min-w-0">
                                 <h3 className="font-bold text-foreground text-sm truncate tracking-tight">{app.title}</h3>
                                 <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5 flex-wrap">
-                                  <MapPin className="w-3 h-3 shrink-0 text-red-500" />
+                                  <MapPin className="w-3 h-3 shrink-0 text-blue-600" />
                                   <span className="truncate">{app.isExternal ? "External" : app.location?.split(",")[0]}</span>
                                   <span>•</span>
                                   <span>{app.hours}</span>
@@ -716,7 +724,7 @@ export default function DashboardPage() {
                                 {app.location !== "External" && !app.isExternal && (
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setReportOpportunity(app); setReportConcern(""); }}
-                                    className="p-1.5 rounded-full text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                                    className="p-1.5 rounded-full text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
                                     title="Report a concern"
                                   >
                                     <Flag className="w-4 h-4" />
@@ -781,7 +789,7 @@ export default function DashboardPage() {
                           </div>
                           <button
                             onClick={(e) => { e.stopPropagation(); handleUnsave(opp); }}
-                            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"
+                            className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
                             title="Remove from saved"
                           >
                             <X className="w-4 h-4" />
@@ -879,8 +887,8 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3 text-slate-600">
-                    <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
-                      <MapPin className="w-5 h-5 text-rose-600" />
+                    <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                      <MapPin className="w-5 h-5 text-blue-600" />
                     </div>
                     <span>{selectedApplication.isExternal ? "External" : selectedApplication.location}</span>
                   </div>
@@ -934,7 +942,7 @@ export default function DashboardPage() {
 
                 {/* Application Info */}
                 <div className="bg-blue-50 rounded-xl p-4 mb-6 border border-blue-100">
-                  <h3 className="font-semibold text-blue-800 mb-2">Your Application</h3>
+                  <h3 className="font-semibold text-blue-600 mb-2">Your Application</h3>
                   <p className="text-sm text-blue-600">
                     Applied on: {new Date(selectedApplication.appliedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
                   </p>
@@ -1212,8 +1220,8 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3 text-slate-600">
-                    <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
-                      <MapPin className="w-5 h-5 text-rose-600" />
+                    <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                      <MapPin className="w-5 h-5 text-blue-600" />
                     </div>
                     <span>{selectedSaved.isExternal ? "External" : selectedSaved.location}</span>
                   </div>

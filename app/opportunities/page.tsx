@@ -671,7 +671,7 @@ export default function OpportunitiesPage() {
                       <Sparkles className="w-3.5 h-3.5" />
                       For You
                       {forYouActive && (
-                        <span className="absolute bottom-0 left-0 right-0 h-1 bg-rose-600 z-10" />
+                        <span className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 z-10" />
                       )}
                     </button>
                   )}
@@ -686,7 +686,7 @@ export default function OpportunitiesPage() {
                   >
                     All
                     {!forYouActive && selectedCategories.length === 0 && !searchQuery && (
-                      <span className="absolute bottom-0 left-0 right-0 h-1 bg-rose-600 z-10" />
+                      <span className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 z-10" />
                     )}
                   </button>
                   {allCategories.map(category => (
@@ -701,7 +701,7 @@ export default function OpportunitiesPage() {
                     >
                       {category}
                       {!forYouActive && selectedCategories.length === 1 && selectedCategories[0] === category && (
-                        <span className="absolute bottom-0 left-0 right-0 h-1 bg-rose-600 z-10" />
+                        <span className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 z-10" />
                       )}
                     </button>
                   ))}
@@ -735,7 +735,7 @@ export default function OpportunitiesPage() {
                         key={commitment}
                         onClick={() => toggleCommitment(commitment)}
                         className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${selectedCommitments.includes(commitment)
-                          ? 'bg-rose-500 text-white shadow-md'
+                          ? 'bg-blue-600 text-white shadow-md'
                           : 'bg-gray-100 text-gray-600 hover:bg-gray-300 hover:text-gray-900 hover:shadow-sm'
                         }`}
                       >
@@ -752,7 +752,7 @@ export default function OpportunitiesPage() {
                     <button
                       onClick={() => setSelectedHours([])}
                       className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 flex-shrink-0 ${selectedHours.length === 0
-                        ? 'bg-rose-500 text-white shadow-md'
+                        ? 'bg-blue-600 text-white shadow-md'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-300 hover:text-gray-900 hover:shadow-sm'
                       }`}
                     >
@@ -763,7 +763,7 @@ export default function OpportunitiesPage() {
                         key={hours}
                         onClick={() => toggleHours(hours)}
                         className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 flex-shrink-0 ${selectedHours.includes(hours)
-                          ? 'bg-rose-500 text-white shadow-md'
+                          ? 'bg-blue-600 text-white shadow-md'
                           : 'bg-gray-100 text-gray-600 hover:bg-gray-300 hover:text-gray-900 hover:shadow-sm'
                         }`}
                       >
@@ -781,7 +781,7 @@ export default function OpportunitiesPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className={`rounded-full h-8 text-xs gap-2 border-gray-200 transition-all duration-200 ${selectedDateRange?.from ? 'border-rose-300 text-rose-600 bg-rose-50 hover:bg-rose-200 hover:text-rose-800 hover:border-rose-400' : 'text-gray-600 hover:bg-gray-200 hover:text-gray-900 hover:border-gray-300'}`}
+                        className={`rounded-full h-8 text-xs gap-2 border-gray-200 transition-all duration-200 ${selectedDateRange?.from ? 'border-blue-400 text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 hover:border-blue-500' : 'text-gray-600 hover:bg-gray-200 hover:text-gray-900 hover:border-gray-300'}`}
                       >
                         <Calendar className="w-3.5 h-3.5" />
                         {selectedDateRange?.from ? (
