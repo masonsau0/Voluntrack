@@ -34,7 +34,17 @@ export interface DecisionNotification {
     opportunityTitle: string
 }
 
-export type NotificationItem = ReflectionDueNotification | DecisionNotification
+export interface NewApplicantNotification {
+    id: string
+    type: "new_applicant"
+    notificationId: string   // Firestore doc ID, used for markAsRead
+    message: string
+    unread: boolean
+    timestamp: any
+    opportunityTitle: string
+}
+
+export type NotificationItem = ReflectionDueNotification | DecisionNotification | NewApplicantNotification
 
 /**
  * Hook that computes client-side notifications from the user's applications
@@ -43,7 +53,7 @@ export type NotificationItem = ReflectionDueNotification | DecisionNotification
 export function useNotifications() {
     const { user } = useAuth()
     const [reflectionItems, setReflectionItems] = useState<ReflectionDueNotification[]>([])
-    const [decisionItems, setDecisionItems] = useState<DecisionNotification[]>([])
+    const [decisionItems, setDecisionItems] = useState<(DecisionNotification | NewApplicantNotification)[]>([])
     const [loading, setLoading] = useState(true)
 
     const refresh = useCallback(async () => {
@@ -92,22 +102,35 @@ export function useNotifications() {
         refresh()
     }, [refresh])
 
-    // Firestore real-time subscription for decision notifications
+    // Firestore real-time subscription for decision and new_applicant notifications
     useEffect(() => {
         if (!user?.uid) { setDecisionItems([]); return }
         const unsubscribe = subscribeToDecisionNotifications(
             user.uid,
             (firestoreNotifs: FirestoreNotification[]) => {
-                setDecisionItems(firestoreNotifs.map((n) => ({
-                    id: `decision_${n.id}`,
-                    type: "decision" as const,
-                    notificationId: n.id,
-                    message: n.message,
-                    unread: n.unread,
-                    timestamp: n.timestamp,
-                    status: n.status,
-                    opportunityTitle: n.opportunityTitle,
-                })))
+                setDecisionItems(firestoreNotifs.map((n) => {
+                    if (n.type === "new_applicant") {
+                        return {
+                            id: `new_applicant_${n.id}`,
+                            type: "new_applicant" as const,
+                            notificationId: n.id,
+                            message: n.message,
+                            unread: n.unread,
+                            timestamp: n.timestamp,
+                            opportunityTitle: n.opportunityTitle,
+                        } satisfies NewApplicantNotification
+                    }
+                    return {
+                        id: `decision_${n.id}`,
+                        type: "decision" as const,
+                        notificationId: n.id,
+                        message: n.message,
+                        unread: n.unread,
+                        timestamp: n.timestamp,
+                        status: n.status as "approved" | "denied",
+                        opportunityTitle: n.opportunityTitle,
+                    } satisfies DecisionNotification
+                }))
             },
             (error) => { console.error("Notification subscription error:", error); setDecisionItems([]) }
         )

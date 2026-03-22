@@ -127,7 +127,7 @@ export function ReflectionModal({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-slate-700 flex items-center gap-2">
-                    <Heart className="w-4 h-4 text-rose-500" />
+                    <Heart className="w-4 h-4 text-blue-600" />
                     How did you help? *
                   </FormLabel>
                   <FormControl>

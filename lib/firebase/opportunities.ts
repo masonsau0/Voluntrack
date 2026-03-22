@@ -31,7 +31,8 @@ export interface Opportunity {
   lat?: number;
   lng?: number;
   applicationDeadline?: string;  // ISO date, e.g. "2026-02-01"
-  orgId?: string;
+  totalHours?: number;           // Total hours across all sessions (recurring only)
+  orgId?: string;                // Auth UID of the org that owns this opportunity
 }
 
 export const ITEMS_PER_PAGE = 9; // Number of items to fetch per chunk

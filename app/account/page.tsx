@@ -49,6 +49,14 @@ export default function AccountPage() {
     const [isEditingPrefs, setIsEditingPrefs] = useState(false)
     const [prefsSaveError, setPrefsSaveError] = useState<string | null>(null)
     const [applications, setApplications] = useState<UserApplication[]>([])
+    const [scrolled, setScrolled] = useState(false)
+
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 50)
+        window.addEventListener("scroll", handleScroll)
+        handleScroll()
+        return () => window.removeEventListener("scroll", handleScroll)
+    }, [])
 
     useEffect(() => {
         if (userProfile) {
@@ -152,7 +160,7 @@ export default function AccountPage() {
 
     return (
         <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-background">
-            <Navigation />
+            <Navigation forceWhite={scrolled} />
 
             <main className="flex-1 pt-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

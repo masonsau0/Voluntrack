@@ -103,6 +103,17 @@ describe("validateOpportunityContent", () => {
     ).toBe(true)
   })
 
+  it("fails when content describes selling drugs", () => {
+    const result = validateOpportunityContent(
+      "Selling drugs at the park volunteer event",
+      "Join us at the local park where volunteers will be selling drugs and distributing narcotics to community members throughout the afternoon."
+    )
+    expect(result.valid).toBe(false)
+    expect(
+      result.errors.some((e) => e.includes("inappropriate or harmful content"))
+    ).toBe(true)
+  })
+
   it("does not double-report safety and ineligibility errors", () => {
     const result = validateOpportunityContent(
       "Help us cut the fucking grass at the park today",

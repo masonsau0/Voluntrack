@@ -584,7 +584,7 @@ export default function OrgOpportunitiesPage() {
                               </div>
                               <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3 text-sm text-slate-600">
                                 <span className="flex items-center gap-1.5">
-                                  <MapPin className="w-3.5 h-3.5 text-red-500" />
+                                  <MapPin className="w-3.5 h-3.5 text-blue-600" />
                                   {posting.location}
                                 </span>
                                 <span className="flex items-center gap-1.5">
@@ -959,8 +959,8 @@ export default function OrgOpportunitiesPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3 text-slate-600">
-                  <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-rose-600" />
+                  <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                    <MapPin className="w-5 h-5 text-blue-600" />
                   </div>
                   <span>{selectedOpportunity.location}</span>
                 </div>

@@ -580,7 +580,7 @@ export default function ApplicationsPage() {
                             variant="outline"
                             onClick={handleExportPDF}
                             disabled={isGeneratingPDF || applications.filter(a => a.status === "completed").length === 0}
-                            className="gap-2 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 rounded-full"
+                            className="gap-2 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-600 rounded-full"
                         >
                             <Download className="w-4 h-4" />
                             {isGeneratingPDF ? "Exporting..." : "Export PDF History"}
@@ -670,8 +670,8 @@ export default function ApplicationsPage() {
                                                 <h3 className="font-bold text-foreground mb-2 tracking-tight">{app.title}</h3>
                                                 <div className="space-y-1 text-sm">
                                                     <p className="flex items-center gap-2">
-                                                        <span className="text-red-500 font-medium">Location</span>
-                                                        <MapPin className="w-3 h-3 text-red-500" />
+                                                        <span className="text-blue-600 font-medium">Location</span>
+                                                        <MapPin className="w-3 h-3 text-blue-600" />
                                                         <span className="text-muted-foreground">: {app.isExternal ? "External" : app.location}</span>
                                                     </p>
                                                     <p className="flex items-center gap-2">
@@ -697,7 +697,7 @@ export default function ApplicationsPage() {
                                                     {app.status === "completed" && app.location !== "External" && !app.isExternal && (
                                                         <button
                                                             onClick={(e) => { e.stopPropagation(); setReportOpportunity(app); setReportConcern(""); }}
-                                                            className="p-1.5 rounded-full text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                                                            className="p-1.5 rounded-full text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
                                                             title="Report a concern"
                                                         >
                                                             <Flag className="w-4 h-4" />
@@ -793,7 +793,7 @@ export default function ApplicationsPage() {
                                                 </div>
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); handleUnsave(opp); }}
-                                                    className="opacity-0 group-hover:opacity-100 p-1 rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all ml-auto"
+                                                    className="opacity-0 group-hover:opacity-100 p-1 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all ml-auto"
                                                     title="Remove from saved"
                                                 >
                                                     <X className="w-4 h-4" />
@@ -899,8 +899,8 @@ export default function ApplicationsPage() {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 text-slate-600">
-                                    <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
-                                        <MapPin className="w-5 h-5 text-rose-600" />
+                                    <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                                        <MapPin className="w-5 h-5 text-blue-600" />
                                     </div>
                                     <span>{selectedApplication.isExternal ? "External" : selectedApplication.location}</span>
                                 </div>
@@ -954,7 +954,7 @@ export default function ApplicationsPage() {
 
                             {/* Application Info */}
                             <div className="bg-blue-50 rounded-xl p-4 mb-6 border border-blue-100">
-                                <h3 className="font-semibold text-blue-800 mb-2">Your Application</h3>
+                                <h3 className="font-semibold text-blue-600 mb-2">Your Application</h3>
                                 <p className="text-sm text-blue-600">
                                     Applied on: {new Date(selectedApplication.appliedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
                                 </p>
@@ -1205,8 +1205,8 @@ export default function ApplicationsPage() {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 text-slate-600">
-                                    <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
-                                        <MapPin className="w-5 h-5 text-rose-600" />
+                                    <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                                        <MapPin className="w-5 h-5 text-blue-600" />
                                     </div>
                                     <span>{selectedSaved.isExternal ? "External" : selectedSaved.location}</span>
                                 </div>

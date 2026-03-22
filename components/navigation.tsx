@@ -69,8 +69,8 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
                 <Link
                   href="/opportunities"
                   className={`text-sm tracking-wider uppercase transition-all duration-300 font-medium ${pathname === "/opportunities"
-                    ? (forceWhite ? "text-rose-600 font-bold" : "text-white font-semibold")
-                    : (forceWhite ? 'text-slate-800 hover:text-rose-600 font-semibold' : 'text-white/70 hover:text-white')
+                    ? (forceWhite ? "text-blue-600 font-bold" : "text-white font-semibold")
+                    : (forceWhite ? 'text-slate-800 hover:text-blue-600 font-semibold' : 'text-white/70 hover:text-white')
                   }`}
                 >
                   Opportunities
@@ -78,8 +78,8 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
                 <Link
                   href="/dashboard"
                   className={`text-sm tracking-wider uppercase transition-all duration-300 font-medium ${pathname === "/dashboard"
-                    ? (forceWhite ? "text-rose-600 font-bold" : "text-white font-semibold")
-                    : (forceWhite ? 'text-gray-600 hover:text-rose-600' : 'text-white/70 hover:text-white')
+                    ? (forceWhite ? "text-blue-600 font-bold" : "text-white font-semibold")
+                    : (forceWhite ? 'text-gray-600 hover:text-blue-600' : 'text-white/70 hover:text-white')
                   }`}
                 >
                   Dashboard
@@ -87,8 +87,8 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
                 <Link
                   href="/feed"
                   className={`text-sm tracking-wider uppercase transition-all duration-300 font-medium ${pathname === "/feed"
-                    ? (forceWhite ? "text-rose-600 font-bold" : "text-white font-semibold")
-                    : (forceWhite ? 'text-slate-800 hover:text-rose-600 font-semibold' : 'text-white/70 hover:text-white')
+                    ? (forceWhite ? "text-blue-600 font-bold" : "text-white font-semibold")
+                    : (forceWhite ? 'text-slate-800 hover:text-blue-600 font-semibold' : 'text-white/70 hover:text-white')
                   }`}
                 >
                   Feed
@@ -100,8 +100,8 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
                 <Link
                   href="/org/dashboard"
                   className={`text-sm tracking-wider uppercase transition-all duration-300 ${pathname?.startsWith("/org/dashboard") 
-                    ? (forceWhite ? "text-rose-600 font-bold" : "text-white font-semibold") 
-                    : (forceWhite ? "text-gray-600 hover:text-rose-600" : "text-white/70 hover:text-white")
+                    ? (forceWhite ? "text-blue-600 font-bold" : "text-white font-semibold") 
+                    : (forceWhite ? "text-gray-600 hover:text-blue-600" : "text-white/70 hover:text-white")
                   }`}
                 >
                   Dashboard
@@ -109,8 +109,8 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
                 <Link
                   href="/org/opportunities"
                   className={`text-sm tracking-wider uppercase transition-all duration-300 ${pathname?.startsWith("/org/opportunities") 
-                    ? (forceWhite ? "text-rose-600 font-bold" : "text-white font-semibold") 
-                    : (forceWhite ? "text-gray-600 hover:text-rose-600" : "text-white/70 hover:text-white")
+                    ? (forceWhite ? "text-blue-600 font-bold" : "text-white font-semibold") 
+                    : (forceWhite ? "text-gray-600 hover:text-blue-600" : "text-white/70 hover:text-white")
                   }`}
                 >
                   Opportunities
@@ -120,7 +120,7 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
           </div>
 
           <div className="flex items-center gap-4">
-            {isAuthenticated && !isOrgView && (
+            {isAuthenticated && (
               <NotificationDropdown
                 notifications={notifications}
                 count={count}
