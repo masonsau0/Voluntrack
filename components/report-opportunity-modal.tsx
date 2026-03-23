@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useAuth } from "@/contexts/AuthContext"
 import { submitReport } from "@/lib/firebase/reports"
 import { hideOpportunity } from "@/lib/firebase/hidden-opportunities"
+import { containsInappropriateContent } from "@/lib/opportunityValidation"
 import { toast } from "sonner"
 
 import {
@@ -39,7 +40,10 @@ const REPORT_REASONS = [
 const formSchema = z
   .object({
     reason: z.string().min(1, "Please select a reason."),
-    text: z.string().max(1000, "Message cannot exceed 1000 characters."),
+    text: z
+      .string()
+      .max(1000, "Message cannot exceed 1000 characters.")
+      .refine((v) => !containsInappropriateContent(v), "This field contains inappropriate content."),
   })
   .refine(
     (data) => data.reason !== "Other" || data.text.length >= 20,

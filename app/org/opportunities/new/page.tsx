@@ -7,7 +7,7 @@ import dynamic from "next/dynamic"
 import { Navigation } from "@/components/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { createOpportunity } from "@/lib/firebase/org"
-import { validateOpportunityContent } from "@/lib/opportunityValidation"
+import { validateOpportunityContent, containsInappropriateContent } from "@/lib/opportunityValidation"
 import { toast } from "sonner"
 
 import {
@@ -206,6 +206,7 @@ export default function PostOpportunityPage() {
         if (!form.endTime) newErrors.endTime = "Required"
         if (!form.category) newErrors.category = "Required"
         if (!form.contactName) newErrors.contactName = "Required"
+        else if (containsInappropriateContent(form.contactName)) newErrors.contactName = "This field contains inappropriate content."
         if (!form.email) newErrors.email = "Required"
         // Hours must not exceed event duration
         if (form.startTime && form.endTime && form.volunteerHours) {

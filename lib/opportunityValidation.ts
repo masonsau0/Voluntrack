@@ -125,6 +125,10 @@ const INELIGIBLE_PATTERNS: { pattern: RegExp; category: string }[] = [
 ]
 
 // ─── Validation ────────────────────────────────────────────────────────────────
+export function containsInappropriateContent(text: string): boolean {
+  return isBlocked(text)
+}
+
 function isBlocked(text: string): boolean {
   for (const word of BLOCKED_WORDS) {
     if (new RegExp(`\\b${word}\\b`, "i").test(text)) return true

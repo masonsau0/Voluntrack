@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAuth } from "@/contexts/AuthContext"
 import { submitReflection } from "@/lib/firebase/dashboard"
+import { containsInappropriateContent } from "@/lib/opportunityValidation"
 import { toast } from "sonner"
 
 import {
@@ -27,10 +28,13 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Lightbulb, Heart, BookOpen } from "lucide-react"
 
+const noExplicit = (field: z.ZodString) =>
+  field.refine((v) => !containsInappropriateContent(v), "This field contains inappropriate content.")
+
 const reflectionSchema = z.object({
-  orgDescription: z.string().min(10, "Please write at least 10 characters"),
-  howHelped: z.string().min(10, "Please write at least 10 characters"),
-  whatLearned: z.string().min(10, "Please write at least 10 characters"),
+  orgDescription: noExplicit(z.string().min(10, "Please write at least 10 characters")),
+  howHelped: noExplicit(z.string().min(10, "Please write at least 10 characters")),
+  whatLearned: noExplicit(z.string().min(10, "Please write at least 10 characters")),
 })
 
 type ReflectionFormValues = z.infer<typeof reflectionSchema>

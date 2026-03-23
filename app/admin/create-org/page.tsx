@@ -6,15 +6,19 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
+import { containsInappropriateContent } from "@/lib/opportunityValidation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
+const noExplicit = (field: z.ZodString) =>
+  field.refine((v) => !containsInappropriateContent(v), "This field contains inappropriate content.")
+
 const formSchema = z.object({
-  orgName: z.string().min(1, "Organization name is required"),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
+  orgName: noExplicit(z.string().min(1, "Organization name is required")),
+  firstName: noExplicit(z.string().min(1, "First name is required")),
+  lastName: noExplicit(z.string().min(1, "Last name is required")),
   email: z.string().email("Invalid email address"),
   phoneNumber: z.string().optional(),
 })

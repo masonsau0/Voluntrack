@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { signUp } from "@/lib/firebase/auth"
+import { containsInappropriateContent } from "@/lib/opportunityValidation"
 
 export function SignupForm({
     className,
@@ -51,7 +52,9 @@ export function SignupForm({
         const newErrors: { [key: string]: string | undefined } = {}
 
         if (!firstName) newErrors.firstName = "First Name is required"
+        else if (containsInappropriateContent(firstName)) newErrors.firstName = "This field contains inappropriate content."
         if (!lastName) newErrors.lastName = "Last Name is required"
+        else if (containsInappropriateContent(lastName)) newErrors.lastName = "This field contains inappropriate content."
         if (!email) newErrors.email = "Email is required"
         if (!password) newErrors.password = "Password is required"
         if (!confirmPassword) newErrors.confirmPassword = "Confirm Password is required"

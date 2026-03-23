@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAuth } from "@/contexts/AuthContext"
 import { submitExternalOpportunity } from "@/lib/firebase/dashboard"
+import { containsInappropriateContent } from "@/lib/opportunityValidation"
 import { toast } from "sonner"
 import { CATEGORIES } from "@/lib/preferences"
 
@@ -36,14 +37,17 @@ import {
 
 const LocationMapPreview = dynamic(() => import("@/components/LocationMapPreview"), { ssr: false })
 
+const noExplicit = (field: z.ZodString) =>
+  field.refine((v) => !containsInappropriateContent(v), "This field contains inappropriate content.")
+
 const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  organization: z.string().min(1, "Organization is required"),
+  title: noExplicit(z.string().min(1, "Title is required")),
+  organization: noExplicit(z.string().min(1, "Organization is required")),
   date: z.string().min(1, "Date is required"),
   hours: z.coerce.number().min(0.1, "Must be at least 0.1 hours"),
   category: z.string().min(1, "Category is required"),
-  reflection: z.string().min(10, "Reflection must be at least 10 characters"),
-  contactName: z.string().min(1, "Contact Name is required"),
+  reflection: noExplicit(z.string().min(10, "Reflection must be at least 10 characters")),
+  contactName: noExplicit(z.string().min(1, "Contact Name is required")),
   contactEmail: z.string().email("Invalid email address"),
   contactPhone: z.string().optional(),
   location: z.string().optional(),
