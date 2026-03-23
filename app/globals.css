@@ -124,5 +124,66 @@
   html,
   body {
     @apply bg-background text-foreground overflow-x-hidden;
+    max-width: 100%;
   }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 3s infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes starfield {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.stars-small {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, #eee, transparent),
+    radial-gradient(1px 1px at 100px 70px, #fff, transparent),
+    radial-gradient(1px 1px at 200px 30px, #ddd, transparent),
+    radial-gradient(1px 1px at 300px 50px, #eee, transparent),
+    radial-gradient(1px 1px at 400px 20px, #fff, transparent);
+  background-size: 500px 100%;
+  background-repeat: repeat-x;
+  animation: starfield 8s linear infinite;
+  width: 200%;
+}
+
+.stars-medium {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(2px 2px at 50px 60px, #ddd, transparent),
+    radial-gradient(2px 2px at 150px 20px, #fff, transparent),
+    radial-gradient(2px 2px at 250px 80px, #eee, transparent),
+    radial-gradient(2px 2px at 350px 40px, #fff, transparent);
+  background-size: 500px 100%;
+  background-repeat: repeat-x;
+  animation: starfield 12s linear infinite;
+  width: 200%;
+}
+
+.stars-large {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(3px 3px at 100px 50px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(3px 3px at 300px 70px, rgba(255,255,255,0.4), transparent),
+    radial-gradient(3px 3px at 450px 30px, rgba(255,255,255,0.5), transparent);
+  background-size: 500px 100%;
+  background-repeat: repeat-x;
+  animation: starfield 16s linear infinite;
+  width: 200%;
 }

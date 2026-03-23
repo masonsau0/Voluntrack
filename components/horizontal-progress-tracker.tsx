@@ -214,48 +214,6 @@ export function HorizontalProgressTracker({ completedHours, goalHours }: Horizon
         </div>
       </div>
 
-      {/* Styles for new animations */}
-      <style jsx>{`
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(200%); }
-        }
-        .animate-shimmer {
-          animation: shimmer 3s infinite;
-        }
-        @keyframes starfield {
-          from { transform: translateX(0); }
-          to { transform: translateX(-2000px); }
-        }
-        .stars-small, .stars-medium, .stars-large {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          width: 10000px;
-          height: 100%;
-          background-repeat: repeat-x;
-        }
-        .stars-small {
-          background-image: radial-gradient(1px 1px at 20px 30px, #eee, transparent),
-                            radial-gradient(1px 1px at 100px 70px, #fff, transparent),
-                            radial-gradient(1px 1px at 200px 30px, #ddd, transparent);
-          animation: starfield 100s linear infinite;
-        }
-        .stars-medium {
-          background-image: radial-gradient(2px 2px at 50px 160px, #ddd, transparent),
-                            radial-gradient(2px 2px at 150px 20px, #fff, transparent);
-          animation: starfield 150s linear infinite;
-        }
-        .stars-large {
-          background-image: radial-gradient(3px 3px at 300px 100px, #fff semi-transparent, transparent);
-          animation: starfield 200s linear infinite;
-        }
-        .animate-pulse-slow {
-          animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-      `}</style>
     </div>
   )
 }
