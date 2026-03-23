@@ -407,7 +407,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-4 gap-4 mb-4">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
             {/* Left side: Full-width Hour Progress Card */}
             <div className="lg:col-span-3">
               {/* Blue Card - Hours Progress with Rocket - Now Full Width */}
@@ -575,7 +575,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Main Content Grid */}
-          <div className="grid lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Recent Applications */}
             <div className="lg:col-span-3">
               <Card className="shadow-sm">

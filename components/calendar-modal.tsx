@@ -191,13 +191,13 @@ export function CalendarModal({ children, applications = [] }: CalendarModalProp
 
                             {/* Next Month Padding to complete 42 cells (6 rows) */}
                             {Array.from({ length: 42 - (daysInMonth + firstDayOfMonth) }).map((_, i) => (
-                                <div key={`next-${i}`} className="min-h-[100px] bg-muted/5 rounded-xl border border-transparent" />
+                                <div key={`next-${i}`} className="min-h-[60px] sm:min-h-[100px] bg-muted/5 rounded-xl border border-transparent" />
                             ))}
                         </div>
                     </div>
 
                     {/* Right Column: Details & Edit */}
-                    <div className="w-full md:w-80 lg:w-96 bg-muted/10 p-6 flex flex-col h-full overflow-y-auto">
+                    <div className="hidden md:flex w-full md:w-80 lg:w-96 bg-muted/10 p-6 flex-col h-full overflow-y-auto">
                         <div className="mb-6">
                             <h3 className="font-semibold text-lg mb-1">
                                 {selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
