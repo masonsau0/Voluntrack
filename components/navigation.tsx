@@ -213,7 +213,7 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
       </div>
 
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-white/10 bg-black/90 backdrop-blur-xl">
+        <div className="md:hidden border-t border-blue-700 bg-blue-600 backdrop-blur-xl">
           <div className="px-4 py-6 space-y-4">
             {isAuthenticated && !isOrgView && (
               <>
