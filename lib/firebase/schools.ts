@@ -10,6 +10,7 @@ import {
     orderBy,
     serverTimestamp,
     writeBatch,
+    where,
 } from "firebase/firestore";
 import { db } from "./config";
 
@@ -18,6 +19,17 @@ export interface School {
     name: string;
     address: string;
     createdAt?: any;
+}
+
+/**
+ * Find a school by its name field (exact match). Returns null if not found.
+ */
+export async function getSchoolByName(name: string): Promise<School | null> {
+    const q = query(collection(db, "schools"), where("name", "==", name));
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) return null;
+    const d = snapshot.docs[0];
+    return { schoolId: d.id, ...d.data() } as School;
 }
 
 /**

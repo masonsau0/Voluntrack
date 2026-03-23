@@ -42,6 +42,8 @@ interface ReflectionModalProps {
   opportunityTitle: string
   organizationName: string
   onSuccess?: () => void
+  isEdit?: boolean
+  defaultValues?: { orgDescription: string; howHelped: string; whatLearned: string }
 }
 
 export function ReflectionModal({
@@ -51,18 +53,26 @@ export function ReflectionModal({
   opportunityTitle,
   organizationName,
   onSuccess,
+  isEdit = false,
+  defaultValues,
 }: ReflectionModalProps) {
   const { user } = useAuth()
   const [isSubmitting, setIsSubmitting] = React.useState(false)
 
   const form = useForm<ReflectionFormValues>({
     resolver: zodResolver(reflectionSchema),
-    defaultValues: {
+    defaultValues: defaultValues ?? {
       orgDescription: "",
       howHelped: "",
       whatLearned: "",
     },
   })
+
+  React.useEffect(() => {
+    if (open) {
+      form.reset(defaultValues ?? { orgDescription: "", howHelped: "", whatLearned: "" })
+    }
+  }, [open])
 
   async function onSubmit(values: ReflectionFormValues) {
     if (!user?.uid) {
@@ -73,7 +83,7 @@ export function ReflectionModal({
     setIsSubmitting(true)
     try {
       await submitReflection(user.uid, opportunityId, values)
-      toast.success("Reflection submitted! Thank you for sharing your experience.")
+      toast.success(isEdit ? "Reflection updated!" : "Reflection submitted! Thank you for sharing your experience.")
       form.reset()
       onOpenChange(false)
       onSuccess?.()
@@ -90,7 +100,7 @@ export function ReflectionModal({
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto rounded-2xl border-slate-200 shadow-xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-slate-800">
-            Reflect on Your Experience
+            {isEdit ? "Edit Your Reflection" : "Reflect on Your Experience"}
           </DialogTitle>
           <DialogDescription>
             Share your thoughts on <strong>{opportunityTitle}</strong> with{" "}
@@ -170,14 +180,14 @@ export function ReflectionModal({
                 onClick={() => onOpenChange(false)}
                 className="rounded-full px-6 border-slate-500 text-slate-900 font-semibold hover:bg-slate-300 hover:text-black hover:border-slate-600"
               >
-                Later
+                {isEdit ? "Cancel" : "Later"}
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting}
                 className="rounded-full px-6 bg-sky-600 hover:bg-sky-700 text-white shadow-md shadow-sky-200 transition-all hover:scale-[1.02]"
               >
-                {isSubmitting ? "Submitting..." : "Submit Reflection"}
+                {isSubmitting ? (isEdit ? "Saving..." : "Submitting...") : (isEdit ? "Save Changes" : "Submit Reflection")}
               </Button>
             </div>
           </form>

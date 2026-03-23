@@ -64,7 +64,9 @@ import { categoryColors, commitmentColors, defaultCategoryColor } from "@/lib/ui
 import { AddExternalOpportunityModal } from "@/components/add-external-opportunity-modal"
 import { ReportOpportunityModal } from "@/components/report-opportunity-modal"
 import { getHiddenOpportunityIds } from "@/lib/firebase/hidden-opportunities"
+import { getSchoolByName } from "@/lib/firebase/schools"
 import { OpportunityCard } from "@/components/opportunity-card"
+import { haversineDistance } from "@/lib/utils"
 
 const allCategories = [...CATEGORIES]
 const commitmentTypes = ["One-time", "Weekly", "Monthly"]
@@ -136,6 +138,7 @@ export default function OpportunitiesPage() {
   const [studentInterests, setStudentInterests] = useState<string[]>([])
   const [studentVolunteerFormat, setStudentVolunteerFormat] = useState<string>("no-preference")
   const [studentAvailability, setStudentAvailability] = useState<string>("any-time")
+  const [studentSchool, setStudentSchool] = useState<string>("")
   const [forYouActive, setForYouActive] = useState(false)
   const [reportTarget, setReportTarget] = useState<Opportunity | null>(null)
   const [applyTarget, setApplyTarget] = useState<Opportunity | null>(null)
@@ -156,6 +159,13 @@ export default function OpportunitiesPage() {
   const [searchFocused, setSearchFocused] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [showExternalOppModal, setShowExternalOppModal] = useState(false)
+
+  // Near my school filter
+  const [nearSchoolActive, setNearSchoolActive] = useState(false)
+  const [schoolGeoStatus, setSchoolGeoStatus] = useState<"idle" | "loading" | "ready" | "geocode-failed">("idle")
+  const [schoolCoords, setSchoolCoords] = useState<{ lat: number; lng: number } | null>(null)
+  const [schoolFilterAvailable, setSchoolFilterAvailable] = useState(false)
+  const [resolvedSchoolAddress, setResolvedSchoolAddress] = useState<string | null>(null)
 
   // Fetch all opportunities
   const fetchAllOpportunities = useCallback(async () => {
@@ -201,12 +211,51 @@ export default function OpportunitiesPage() {
         setStudentInterests(studentProfile?.interests ?? [])
         setStudentVolunteerFormat(studentProfile?.volunteerFormat ?? "no-preference")
         setStudentAvailability(studentProfile?.availability ?? "any-time")
+        setStudentSchool(studentProfile?.school ?? "")
       } catch (err) {
         console.error("Error fetching user data:", err)
       }
     }
     fetchUserData()
   }, [user?.uid])
+
+  // Pre-check: only show "Near my school" button when student has a school with an address in Firestore
+  useEffect(() => {
+    if (userProfile?.role !== "student" || !studentSchool) return
+    getSchoolByName(studentSchool).then(school => {
+      if (school?.address) {
+        setResolvedSchoolAddress(school.address)
+        setSchoolFilterAvailable(true)
+      }
+    }).catch(() => { /* silently hide button */ })
+  }, [userProfile?.role, studentSchool])
+
+  const resolveSchoolCoords = useCallback(async (): Promise<{ lat: number; lng: number } | null> => {
+    if (schoolCoords) return schoolCoords
+    if (!resolvedSchoolAddress) return null
+    setSchoolGeoStatus("loading")
+    const res = await fetch("/api/validate-location", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ address: resolvedSchoolAddress }),
+    }).catch(() => null)
+    if (!res?.ok) { setSchoolGeoStatus("geocode-failed"); return null }
+    const data = await res.json()
+    if (typeof data.lat !== "number" || typeof data.lng !== "number") {
+      setSchoolGeoStatus("geocode-failed"); return null
+    }
+    const coords = { lat: data.lat, lng: data.lng }
+    setSchoolCoords(coords)
+    setSchoolGeoStatus("ready")
+    return coords
+  }, [schoolCoords, resolvedSchoolAddress])
+
+  const toggleNearSchool = useCallback(async () => {
+    if (nearSchoolActive) { setNearSchoolActive(false); return }
+    setNearSchoolActive(true)
+    const coords = await resolveSchoolCoords()
+    if (!coords) setNearSchoolActive(false)
+  }, [nearSchoolActive, resolveSchoolCoords])
 
   const handleApply = async (
     opportunity: Opportunity,
@@ -357,6 +406,15 @@ export default function OpportunitiesPage() {
       })
     }
 
+    // Near my school filter (25 km radius)
+    const NEAR_SCHOOL_KM = 25
+    if (nearSchoolActive && schoolCoords) {
+      filtered = filtered.filter(opp =>
+        opp.lat != null && opp.lng != null &&
+        haversineDistance(schoolCoords.lat, schoolCoords.lng, opp.lat, opp.lng) <= NEAR_SCHOOL_KM
+      )
+    }
+
     // Sort
     switch (sortBy) {
       case "date":
@@ -380,7 +438,7 @@ export default function OpportunitiesPage() {
     }
 
     return filtered
-  }, [opportunities, hiddenIds, searchQuery, selectedCategories, selectedCommitments, selectedHours, selectedDateRange, sortBy])
+  }, [opportunities, hiddenIds, searchQuery, selectedCategories, selectedCommitments, selectedHours, selectedDateRange, sortBy, nearSchoolActive, schoolCoords])
 
   // Personalized "Experiences for You" based on student profile interests
   const personalizedOpportunities = useMemo(() => {
@@ -423,11 +481,18 @@ export default function OpportunitiesPage() {
       })
     }
 
+    if (nearSchoolActive && schoolCoords) {
+      list = list.filter(opp =>
+        opp.lat != null && opp.lng != null &&
+        haversineDistance(schoolCoords.lat, schoolCoords.lng, opp.lat, opp.lng) <= 25
+      )
+    }
+
     return list
       .map(opp => ({ opp, score: scoreOpportunity(opp, studentInterests, studentVolunteerFormat, studentAvailability) }))
       .filter(item => item.score > 0)
       .sort((a, b) => b.score - a.score)
-  }, [opportunities, hiddenIds, studentInterests, studentVolunteerFormat, studentAvailability, selectedCommitments, selectedHours, selectedDateRange])
+  }, [opportunities, hiddenIds, studentInterests, studentVolunteerFormat, studentAvailability, selectedCommitments, selectedHours, selectedDateRange, nearSchoolActive, schoolCoords])
 
   // Group by category
   const groupedByCategory = useMemo(() => {
@@ -478,6 +543,7 @@ export default function OpportunitiesPage() {
     setSelectedDateRange(undefined)
     setSearchQuery("")
     setSortBy("featured")
+    setNearSchoolActive(false)
   }
 
   // Handle sort change
@@ -485,7 +551,7 @@ export default function OpportunitiesPage() {
     setSortBy(e.target.value)
   }
 
-  const hasActiveFilters = selectedCategories.length > 0 || selectedCommitments.length > 0 || selectedHours.length > 0 || !!selectedDateRange?.from || searchQuery
+  const hasActiveFilters = selectedCategories.length > 0 || selectedCommitments.length > 0 || selectedHours.length > 0 || !!selectedDateRange?.from || searchQuery || nearSchoolActive
 
 
   // Scrollable row component
@@ -659,16 +725,16 @@ export default function OpportunitiesPage() {
             <div className="flex flex-col">
               {/* Top Row: Categories + Search (Right Aligned) */}
               <div className="flex items-center gap-4 py-1">
-                <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide flex-1">
+                <div className="flex items-center gap-0.5 sm:gap-1 flex-1 overflow-x-auto scrollbar-hide min-w-0">
                   {/* For You tab — only when logged in with interests */}
                   {studentInterests.length > 0 && (
                     <button
                       onClick={() => { setForYouActive(true); setSelectedCategories([]); setSearchQuery(""); }}
-                      className={`relative px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-1.5 ${
+                      className={`relative px-2.5 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-1 shrink-0 ${
                         forYouActive ? "text-gray-900" : "text-gray-400 hover:text-gray-700"
                       }`}
                     >
-                      <Sparkles className="w-3.5 h-3.5" />
+                      <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                       For You
                       {forYouActive && (
                         <span className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 z-10" />
@@ -678,7 +744,7 @@ export default function OpportunitiesPage() {
                   {/* All tab */}
                   <button
                     onClick={() => { setForYouActive(false); setSelectedCategories([]); setSearchQuery(''); setSelectedCommitments([]); setSelectedHours([]); setSelectedDateRange(undefined); }}
-                    className={`relative px-5 py-3 text-sm font-medium whitespace-nowrap rounded-lg transition-all duration-200 ${
+                    className={`relative px-2.5 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 text-xs sm:text-sm font-medium whitespace-nowrap rounded-lg transition-all duration-200 shrink-0 ${
                       !forYouActive && selectedCategories.length === 0 && !searchQuery
                         ? 'text-gray-900'
                         : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
@@ -693,7 +759,7 @@ export default function OpportunitiesPage() {
                     <button
                       key={category}
                       onClick={() => { setForYouActive(false); setSelectedCategories([category]); }}
-                      className={`relative px-5 py-3 text-sm font-medium whitespace-nowrap rounded-lg transition-all duration-200 ${
+                      className={`relative px-2.5 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-3 text-xs sm:text-sm font-medium whitespace-nowrap rounded-lg transition-all duration-200 shrink-0 ${
                         !forYouActive && selectedCategories.length === 1 && selectedCategories[0] === category
                           ? 'text-gray-900'
                           : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
@@ -809,6 +875,28 @@ export default function OpportunitiesPage() {
                     </PopoverContent>
                   </Popover>
                 </div>
+
+                {/* Near my school filter — students only */}
+                {schoolFilterAvailable && (
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">Location</span>
+                    <button
+                      onClick={toggleNearSchool}
+                      disabled={schoolGeoStatus === "loading"}
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-1.5 ${
+                        nearSchoolActive
+                          ? "bg-blue-600 text-white shadow-md"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-300 hover:text-gray-900 hover:shadow-sm"
+                      }`}
+                    >
+                      <MapPin className="w-3 h-3" />
+                      {schoolGeoStatus === "loading" ? "Locating..." : "Near My School"}
+                    </button>
+                    {!nearSchoolActive && schoolGeoStatus === "geocode-failed" && (
+                      <span className="text-[11px] text-red-500">Could not locate school</span>
+                    )}
+                  </div>
+                )}
 
                 {/* Right side buttons */}
                 <div className="flex items-center gap-2 ml-auto">

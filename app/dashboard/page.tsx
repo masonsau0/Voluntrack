@@ -43,6 +43,7 @@ import {
   Flag,
   Download,
   Bookmark,
+  Pencil,
 } from "lucide-react"
 import {
   getUserApplications,
@@ -53,6 +54,7 @@ import {
   UserApplication
 } from "@/lib/firebase/dashboard"
 import { submitReport } from "@/lib/firebase/reports"
+import { ReflectionModal } from "@/components/reflection-modal"
 import { toast } from "sonner"
 import { categoryColors, statusColors, defaultCategoryColor } from "@/lib/ui-config"
 import { generateVolunteerPDF } from "@/lib/pdf-generator"
@@ -154,6 +156,7 @@ export default function DashboardPage() {
   const [reportConcern, setReportConcern] = useState("")
   const [reportSubmitting, setReportSubmitting] = useState(false)
   const [withdrawConfirmApp, setWithdrawConfirmApp] = useState<UserApplication | null>(null)
+  const [editReflectionApp, setEditReflectionApp] = useState<UserApplication | null>(null)
   const [withdrawing, setWithdrawing] = useState(false)
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
   const completedOpportunitiesRef = useRef<HTMLDivElement>(null)
@@ -181,6 +184,10 @@ export default function DashboardPage() {
       setSavedOpps(userSaved)
       setStudentHours(studentProfile?.hoursCompleted ?? 0)
       setStudentBadges(studentProfile?.badges ?? [])
+      setSelectedApplication(prev => {
+        if (!prev) return prev
+        return userApps.find(a => a.id === prev.id) ?? prev
+      })
     } catch (error) {
       console.error("Error fetching dashboard data:", error)
       toast.error("Failed to load dashboard data.")
@@ -916,7 +923,20 @@ export default function DashboardPage() {
                 <div className="mb-6">
                   {selectedApplication.status === "completed" ? (
                     <>
-                      <h3 className="font-semibold text-slate-800 mb-2">Reflection</h3>
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="font-semibold text-slate-800">Reflection</h3>
+                        {selectedApplication.reflection && typeof selectedApplication.reflection !== "string" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditReflectionApp(selectedApplication)}
+                            className="text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-lg gap-1 h-7 px-2 text-xs"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                            Edit
+                          </Button>
+                        )}
+                      </div>
                       {selectedApplication.reflection ? (
                         typeof selectedApplication.reflection === "string" ? (
                           <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">
@@ -945,7 +965,15 @@ export default function DashboardPage() {
                           </div>
                         )
                       ) : (
-                        <p className="text-slate-500 italic">No reflection submitted.</p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setEditReflectionApp(selectedApplication)}
+                          className="text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-lg gap-1 px-2 text-xs"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          Add a Reflection
+                        </Button>
                       )}
                     </>
                   ) : (
@@ -1162,6 +1190,27 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Edit Reflection Modal */}
+      {editReflectionApp && (
+        <ReflectionModal
+          open={!!editReflectionApp}
+          onOpenChange={(open) => { if (!open) setEditReflectionApp(null) }}
+          opportunityId={editReflectionApp.opportunityId}
+          opportunityTitle={editReflectionApp.title}
+          organizationName={editReflectionApp.organization}
+          isEdit={!!(editReflectionApp.reflection && typeof editReflectionApp.reflection !== "string")}
+          defaultValues={
+            editReflectionApp.reflection && typeof editReflectionApp.reflection !== "string"
+              ? { ...(editReflectionApp.reflection as { orgDescription: string; howHelped: string; whatLearned: string }) }
+              : undefined
+          }
+          onSuccess={() => {
+            setEditReflectionApp(null)
+            fetchData()
+          }}
+        />
       )}
 
       {/* Saved Opportunity Detail Modal */}
