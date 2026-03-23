@@ -149,7 +149,7 @@ export function CalendarModal({ children, applications = [] }: CalendarModalProp
                         <div className="grid grid-cols-7 gap-2 auto-rows-fr">
                             {/* Previous Month Padding */}
                             {Array.from({ length: firstDayOfMonth }).map((_, i) => (
-                                <div key={`prev-${i}`} className="min-h-[100px] bg-muted/5 rounded-xl border border-transparent" />
+                                <div key={`prev-${i}`} className="min-h-[60px] sm:min-h-[100px] bg-muted/5 rounded-xl border border-transparent" />
                             ))}
 
                             {/* Current Month Days */}
@@ -164,7 +164,7 @@ export function CalendarModal({ children, applications = [] }: CalendarModalProp
                                     <button
                                         key={day}
                                         onClick={() => setSelectedDate(date)}
-                                        className={`min-h-[100px] flex flex-col rounded-xl border p-2 text-left relative transition-all hover:shadow-md ${isSelected ? "ring-2 ring-blue-500 border-blue-500 bg-blue-50" : "hover:bg-muted/50"
+                                        className={`min-h-[60px] sm:min-h-[100px] flex flex-col rounded-xl border p-2 text-left relative transition-all hover:shadow-md ${isSelected ? "ring-2 ring-blue-500 border-blue-500 bg-blue-50" : "hover:bg-muted/50"
                                             } ${isToday ? "bg-blue-50/50" : ""}`}
                                     >
                                         <span className={`text-sm font-semibold inline-flex w-7 h-7 items-center justify-center rounded-full mb-1 ${isToday ? "bg-blue-500 text-white" : "text-muted-foreground"}`}>

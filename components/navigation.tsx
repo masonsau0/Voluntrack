@@ -219,21 +219,21 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
               <>
                 <Link
                   href="/opportunities"
-                  className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  className="block text-base tracking-wider uppercase text-white/80 hover:text-white transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Opportunities
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  className="block text-base tracking-wider uppercase text-white/80 hover:text-white transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/feed"
-                  className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  className="block text-base tracking-wider uppercase text-white/80 hover:text-white transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Feed
@@ -244,33 +244,33 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
               <>
                 <Link
                   href="/org/dashboard"
-                  className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  className="block text-base tracking-wider uppercase text-white/80 hover:text-white transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/org/opportunities"
-                  className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                  className="block text-base tracking-wider uppercase text-white/80 hover:text-white transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Opportunities
                 </Link>
               </>
             )}
-            <div className="pt-4 border-t border-border flex flex-col gap-4">
+            <div className="pt-4 border-t border-white/10 flex flex-col gap-4">
               {isAuthenticated ? (
                 <>
                   <Link
                     href="/account"
-                    className="block text-base tracking-wider uppercase text-foreground/70 hover:text-foreground transition-colors"
+                    className="block text-base tracking-wider uppercase text-white/80 hover:text-white transition-colors"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     My account
                   </Link>
 
                   <button
-                    className="block text-base tracking-wider uppercase text-destructive font-medium transition-colors text-left w-full"
+                    className="block text-base tracking-wider uppercase text-red-400 font-medium transition-colors text-left w-full"
                     onClick={async () => {
                       setMobileMenuOpen(false)
                       await logout()
@@ -284,14 +284,14 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
                 <>
                   <Link
                     href="/login"
-                    className={`block text-base tracking-wider uppercase transition-colors ${pathname?.startsWith("/login") ? "text-primary font-semibold" : "text-foreground/70 hover:text-foreground"}`}
+                    className={`block text-base tracking-wider uppercase transition-colors ${pathname?.startsWith("/login") ? "text-white font-semibold" : "text-white/80 hover:text-white"}`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Log in
                   </Link>
                   <Link
                     href="/signup"
-                    className={`block text-base tracking-wider uppercase transition-colors ${pathname?.startsWith("/signup") ? "text-primary font-semibold" : "text-foreground/70 hover:text-foreground"}`}
+                    className={`block text-base tracking-wider uppercase transition-colors ${pathname?.startsWith("/signup") ? "text-white font-semibold" : "text-white/80 hover:text-white"}`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Sign up

@@ -611,8 +611,8 @@ export default function ApplicationsPage() {
 
                         {/* Mobile Filter Drawer */}
                         {showMobileFilters && (
-                            <div className="lg:hidden fixed inset-0 z-50 bg-black/50">
-                                <div className="absolute left-0 top-0 bottom-0 w-80 bg-white dark:bg-card p-6 overflow-y-auto">
+                            <div className="lg:hidden fixed inset-0 z-50 bg-black/50" onClick={() => setShowMobileFilters(false)}>
+                                <div className="absolute left-0 top-0 bottom-0 w-80 bg-white dark:bg-card p-6 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                                     <div className="flex items-center justify-between mb-4">
                                         <h2 className="font-semibold text-lg">Filters</h2>
                                         <button onClick={() => setShowMobileFilters(false)}>

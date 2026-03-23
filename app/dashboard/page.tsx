@@ -528,8 +528,8 @@ export default function DashboardPage() {
                       onMouseUp={handleMouseUp}
                       onMouseMove={handleMouseMove}
                       onMouseLeave={handleMouseLeave}
-                      className={`flex gap-4 overflow-x-auto pt-2 pb-2 scrollbar-hide ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
-                      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                      className={`flex gap-4 overflow-x-auto pt-2 pb-2 scrollbar-hide ${isDragging ? "sm:cursor-grabbing" : "sm:cursor-grab"}`}
+                      style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
                     >
                       {badges.map((badge) => {
                         const isEarned = studentBadges.includes(badge.id)

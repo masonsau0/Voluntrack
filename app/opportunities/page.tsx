@@ -575,7 +575,7 @@ export default function OpportunitiesPage() {
           {/* Left Arrow - Absolutely positioned on left edge */}
           <button
             onClick={goToPrev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center hover:bg-white/20 transition-colors"
+            className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg items-center justify-center hover:bg-white/20 transition-colors"
           >
             <ChevronLeft className="w-5 h-5 text-white" />
           </button>
@@ -583,7 +583,7 @@ export default function OpportunitiesPage() {
           {/* Right Arrow - Absolutely positioned on right edge */}
           <button
             onClick={goToNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center hover:bg-white/20 transition-colors"
+            className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg items-center justify-center hover:bg-white/20 transition-colors"
           >
             <ChevronRight className="w-5 h-5 text-white" />
           </button>

@@ -40,32 +40,32 @@ export function HorizontalProgressTracker({ completedHours, goalHours }: Horizon
   return (
     <div className="flex flex-col h-full relative overflow-hidden justify-center rounded-2xl">
       {/* Animated background starfield with parallax effect */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none bg-[#1a365d]/10 rounded-2xl">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none bg-[#1a365d]/10 rounded-2xl" style={{ contain: "paint" }}>
         <div className="stars-small animate-starfield-slow" />
         <div className="stars-medium animate-starfield-medium" />
         <div className="stars-large animate-starfield-fast" />
       </div>
 
       {/* Header Section */}
-      <div className="flex items-center justify-between mb-6 relative z-10 px-2 pt-2">
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/30 shadow-lg">
-              <Clock className="w-7 h-7 text-white" />
+      <div className="flex items-center justify-between mb-4 relative z-10 px-2 pt-2">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="relative shrink-0">
+            <div className="w-10 h-10 sm:w-14 sm:h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/30 shadow-lg">
+              <Clock className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
             </div>
 
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <p className="text-lg font-bold text-white flex items-center gap-2">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-sm sm:text-lg font-bold text-white">
                 Hours Progress
               </p>
-              <span className="px-2 py-0.5 rounded-full bg-white/20 text-xs font-medium text-white border border-white/20">
+              <span className="hidden sm:inline px-2 py-0.5 rounded-full bg-white/20 text-xs font-medium text-white border border-white/20">
                 {levelTitle}
               </span>
             </div>
             <p className="text-sm text-white/80 mt-1">
-              <span className="font-bold text-2xl text-white mr-1">{completedHours}</span>
+              <span className="font-bold text-xl sm:text-2xl text-white mr-1">{completedHours}</span>
               <span className="text-white/70">/ {goalHours} hours</span>
             </p>
           </div>
@@ -93,7 +93,7 @@ export function HorizontalProgressTracker({ completedHours, goalHours }: Horizon
       </div>
 
       {/* Progress Track - Enhanced */}
-      <div className="relative flex-1 flex items-center px-4">
+      <div className="relative flex-1 flex items-center pl-4 pr-10 sm:pr-10">
         <div className="relative w-full">
           {/* Track background with glow */}
           <div className="absolute inset-0 h-4 bg-black/20 rounded-full blur-sm" />
@@ -163,9 +163,9 @@ export function HorizontalProgressTracker({ completedHours, goalHours }: Horizon
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
-                      <div className="w-12 h-12 bg-gradient-to-br from-white to-blue-50 rounded-full flex items-center justify-center shadow-2xl border-2 border-white relative z-10 group">
+                      <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-white to-blue-50 rounded-full flex items-center justify-center shadow-2xl border-2 border-white relative z-10 group">
                         <div className="absolute inset-0 bg-blue-400/10 group-hover:bg-blue-400/20 transition-colors" />
-                        <Rocket className="w-6 h-6 text-blue-600 drop-shadow-sm group-hover:scale-110 transition-transform" />
+                        <Rocket className="w-4 h-4 sm:w-6 sm:h-6 text-blue-600 drop-shadow-sm group-hover:scale-110 transition-transform" />
                       </div>
                       {/* Hours Label above Rocket */}
                       <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm border border-blue-100 text-xs font-bold text-blue-600 whitespace-nowrap z-30">
@@ -190,14 +190,14 @@ export function HorizontalProgressTracker({ completedHours, goalHours }: Horizon
             </div>
 
             {/* Goal marker - Enhanced */}
-            <div className="absolute -right-2 top-1/2 -translate-y-1/2 z-10">
+            <div className="absolute right-0 sm:-right-2 top-1/2 -translate-y-1/2 z-10">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
                     <div className="relative group cursor-pointer">
                       <div className="absolute inset-0 w-16 h-16 -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 bg-yellow-400/20 rounded-full blur-xl group-hover:bg-yellow-400/40 transition-all duration-500" />
-                      <div className="w-14 h-14 bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-500 rounded-full flex items-center justify-center shadow-xl border-4 border-white/20 relative z-10 group-hover:scale-110 transition-transform duration-300">
-                        <Star className="w-7 h-7 text-white fill-white drop-shadow-md animate-pulse-slow" />
+                      <div className="w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-500 rounded-full flex items-center justify-center shadow-xl border-4 border-white/20 relative z-10 group-hover:scale-110 transition-transform duration-300">
+                        <Star className="w-5 h-5 sm:w-7 sm:h-7 text-white fill-white drop-shadow-md animate-pulse-slow" />
                       </div>
                       {/* Floating particles around star */}
                       <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-200 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
