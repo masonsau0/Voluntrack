@@ -275,6 +275,22 @@ export default function DashboardPage() {
     setIsDragging(false)
   }
 
+  const [touchStartX, setTouchStartX] = useState(0)
+  const [touchScrollLeft, setTouchScrollLeft] = useState(0)
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!badgesRef.current) return
+    setTouchStartX(e.touches[0].pageX)
+    setTouchScrollLeft(badgesRef.current.scrollLeft)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!badgesRef.current) return
+    const x = e.touches[0].pageX
+    const walk = touchStartX - x
+    badgesRef.current.scrollLeft = touchScrollLeft + walk
+  }
+
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear()
     const month = date.getMonth()
@@ -528,8 +544,10 @@ export default function DashboardPage() {
                       onMouseUp={handleMouseUp}
                       onMouseMove={handleMouseMove}
                       onMouseLeave={handleMouseLeave}
+                      onTouchStart={handleTouchStart}
+                      onTouchMove={handleTouchMove}
                       className={`flex gap-4 overflow-x-auto pt-2 pb-2 scrollbar-hide ${isDragging ? "sm:cursor-grabbing" : "sm:cursor-grab"}`}
-                      style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
+                      style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch", touchAction: "pan-x" }}
                     >
                       {badges.map((badge) => {
                         const isEarned = studentBadges.includes(badge.id)
