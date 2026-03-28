@@ -15,9 +15,10 @@ import { Loader2 } from "lucide-react"
 export function LoginForm({
   className,
   showSignUp = false,
+  showContactUs = false,
   redirectTo = "/dashboard",
   ...props
-}: React.ComponentProps<"div"> & { showSignUp?: boolean; redirectTo?: string }) {
+}: React.ComponentProps<"div"> & { showSignUp?: boolean; showContactUs?: boolean; redirectTo?: string }) {
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
   const [showPassword, setShowPassword] = React.useState(false)
@@ -151,6 +152,17 @@ export function LoginForm({
                     className="underline-offset-2 hover:underline text-primary font-medium font-serif"
                   >
                     Sign up
+                  </Link>
+                </div>
+              )}
+              {showContactUs && (
+                <div className="text-center text-sm pt-2">
+                  <span className="text-muted-foreground font-serif">To get started finding volunteers </span>
+                  <Link
+                    href="/contact"
+                    className="underline-offset-2 hover:underline text-primary font-medium font-serif"
+                  >
+                    contact us
                   </Link>
                 </div>
               )}

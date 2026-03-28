@@ -99,8 +99,8 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
               <>
                 <Link
                   href="/org/dashboard"
-                  className={`text-sm tracking-wider uppercase transition-all duration-300 ${pathname?.startsWith("/org/dashboard") 
-                    ? (forceWhite ? "text-blue-600 font-bold" : "text-white font-semibold") 
+                  className={`text-sm tracking-wider uppercase transition-all duration-300 ${pathname?.startsWith("/org/dashboard")
+                    ? (forceWhite ? "text-blue-600 font-bold" : "text-white font-semibold")
                     : (forceWhite ? "text-gray-600 hover:text-blue-600" : "text-white/70 hover:text-white")
                   }`}
                 >
@@ -108,14 +108,25 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
                 </Link>
                 <Link
                   href="/org/opportunities"
-                  className={`text-sm tracking-wider uppercase transition-all duration-300 ${pathname?.startsWith("/org/opportunities") 
-                    ? (forceWhite ? "text-blue-600 font-bold" : "text-white font-semibold") 
+                  className={`text-sm tracking-wider uppercase transition-all duration-300 ${pathname?.startsWith("/org/opportunities")
+                    ? (forceWhite ? "text-blue-600 font-bold" : "text-white font-semibold")
                     : (forceWhite ? "text-gray-600 hover:text-blue-600" : "text-white/70 hover:text-white")
                   }`}
                 >
                   Opportunities
                 </Link>
               </>
+            )}
+            {isAuthenticated && (
+              <Link
+                href="/contact"
+                className={`text-sm tracking-wider uppercase transition-all duration-300 font-medium ${pathname === "/contact"
+                  ? (forceWhite ? "text-blue-600 font-bold" : "text-white font-semibold")
+                  : (forceWhite ? 'text-slate-800 hover:text-blue-600 font-semibold' : 'text-white/70 hover:text-white')
+                }`}
+              >
+                Contact
+              </Link>
             )}
           </div>
 
@@ -257,6 +268,15 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
                   Opportunities
                 </Link>
               </>
+            )}
+            {isAuthenticated && (
+              <Link
+                href="/contact"
+                className="block text-base tracking-wider uppercase text-white/80 hover:text-white transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Contact
+              </Link>
             )}
             <div className="pt-4 border-t border-white/10 flex flex-col gap-4">
               {isAuthenticated ? (
