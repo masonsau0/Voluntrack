@@ -53,7 +53,7 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${navBgClass}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 md:h-20">
+        <div className="relative flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link href={isOrgView ? "/org/dashboard" : "/"} className="flex items-center group">
             <span className={`font-logo text-2xl md:text-3xl font-bold tracking-tight transition-colors duration-300 ${forceWhite ? 'text-gray-900' : 'text-white'}`}>
@@ -63,7 +63,7 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
             </span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-8">
             {isAuthenticated && !isOrgView && (
               <>
                 <Link
@@ -127,6 +127,28 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
               >
                 Contact
               </Link>
+            )}
+            {!isAuthenticated && (
+              <>
+                <Link
+                  href="/about"
+                  className={`text-sm tracking-wider uppercase transition-all duration-300 font-medium ${pathname === "/about"
+                    ? (forceWhite ? "text-blue-600 font-bold" : "text-white font-semibold")
+                    : (forceWhite ? 'text-slate-800 hover:text-blue-600 font-semibold' : 'text-white/70 hover:text-white')
+                  }`}
+                >
+                  About
+                </Link>
+                <Link
+                  href="/contact"
+                  className={`text-sm tracking-wider uppercase transition-all duration-300 font-medium ${pathname === "/contact"
+                    ? (forceWhite ? "text-blue-600 font-bold" : "text-white font-semibold")
+                    : (forceWhite ? 'text-slate-800 hover:text-blue-600 font-semibold' : 'text-white/70 hover:text-white')
+                  }`}
+                >
+                  Contact
+                </Link>
+              </>
             )}
           </div>
 
@@ -277,6 +299,24 @@ export function Navigation({ forceWhite = false }: NavigationProps) {
               >
                 Contact
               </Link>
+            )}
+            {!isAuthenticated && (
+              <>
+                <Link
+                  href="/about"
+                  className="block text-base tracking-wider uppercase text-white/80 hover:text-white transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  About
+                </Link>
+                <Link
+                  href="/contact"
+                  className="block text-base tracking-wider uppercase text-white/80 hover:text-white transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Contact
+                </Link>
+              </>
             )}
             <div className="pt-4 border-t border-white/10 flex flex-col gap-4">
               {isAuthenticated ? (

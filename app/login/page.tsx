@@ -169,6 +169,12 @@ export default function RoleSelectionPage() {
                 </div>
               </div>
             </div>
+            <div className="mt-10 text-center text-sm text-muted-foreground">
+              Want to learn more about what we do?{" "}
+              <Link href="/about" className="text-primary font-medium hover:underline underline-offset-2">
+                Learn more
+              </Link>
+            </div>
           </section>
         </div>
       </div>
