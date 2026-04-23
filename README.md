@@ -1,34 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Voluntrack
 
-## Getting Started
+Our capstone project! Voluntrack is a website that helps students find volunteer opportunities, track their hours, and get their volunteer work verified by schools and organizations.
 
-First, run the development server:
+## What it does
 
-```bash
+- Students can sign up, log in, and find volunteer opportunities near them
+- There's a map so you can see where everything is
+- You can log your hours and keep track of everything you've done
+- Schools and organizations can post opportunities and verify student hours
+- You can download a PDF of your hours when you need it (like for school requirements)
+- Email notifications so you don't miss anything
+- Some AI stuff using Google Gemini
+- Looks nice on phones and computers, has dark mode
+
+## Built with
+
+- Next.js 15 and React 19
+- TypeScript
+- Tailwind CSS for styling
+- Firebase for login and database stuff
+- Google Maps
+- Google Gemini for the AI features
+- Resend for sending emails
+- Jest for testing
+
+## How to run it
+
+You'll need Node.js installed first.
+
+1. Clone the repo:
+
+​```bash
+git clone https://github.com/masonsau0/Voluntrack.git
+cd Voluntrack
+​```
+
+2. Install everything:
+
+​```bash
+npm install
+​```
+
+3. Make a `.env.local` file in the main folder and put your keys in it:
+
+​```
+NEXT_PUBLIC_FIREBASE_API_KEY=your-key-here
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
+
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your-maps-key
+GOOGLE_GENAI_API_KEY=your-gemini-key
+RESEND_API_KEY=your-resend-key
+​```
+
+Check out `FIREBASE_SETUP.md` if you need help with the Firebase part.
+
+4. Start it up:
+
+​```bash
 npm run dev
-```
+​```
 
-**Important:** Use `npm run dev` (not `npm dev run`). When the server starts, it will show a URL like:
+## Folders
 
-- **http://127.0.0.1:3000** — or **http://127.0.0.1:3001** / **3002** if port 3000 is already in use.
+- `app/` — the pages
+- `components/` — reusable pieces (buttons, forms, etc.)
+- `contexts/` — stuff that's shared across the app (like login state)
+- `hooks/` — custom React hooks
+- `lib/` — Firebase setup and helper functions
+- `public/` — images and static files
+- `styles/` — CSS stuff
+- `docs/` — documentation
+- `__tests__/` — tests
 
-Open that exact URL in your browser. If the app doesn’t load, check the terminal for the correct port and use that.
+## Testing
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+We use Jest for tests. Just run:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+​```bash
+npm test
+​```
 
-## Learn More
+## Deploying
 
-To learn more about Next.js, take a look at the following resources:
+It's set up for Firebase Hosting. To deploy:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+​```bash
+npm run build
+firebase deploy
+​
