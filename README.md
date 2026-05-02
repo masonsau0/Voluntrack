@@ -2,6 +2,36 @@
 
 Our capstone project! Voluntrack is a website that helps students find volunteer opportunities, track their hours, and get their volunteer work verified by schools and organizations.
 
+## Demo videos
+
+End-to-end walkthrough of Voluntrack's two main user flows. Click either
+thumbnail to watch on YouTube.
+
+### Student experience
+
+Full walkthrough of the student-facing flow:
+
+- **Sign-up and onboarding**
+- The **Opportunities** page: browsing and discovering volunteer postings
+- The personal **Dashboard**
+- The activity **Feed**
+- **Applying** to volunteer opportunities
+- **Saving** opportunities to revisit later
+- **Reporting** and logging volunteer hours
+
+[![Voluntrack: student experience demo](https://img.youtube.com/vi/HeRixfa3pZo/maxresdefault.jpg)](https://www.youtube.com/watch?v=HeRixfa3pZo)
+
+### Organization experience
+
+Walks through every page and function on the organization side
+(opportunity creation, listing management, applicant review, and
+contribution tracking), then closes with an **end-to-end application
+demo**: the video flips between a student applying and the organization
+accepting in real time, confirming the Firestore backend wires both
+flows together live.
+
+[![Voluntrack: organization experience demo](https://img.youtube.com/vi/RQ8vXp6XdRo/maxresdefault.jpg)](https://www.youtube.com/watch?v=RQ8vXp6XdRo)
+
 ## What it does
 
 - Students can sign up, log in, and find volunteer opportunities near them
